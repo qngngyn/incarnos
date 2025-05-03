@@ -286,7 +286,7 @@ export class IncarnosItem extends Item {
         const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
         const powerdmg = rollData.abilities.dex.value/2;;
         const rollDmg = await new Roll(`${dmg}+${powerdmg}`, rollData).evaluate();
-        const text = `<br>Attack (Power - Melee):
+        const text = `<br>Attack (Power - Strength):
         <br>Spends ${ap} AP with ${advnum}x ${advtype}
         <br>This attack deals additional damage depending on your Dexterity`
         await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
@@ -308,7 +308,7 @@ export class IncarnosItem extends Item {
         const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
         const powerdmg = rollData.abilities.str.value/2;
         const rollDmg = await new Roll(`${dmg}+${powerdmg}`, rollData).evaluate();
-        const text = `<br>Attack (Power - Ranged):
+        const text = `<br>Attack (Power - Dexterity):
         <br>Spends ${ap} AP with ${advnum}x ${advtype}
         <br>This attack deals additional damage depending on your Strength`
         await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
