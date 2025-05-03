@@ -1,0 +1,26 @@
+{
+  "INCARNOS.AbilityStr": "Strength",
+  "INCARNOS.AbilityCon": "Constitution",
+  "INCARNOS.AbilityDex": "Dexterity",
+  "INCARNOS.AbilityInt": "Intelligence",
+  "INCARNOS.AbilityWis": "Willpower",
+  "INCARNOS.AbilityPrc": "Perception",
+  "INCARNOS.AbilitySpd": "Speed",
+  "INCARNOS.AbilityCha": "Charisma",
+
+  "INCARNOS.AbilityStrAbbr": "str",
+  "INCARNOS.AbilityConAbbr": "con",
+  "INCARNOS.AbilityDexAbbr": "dex",
+  "INCARNOS.AbilityIntAbbr": "int",
+  "INCARNOS.AbilityWisAbbr": "wil",
+  "INCARNOS.AbilityPrcAbbr": "prc",
+  "INCARNOS.AbilitySpdAbbr": "spd",
+  "INCARNOS.AbilityChaAbbr": "cha",
+
+  "INCARNOS.EffectCreate": "Create Effect",
+  "INCARNOS.EffectToggle": "Toggle Effect",
+  "INCARNOS.EffectEdit": "Edit Effect",
+  "INCARNOS.EffectDelete": "Delete Effect",
+
+  "INCARNOS.Add": "Add"
+}
