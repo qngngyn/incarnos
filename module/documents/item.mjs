@@ -152,7 +152,7 @@ export class IncarnosItem extends Item {
                   rollAttackRelentless(form.advtype, form.advnum, rollData.item.hands)
                   break
                 }
-                case "Attack (Relentless)": {
+                case "Attack (Crazed)": {
                   rollAttackCrazed(form.advtype, form.advnum, rollData.item.hands)
                   break
                 }

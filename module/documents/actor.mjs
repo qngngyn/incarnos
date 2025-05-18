@@ -58,8 +58,8 @@ export class IncarnosActor extends Actor {
     systemData.power.max = 2*abilityScore.wis.value + abilityScore.int.value + powerbonus
 
     // Set Parry
-    const parrybonus = attributeScore.parry.bonus
-    attributeScore.parry.value = Math.floor((2*abilityScore.prc.value + abilityScore.dex.value)/3) + parrybonus
+    // const parrybonus = attributeScore.parry.bonus
+    // attributeScore.parry.value = Math.floor((2*abilityScore.prc.value + abilityScore.dex.value)/3) + parrybonus
 
     // Set Movementspeed
     const movementbonus = attributeScore.movement.bonus
