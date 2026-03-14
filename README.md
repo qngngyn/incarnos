@@ -8,6 +8,7 @@ Incarnos is built in Foundry VTT: a Virtual Table Top (VTT), that is used to pla
 Full Documentation will be found in the docs-folder.
 The Table of Content is as followed:
 
-
-
-# incarnos
+1. Introduction
+2. Goals
+3. Humble Beginnings
+4. Beginning to understand
