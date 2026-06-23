@@ -1,6 +1,6 @@
-<form class="{{cssClass}}" autocomplete="off">
+<section class="{{cssClass}}">
   <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
     <div class="header-fields">
       <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
@@ -8,22 +8,28 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="attributes">Attributes</a>
+    <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
+    <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
   </nav>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
 
     {{!-- Description Tab --}}
-    <div class="tab" data-group="primary" data-tab="description">
-      {{editor system.description target="system.description" rollData=rollData button=true owner=owner editable=editable}}
+    <div class="tab {{tabs.description.cssClass}}" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">
+      {{#if editable}}
+        <prose-mirror name="system.description" button="true" editable="{{editable}}" toggled="false" value="{{system.description}}">
+          {{{descriptionHTML}}}
+        </prose-mirror>
+      {{else}}
+        {{{descriptionHTML}}}
+      {{/if}}
     </div>
 
     {{!-- Attributes Tab --}}
-    <div class="tab attributes" data-group="primary" data-tab="attributes">
+    <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
       {{!-- As you add new fields, add them in here! --}}
     </div>
   </section>
 
-</form>
+</section>

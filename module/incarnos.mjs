@@ -38,11 +38,15 @@ Hooks.once('init', async function() {
   CONFIG.Actor.documentClass = IncarnosActor;
   CONFIG.Item.documentClass = IncarnosItem;
 
-  // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("incarnos", IncarnosActorSheet, { makeDefault: true });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("incarnos", IncarnosItemSheet, { makeDefault: true });
+  // Register sheet application classes.
+  Actors.registerSheet("incarnos", IncarnosActorSheet, {
+    types: ["character", "npc"],
+    makeDefault: true
+  });
+  Items.registerSheet("incarnos", IncarnosItemSheet, {
+    types: ["item", "weapon", "feature", "spell"],
+    makeDefault: true
+  });
 
   // Preload Handlebars templates.
   return preloadHandlebarsTemplates();

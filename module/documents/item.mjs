@@ -1,341 +1,412 @@
 /**
- * Extend the basic Item with some very simple modifications.
+ * Extend the basic Item with Incarnos-specific roll behavior.
  * @extends {Item}
  */
 export class IncarnosItem extends Item {
-  /**
-   * Augment the basic Item data model with additional dynamic data.
-   */
+  /** @inheritDoc */
   prepareData() {
-    // As with the actor class, items are documents that can have their data
-    // preparation methods overridden (such as prepareBaseData()).
     super.prepareData();
   }
 
   /**
-   * Prepare a data object which is passed to any Roll formulas which are created related to this Item
-   * @private
+   * Prepare data for rolls made by this Item.
+   * @returns {object|null}
    */
   getRollData() {
-    // If present, return the actor's roll data.
     if (!this.actor) return null;
-    const rollData = this.actor.getRollData();
-    // Grab the item's system data as well.
-    rollData.item = foundry.utils.deepClone(this.system);
 
+    const rollData = this.actor.getRollData();
+    rollData.item = foundry.utils.deepClone(this.system);
     return rollData;
   }
 
   /**
-   * Handle clickable rolls.
-   * @param {Event} event   The originating click event
-   * @private
+   * Handle item rolls.
+   * @returns {Promise<Roll|void>}
    */
   async roll() {
     const item = this;
-
-    // Initialize chat data.
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
-    const rollMode = game.settings.get('core', 'rollMode');
-    const label = `<b>${item.name}</b>
-    <i>${item.system.description}</i>`;
+    const rollMode = game.settings.get("core", "rollMode");
+    const label = `<b>${item.name}</b><br><i>${item.system.description ?? ""}</i>`;
 
-    // If there's no roll data, send a chat message.
-    if (!this.system.formula) {
-      ChatMessage.create({
-        speaker: speaker,
-        rollMode: rollMode,
+    const damageFormula = getWeaponDamageFormula(item);
+
+    if (!damageFormula) {
+      await ChatMessage.create({
+        speaker,
+        rollMode,
         flavor: label,
-        content: item.system.description ?? ''
+        content: item.system.description ?? ""
       });
+      return;
     }
-    // Otherwise, create a roll and send a chat message from it.
-    else {
-      if (this.type !== "weapon") {
-        // Retrieve roll data.
-        const rollData = this.getRollData();
-        new Roll('1d20').toMessage({
-          speaker: speaker,
-          rollMode: rollMode,
-          flavor: label,
-        });
-        // Invoke the roll and submit it to chat.
-        const roll = new Roll(rollData.item.formula, rollData);
-        // If you need to store the value first, uncomment the next line.
-        // let result = await roll.roll({async: true});
-        roll.toMessage({
-          speaker: speaker,
-          rollMode: rollMode,
-          flavor: "Damage",
-        });
-        return roll;
-      }
-      const flavor = label
-      const rollData = this.getRollData();
-      const dmg = rollData.item.formula
 
-      const attacktype = ["Attack", "Attack (Quick)", "Attack (Precision)", "Attack (Fury)", "Attack (Relentless)", "Attack (Crazed)", "Attack (Power - Melee)", "Attack (Power - Ranged)", "Attack (Feint)"];
-      const attacktypeSelected = "Attack";
-      const atktypeoptions = attacktype.reduce((acc, e) => acc + `<option value="${e}" ${e === attacktypeSelected ? "attacktypeSelected" : ""}>${e}</option>`, "");
+    if (this.type !== "weapon") {
+      const rollData = this.getRollData() ?? { item: foundry.utils.deepClone(this.system) };
 
-      const advantage = ["Normal", "Advantage", "Disadvantage"];
-      const advSelected = "Normal";
-      const advoptions = advantage.reduce((acc, e) => acc + `<option value="${e}" ${e === advSelected ? "advSelected" : ""}>${e}</option>`, "");
+      await new Roll("1d20").toMessage({
+        speaker,
+        rollMode,
+        flavor: label
+      });
 
-      new Dialog({
-        title: "Choose your attack",
-        content: `
-            <form>
-              <fieldset><legend>Attack action</legend>
-                <div class="form-group">
-                  <label>Type of attack</label>
-                  <select name="atk">
-                    ${atktypeoptions}
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Advantage</label>
-                  <select name="advtype">
-                    ${advoptions}
-                  </select>
-                  <input name="advnum" type="number" class="auto-select" value=0 min=0 step=1 />
-                </div>
-              </fieldset>
-              <script>
-                (function() {
-                  // Auto-select number inputs on focus
-                  document.querySelectorAll('.auto-select').forEach(input => {
-                    input.addEventListener('focus', function () {
-                      this.select();
-                    });
-                  });
-
-                  const advSelect = document.querySelector('select[name="advtype"]');
-                  const advInput = document.querySelector('input[name="advnum"]');
-
-                  if (advSelect && advInput) {
-                    advSelect.addEventListener('change', () => {
-                      const selected = advSelect.value;
-                      if (selected !== 'Normal') {
-                        advInput.value = 1;
-                      } else {
-                        advInput.value = 0;
-                      }
-                    });
-                  }
-                })();
-              </script>
-            </form>`,
-        buttons: {
-          ok: {
-            label: "Roll",
-            callback: html => {
-              const form = new FormDataExtended(html[0].querySelector("form")).object;
-              switch (form.atk) {
-                case "Attack": {
-                  rollAttack(form.advtype, form.advnum, rollData.item.hands)
-                  break
-                }
-                case "Attack (Quick)": {
-                  rollAttackQuick(form.advtype, form.advnum, rollData.item.hands)
-                  break
-                }
-                case "Attack (Precision)": {
-                  rollAttackPrecision(form.advtype, form.advnum, rollData.item.hands)
-                  break
-                }
-                case "Attack (Fury)": {
-                  rollAttackFury(form.advtype, form.advnum, rollData.item.hands)
-                  break
-                }
-                case "Attack (Relentless)": {
-                  rollAttackRelentless(form.advtype, form.advnum, rollData.item.hands)
-                  break
-                }
-                case "Attack (Crazed)": {
-                  rollAttackCrazed(form.advtype, form.advnum, rollData.item.hands)
-                  break
-                }
-                case "Attack (Power - Melee)": {
-                  rollAttackPowerMelee(form.advtype, form.advnum, rollData.item.hands);
-                  break;
-                }
-                case "Attack (Power - Ranged)": {
-                  rollAttackPowerRanged(form.advtype, form.advnum, rollData.item.hands);
-                  break;
-                }
-                case "Attack (Feint)": {
-                  rollAttackFeint(form.advtype, form.advnum, rollData.item.hands);
-                  break;
-                }
-              }
-            }
-          },
-          cancel: {
-            label: "Cancel"
-          }
-        }
-      }).render(true);
-
-      function calculateAdvantageDice(advtype, advnum, difference) {
-        let adv = ''
-        if (advtype == "Disadvantage") {
-          advnum *= -1;
-        }
-        let calc;
-        if (advtype != "Normal") {
-          calc = advnum + difference
-        } else {
-          calc = difference
-        }
-        if (calc < 0) {
-          adv = 'kh';
-          calc *= -1;
-        } else if (calc > 0) {
-          adv = 'kl';
-        }
-        calc += 1;
-        return `${calc}d20${adv}`
-      }
-
-      async function rollAttack(advtype, advnum, numHands) {
-        const ap = 1*numHands
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
-        const rollDmg = await new Roll(dmg, rollData).evaluate();
-        const text = `<br>Attack:
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This is a normal Strength (melee) or Dexterity (ranged) attack`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackQuick(advtype, advnum, numHands) {
-        const ap = 1*numHands
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
-        const rollDmg = await new Roll(dmg, rollData).evaluate();
-        const text = `<br>Attack (Quick):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This is a special Speed (melee or ranged) attack`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackPrecision(advtype, advnum, numHands) {
-        const ap = 2*numHands
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 1), rollData).evaluate();
-        const rollDmg = await new Roll(dmg, rollData).evaluate();
-        const text = `<br>Attack (Precision):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack is advantaged`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackFury(advtype, advnum, numHands) {
-        const ap = 2*numHands
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, -1), rollData).evaluate();
-        function replaceNumberInString(str, newNumber) {
-          return str.replace(/^\d+/, newNumber);
-        }
-        const furydmg = replaceNumberInString(dmg, 2);
-        const rollDmg = await new Roll(furydmg, rollData).evaluate();
-        const text = `<br>Attack (Fury):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack is disadvantaged but deals double damage`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackRelentless(advtype, advnum, numHands) {
-        const ap = 2*numHands
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, -1), rollData).evaluate();
-        function replaceNumberInString(str, newNumber) {
-          return str.replace(/^\d+/, newNumber);
-        }
-        const relentlessdmg = replaceNumberInString(dmg, 2);
-        const rollDmg = await new Roll(relentlessdmg, rollData).evaluate();
-        const text = `<br>Attack (Relentless):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack is advantaged at the cost of disadvantaged parries until the next turn`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackCrazed(advtype, advnum, numHands) {
-        const ap = 2*numHands
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
-        function replaceNumberInString(str, newNumber) {
-          return str.replace(/^\d+/, newNumber);
-        }
-        const crazeddmg = replaceNumberInString(dmg, 4);
-        const rollDmg = await new Roll(crazeddmg, rollData).evaluate();
-        const text = `<br>Attack (Crazed):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack deals massive damage at the cost of inflicting the same amount to yourself`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackPowerMelee(advtype, advnum, numHands) {
-        const ap = 3*numHands
-        if (ap>4) {
-          await foundry.applications.api.DialogV2.prompt({
-            window: { title: "You exceed the AP cost" },
-            content: `Only 1 handed weapons can use this attack.
-            <br>Please choose other weapons or attacks.`,
-            ok: {
-              label: "Ok"
-            }
-          });
-          return
-        }
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
-        const powerdmg = rollData.abilities.dex.value/2;;
-        const rollDmg = await new Roll(`${dmg}+${powerdmg}`, rollData).evaluate();
-        const text = `<br>Attack (Power - Strength):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack deals additional damage depending on your Dexterity`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackPowerRanged(advtype, advnum, numHands) {
-        const ap = 3*numHands
-        if (ap>4) {
-          await foundry.applications.api.DialogV2.prompt({
-            window: { title: "You exceed the AP cost" },
-            content: `Only 1 handed weapons can use this attack.
-            <br>Please choose other weapons or attacks.`,
-            ok: {
-              label: "Ok"
-            }
-          });
-          return
-        }
-        const rollHit = await new Roll(calculateAdvantageDice(advtype, advnum, 0), rollData).evaluate();
-        const powerdmg = rollData.abilities.str.value/2;
-        const rollDmg = await new Roll(`${dmg}+${powerdmg}`, rollData).evaluate();
-        const text = `<br>Attack (Power - Dexterity):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack deals additional damage depending on your Strength`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
-
-      async function rollAttackFeint(advtype, advnum, numHands) {
-        const ap = 3*numHands
-        if (ap>4) {
-          await foundry.applications.api.DialogV2.prompt({
-            window: { title: "You exceed the AP cost" },
-            content: `Only 1 handed weapons can use this attack.
-            <br>Please choose other weapons or attacks.`,
-            ok: {
-              label: "Ok"
-            }
-          });
-          return
-        }
-        const feintbonus = rollData.abilities.int.value/2;
-        const hit = calculateAdvantageDice(advtype, advnum, 0)
-        const rollHit = await new Roll(`${hit}-${feintbonus}`, rollData).evaluate();
-        const rollDmg = await new Roll(dmg, rollData).evaluate();
-        const text = `<br>Attack (Feint):
-        <br>Spends ${ap} AP with ${advnum}x ${advtype}
-        <br>This attack gains on accuracy`
-        await ChatMessage.create({ speaker: speaker, flavor: flavor + text, rolls: [rollHit, rollDmg], type: CONST.CHAT_MESSAGE_TYPES.ROLL });
-      }
+      const roll = new Roll(damageFormula, rollData);
+      await roll.toMessage({
+        speaker,
+        rollMode,
+        flavor: "Damage"
+      });
+      return roll;
     }
+
+    const rollData = this.getRollData();
+    if (!rollData) {
+      return ui.notifications.warn("Weapon attacks must be rolled from an owned item on an actor.");
+    }
+
+    const form = await promptWeaponAttack(item);
+    if (!form) return;
+
+    return rollWeaponAttackAction({
+      item,
+      rollData,
+      speaker,
+      rollMode,
+      flavor: label,
+      attackId: form.attackId,
+      mode: form.mode,
+      stat: form.stat,
+      advantageType: form.advantageType,
+      advantageCount: form.advantageCount,
+      parryModifiers: form.parryModifiers
+    });
   }
+}
+
+/**
+ * Return the weapon's effective attack modes.
+ * A missing attackMode is treated as melee so old weapons continue to work.
+ * A versatile weapon can attack in both melee and ranged modes.
+ *
+ * @param {Item} item
+ * @returns {string[]}
+ */
+export function getWeaponAttackModes(item) {
+  const configuredMode = item?.system?.attackMode || "melee";
+  const baseMode = CONFIG.INCARNOS?.weaponModes?.[configuredMode] ? configuredMode : "melee";
+  return item?.system?.versatile ? ["melee", "ranged"] : [baseMode];
+}
+
+/**
+ * Return the attack actions that are available for a weapon.
+ *
+ * @param {Item} item
+ * @returns {object[]}
+ */
+export function getAvailableAttackActions(item) {
+  const weaponModes = getWeaponAttackModes(item);
+  const attackActions = Object.values(CONFIG.INCARNOS?.attackActions ?? {});
+  return attackActions.filter(action => action.modes.some(mode => weaponModes.includes(mode)));
+}
+
+/**
+ * Roll one system-wide attack action using weapon-specific data.
+ * This is the main function to extend later when you add more attack types.
+ *
+ * @param {object} params
+ * @param {Item} params.item                         The weapon item being rolled.
+ * @param {object} params.rollData                   Actor/item roll data.
+ * @param {object} params.speaker                    Chat speaker data.
+ * @param {string} params.rollMode                   Foundry roll mode.
+ * @param {string} params.flavor                     Base chat flavor.
+ * @param {string} params.attackId                   ID from CONFIG.INCARNOS.attackActions.
+ * @param {"melee"|"ranged"} params.mode            Whether this attack is used as melee or ranged.
+ * @param {string|null} params.stat                  Optional stat choice for attacks such as Weave.
+ * @param {"Normal"|"Advantage"|"Disadvantage"} params.advantageType
+ * @param {number} params.advantageCount
+ * @param {number[]} params.parryModifiers           One or more target parry modifiers.
+ * @returns {Promise<Roll[]|void>}
+ */
+export async function rollWeaponAttackAction({
+  item,
+  rollData,
+  speaker,
+  rollMode,
+  flavor,
+  attackId,
+  mode,
+  stat = null,
+  advantageType = "Normal",
+  advantageCount = 0,
+  parryModifiers = [0]
+} = {}) {
+  const attack = CONFIG.INCARNOS?.attackActions?.[attackId];
+  if (!attack) return ui.notifications.warn(`Unknown attack action: ${attackId}`);
+
+  const allowedWeaponModes = getWeaponAttackModes(item);
+  if (!allowedWeaponModes.includes(mode)) {
+    return ui.notifications.warn(`${item.name} cannot be used as a ${mode} weapon.`);
+  }
+
+  if (!attack.modes.includes(mode)) {
+    return ui.notifications.warn(`${attack.name} cannot be used with ${mode} attacks.`);
+  }
+
+  const selectedStat = resolveAttackStat(attack, mode, stat);
+  if (!selectedStat) {
+    return ui.notifications.warn(`${attack.name} needs a valid attack stat.`);
+  }
+
+  const targetParryModifiers = (attack.multiTarget ? parryModifiers : [parryModifiers[0] ?? 0]).map(Number);
+  const abilityValue = getAbilityValue(rollData, selectedStat);
+  const weaponModifier = Number(item.system?.modifier ?? 0);
+  const threshold = abilityValue + weaponModifier;
+  const hitFormula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
+  const damageFormula = getAttackDamageFormula(item, attack);
+
+  const rolls = [];
+  const resultLines = [];
+
+  for (let i = 0; i < targetParryModifiers.length; i++) {
+    const parryModifier = attack.parry?.apply === false ? 0 : Number(targetParryModifiers[i] ?? 0);
+    const hitRoll = await new Roll(hitFormula, rollData).evaluate({ async: true });
+    rolls.push(hitRoll);
+
+    const keptD20 = getKeptD20Result(hitRoll);
+    const modifiedRoll = keptD20 + parryModifier;
+    const criticalSuccess = hasKeptD20Result(hitRoll, 1);
+    const criticalFailure = hasKeptD20Result(hitRoll, 20);
+    const success = criticalSuccess || (!criticalFailure && modifiedRoll <= threshold);
+
+    let damageRoll = null;
+    if (success && damageFormula) {
+      damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
+      rolls.push(damageRoll);
+    }
+
+    resultLines.push(formatAttackTargetResult({
+      index: i,
+      showIndex: targetParryModifiers.length > 1,
+      attack,
+      hitRoll,
+      keptD20,
+      parryModifier,
+      modifiedRoll,
+      threshold,
+      criticalSuccess,
+      criticalFailure,
+      success,
+      damageRoll
+    }));
+  }
+
+  const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
+  const abilityLabel = getAbilityLabel(selectedStat);
+  const notes = attack.notes?.length ? `<br><b>Notes:</b><ul>${attack.notes.map(note => `<li>${note}</li>`).join("")}</ul>` : "";
+  const parryText = attack.parry?.apply === false ? "Ignored" : targetParryModifiers.join(", ");
+  const advantageText = attack.roll?.allowAdvantage === false ? "None; this attack cannot benefit from advantage" : `${advantageCount}x ${advantageType}`;
+
+  const text = `<br><b>${attack.name}</b>
+    <br><b>Cost:</b> ${attack.cost} AP
+    <br><b>Mode:</b> ${modeLabel}
+    <br><b>Stat:</b> ${abilityLabel} (${abilityValue})
+    <br><b>Weapon Modifier:</b> ${formatSignedNumber(weaponModifier)}
+    <br><b>Success Threshold:</b> ${threshold}
+    <br><b>Parry Modifier(s):</b> ${parryText}
+    <br><b>Advantage:</b> ${advantageText}
+    <br><b>Damage Formula:</b> ${damageFormula ?? "None"}
+    ${notes}
+    <hr>${resultLines.join("<hr>")}`;
+
+  const chatData = {
+    user: game.user.id,
+    speaker,
+    flavor: flavor + text,
+    content: "",
+    rolls: rolls.map(roll => roll.toJSON()),
+    style: CONST.CHAT_MESSAGE_STYLES.ROLL,
+    sound: CONFIG.sounds.dice
+  };
+
+  ChatMessage.applyMode(chatData, rollMode);
+  await ChatMessage.create(chatData);
+
+  return rolls;
+}
+
+/**
+ * Show the attack prompt and collect parameters required by rollWeaponAttackAction.
+ *
+ * @param {Item} item
+ * @returns {Promise<object|null>}
+ */
+async function promptWeaponAttack(item) {
+  const attacks = getAvailableAttackActions(item);
+  if (!attacks.length) {
+    ui.notifications.warn(`${item.name} has no available attack actions.`);
+    return null;
+  }
+
+  const weaponModes = getWeaponAttackModes(item);
+  const attackOptions = attacks.map(attack => `<option value="${attack.id}">${attack.name}</option>`).join("");
+  const modeOptions = weaponModes.map(mode => `<option value="${mode}">${CONFIG.INCARNOS.weaponModes[mode] ?? mode}</option>`).join("");
+  const statOptions = ["int", "cha"].map(stat => `<option value="${stat}">${getAbilityLabel(stat)}</option>`).join("");
+  const advantageOptions = ["Normal", "Advantage", "Disadvantage"].map(type => `<option value="${type}">${type}</option>`).join("");
+  const modifier = Number(item.system?.modifier ?? 0);
+
+  const form = await foundry.applications.api.DialogV2.prompt({
+    window: { title: "Choose your attack" },
+    content: `
+      <fieldset>
+        <legend>Attack action</legend>
+        <div class="form-group">
+          <label>Type of attack</label>
+          <select name="attackId">${attackOptions}</select>
+        </div>
+        <div class="form-group">
+          <label>Use weapon as</label>
+          <select name="mode">${modeOptions}</select>
+        </div>
+        <div class="form-group">
+          <label>Stat for attacks that allow a choice</label>
+          <select name="stat">${statOptions}</select>
+          <p class="hint">Currently used by Weave. Normal weapon attacks use Str for melee or Dex for ranged.</p>
+        </div>
+        <div class="form-group">
+          <label>Target Parry Modifier(s)</label>
+          <input name="parryModifiers" type="text" class="auto-select" value="0" />
+          <p class="hint">Use one number, or comma-separated numbers for multi-target attacks such as Cleave. Example: 0, +2, -1</p>
+        </div>
+        <div class="form-group">
+          <label>Weapon Modifier</label>
+          <input type="number" value="${modifier}" disabled />
+          <p class="hint">This comes from the weapon sheet and changes the success threshold.</p>
+        </div>
+        <div class="form-group">
+          <label>Advantage</label>
+          <select name="advantageType">${advantageOptions}</select>
+          <input name="advantageCount" type="number" class="auto-select" value="0" min="0" step="1" />
+        </div>
+      </fieldset>`,
+    ok: {
+      label: "Roll",
+      callback: (event, button) => ({
+        attackId: button.form.elements.attackId.value,
+        mode: button.form.elements.mode.value,
+        stat: button.form.elements.stat.value,
+        parryModifiers: parseNumberList(button.form.elements.parryModifiers.value),
+        advantageType: button.form.elements.advantageType.value,
+        advantageCount: Number(button.form.elements.advantageCount.value || 0)
+      })
+    },
+    rejectClose: false,
+    modal: true
+  });
+
+  return form;
+}
+
+function resolveAttackStat(attack, mode, chosenStat) {
+  if (attack.statChoices?.length) {
+    return attack.statChoices.includes(chosenStat) ? chosenStat : attack.statChoices[0];
+  }
+  return attack.statByMode?.[mode] ?? attack.stat ?? null;
+}
+
+function getAbilityValue(rollData, stat) {
+  return Number(foundry.utils.getProperty(rollData, `abilities.${stat}.value`) ?? foundry.utils.getProperty(rollData, `${stat}.value`) ?? 0);
+}
+
+function getAbilityLabel(stat) {
+  const key = CONFIG.INCARNOS?.abilityAbbreviations?.[stat] ?? CONFIG.INCARNOS?.abilities?.[stat];
+  return key ? game.i18n.localize(key) : stat.toUpperCase();
+}
+
+function getWeaponDamageFormula(item) {
+  return item.system?.damage || item.system?.formula || null;
+}
+
+function getAttackDamageFormula(item, attack) {
+  if (attack.damage?.formula) return attack.damage.formula;
+
+  const baseDamage = getWeaponDamageFormula(item);
+  if (!baseDamage) return null;
+
+  const multiplier = Number(attack.damage?.multiplier ?? 1);
+  if (multiplier === 1) return baseDamage;
+  return `(${baseDamage}) * ${multiplier}`;
+}
+
+function calculateHitFormula(advantageType, advantageCount, actionAdvantageDelta = 0, allowAdvantage = true) {
+  let adjustment = Number(actionAdvantageDelta ?? 0);
+
+  if (allowAdvantage) {
+    const count = Math.max(0, Number(advantageCount ?? 0));
+    if (advantageType === "Advantage") adjustment += count;
+    else if (advantageType === "Disadvantage") adjustment -= count;
+  }
+
+  const diceCount = Math.abs(adjustment) + 1;
+  if (adjustment > 0) return `${diceCount}d20kl`;
+  if (adjustment < 0) return `${diceCount}d20kh`;
+  return "1d20";
+}
+
+function getKeptD20Result(roll) {
+  const die = roll.dice.find(d => d.faces === 20);
+  const results = die?.results ?? [];
+  const active = results.filter(result => result.active !== false && result.discarded !== true);
+  const result = active.at(-1) ?? results.at(-1);
+  return Number(result?.result ?? roll.total ?? 0);
+}
+
+function hasKeptD20Result(roll, value) {
+  const die = roll.dice.find(d => d.faces === 20);
+  const results = die?.results ?? [];
+  const active = results.filter(result => result.active !== false && result.discarded !== true);
+  return active.some(result => Number(result.result) === value);
+}
+
+function parseNumberList(value) {
+  const parsed = String(value ?? "0")
+    .split(",")
+    .map(part => Number(part.trim()))
+    .filter(number => Number.isFinite(number));
+  return parsed.length ? parsed : [0];
+}
+
+function formatAttackTargetResult({
+  index,
+  showIndex,
+  attack,
+  hitRoll,
+  keptD20,
+  parryModifier,
+  modifiedRoll,
+  threshold,
+  criticalSuccess,
+  criticalFailure,
+  success,
+  damageRoll
+}) {
+  const targetLabel = showIndex ? `<b>Target ${index + 1}</b><br>` : "";
+  const critText = criticalSuccess ? " Critical success." : criticalFailure ? " Critical failure." : "";
+  const outcome = success ? "Success" : "Failure";
+  const parryText = attack.parry?.apply === false ? "ignored" : formatSignedNumber(parryModifier);
+  const damageText = damageRoll ? `<br><b>Damage:</b> ${damageRoll.total}` : "";
+
+  return `${targetLabel}
+    <b>Hit Roll:</b> ${hitRoll.formula} = ${hitRoll.total}
+    <br><b>Kept d20:</b> ${keptD20}
+    <br><b>Parry:</b> ${parryText}
+    <br><b>Modified Roll:</b> ${modifiedRoll}
+    <br><b>Check:</b> ${modifiedRoll} ≤ ${threshold}
+    <br><b>Result:</b> ${outcome}.${critText}
+    ${damageText}`;
+}
+
+function formatSignedNumber(number) {
+  const value = Number(number ?? 0);
+  return value >= 0 ? `+${value}` : `${value}`;
 }
