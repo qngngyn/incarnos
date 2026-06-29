@@ -136,7 +136,6 @@ export async function rollWeaponAttackAction({
   flavor,
   attackId,
   mode,
-  stat = null,
   advantageType = "Normal",
   advantageCount = 0,
   parryModifiers = [0]
@@ -153,7 +152,7 @@ export async function rollWeaponAttackAction({
     return ui.notifications.warn(`${attack.name} cannot be used with ${mode} attacks.`);
   }
 
-  const selectedStat = resolveAttackStat(attack, mode, stat);
+  const selectedStat = resolveAttackStat(attack, mode);
   if (!selectedStat) {
     return ui.notifications.warn(`${attack.name} needs a valid attack stat.`);
   }
@@ -202,7 +201,6 @@ export async function rollWeaponAttackAction({
   }
 
   const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
-  const abilityLabel = getAbilityLabel(selectedStat);
   const notes = attack.notes?.length ? `<br><b>Notes:</b><ul>${attack.notes.map(note => `<li>${note}</li>`).join("")}</ul>` : "";
   const parryText = attack.parry?.apply === false ? "Ignored" : targetParryModifiers.join(", ");
   const advantageText = attack.roll?.allowAdvantage === false ? "None; this attack cannot benefit from advantage" : `${advantageCount}x ${advantageType}`;
@@ -210,7 +208,6 @@ export async function rollWeaponAttackAction({
   const text = `<br><b>${attack.name}</b>
     <br><b>Cost:</b> ${attack.cost} AP
     <br><b>Mode:</b> ${modeLabel}
-    <br><b>Stat:</b> ${abilityLabel} (${abilityValue})
     <br><b>Weapon Modifier:</b> ${formatSignedNumber(weaponModifier)}
     <br><b>Success Threshold:</b> ${threshold}
     <br><b>Parry Modifier(s):</b> ${parryText}
@@ -251,7 +248,7 @@ async function promptWeaponAttack(item) {
   const weaponModes = getWeaponAttackModes(item);
   const attackOptions = attacks.map(attack => `<option value="${attack.id}">${attack.name}</option>`).join("");
   const modeOptions = weaponModes.map(mode => `<option value="${mode}">${CONFIG.INCARNOS.weaponModes[mode] ?? mode}</option>`).join("");
-  const statOptions = ["int", "cha"].map(stat => `<option value="${stat}">${getAbilityLabel(stat)}</option>`).join("");
+  const hasOnlyOneMode = weaponModes.length === 1;
   const advantageOptions = ["Normal", "Advantage", "Disadvantage"].map(type => `<option value="${type}">${type}</option>`).join("");
   const modifier = Number(item.system?.modifier ?? 0);
 
@@ -266,61 +263,69 @@ async function promptWeaponAttack(item) {
         </div>
         <div class="form-group">
           <label>Use weapon as</label>
-          <select name="mode">${modeOptions}</select>
-        </div>
-        <div class="form-group">
-          <label>Stat for attacks that allow a choice</label>
-          <select name="stat">${statOptions}</select>
-          <p class="hint">Currently used by Weave. Normal weapon attacks use Str for melee or Dex for ranged.</p>
+          <select name="mode" ${hasOnlyOneMode ? "disabled" : ""}>
+            ${modeOptions}
+          </select>
         </div>
         <div class="form-group">
           <label>Target Parry Modifier(s)</label>
-          <input name="parryModifiers" type="text" class="auto-select" value="0" />
-          <p class="hint">Use one number, or comma-separated numbers for multi-target attacks such as Cleave. Example: 0, +2, -1</p>
+          <input name="parryModifiers" type="text" class="auto-select" value="0" placeholder="e.g. -5, 2, +1"/>
         </div>
         <div class="form-group">
           <label>Weapon Modifier</label>
-          <input type="number" value="${modifier}" disabled />
-          <p class="hint">This comes from the weapon sheet and changes the success threshold.</p>
+          <input type="number" value="${modifier}" />
         </div>
         <div class="form-group">
           <label>Advantage</label>
           <select name="advantageType">${advantageOptions}</select>
-          <input name="advantageCount" type="number" class="auto-select" value="0" min="0" step="1" />
+          <input name="advantageCount" type="number" class="auto-select" value="0" min="0" step="1"/>
         </div>
       </fieldset>`,
+
     ok: {
       label: "Roll",
       callback: (event, button) => ({
         attackId: button.form.elements.attackId.value,
         mode: button.form.elements.mode.value,
-        stat: button.form.elements.stat.value,
         parryModifiers: parseNumberList(button.form.elements.parryModifiers.value),
         advantageType: button.form.elements.advantageType.value,
         advantageCount: Number(button.form.elements.advantageCount.value || 0)
       })
     },
+
+    render: (event, dialog) => {
+      const select = dialog.element.querySelector('[name="advantageType"]');
+      const input = dialog.element.querySelector('[name="advantageCount"]');
+
+      if (!select || !input) return;
+
+      const updateAdvantageCount = () => {
+        const isNormal = select.value.toLowerCase() === "normal";
+
+        input.disabled = isNormal;
+        input.placeholder = isNormal ? "0" : "1";
+
+        if (isNormal) input.value = 0;
+        if (!isNormal) input.value = 1;
+      };
+
+      select.addEventListener("change", updateAdvantageCount);
+      updateAdvantageCount();
+    },
+
     rejectClose: false,
-    modal: true
+    modal: false
   });
 
   return form;
 }
 
-function resolveAttackStat(attack, mode, chosenStat) {
-  if (attack.statChoices?.length) {
-    return attack.statChoices.includes(chosenStat) ? chosenStat : attack.statChoices[0];
-  }
+function resolveAttackStat(attack, mode) {
   return attack.statByMode?.[mode] ?? attack.stat ?? null;
 }
 
 function getAbilityValue(rollData, stat) {
   return Number(foundry.utils.getProperty(rollData, `abilities.${stat}.value`) ?? foundry.utils.getProperty(rollData, `${stat}.value`) ?? 0);
-}
-
-function getAbilityLabel(stat) {
-  const key = CONFIG.INCARNOS?.abilityAbbreviations?.[stat] ?? CONFIG.INCARNOS?.abilities?.[stat];
-  return key ? game.i18n.localize(key) : stat.toUpperCase();
 }
 
 function getWeaponDamageFormula(item) {
