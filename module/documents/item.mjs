@@ -183,21 +183,14 @@ export async function rollWeaponAttackAction({
       damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
       rolls.push(damageRoll);
     }
+    resultLines.push(getOutcome(success, criticalSuccess, criticalFailure));
+  }
 
-    resultLines.push(formatAttackTargetResult({
-      index: i,
-      showIndex: targetParryModifiers.length > 1,
-      attack,
-      hitRoll,
-      keptD20,
-      parryModifier,
-      modifiedRoll,
-      threshold,
-      criticalSuccess,
-      criticalFailure,
-      success,
-      damageRoll
-    }));
+  function getOutcome(success, criticalSuccess, criticalFailure) {
+    const outcome = success ? 
+    criticalSuccess ? "Critical Success!" :"Success" : 
+    criticalSuccess ? "Critical Failure!" : "Failure";
+    return `<br><b>Result:</b> ${outcome}`
   }
 
   const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
@@ -206,15 +199,10 @@ export async function rollWeaponAttackAction({
   const advantageText = attack.roll?.allowAdvantage === false ? "None; this attack cannot benefit from advantage" : `${advantageCount}x ${advantageType}`;
 
   const text = `<br><b>${attack.name}</b>
-    <br><b>Cost:</b> ${attack.cost} AP
-    <br><b>Mode:</b> ${modeLabel}
-    <br><b>Weapon Modifier:</b> ${formatSignedNumber(weaponModifier)}
-    <br><b>Success Threshold:</b> ${threshold}
-    <br><b>Parry Modifier(s):</b> ${parryText}
-    <br><b>Advantage:</b> ${advantageText}
-    <br><b>Damage Formula:</b> ${damageFormula ?? "None"}
-    ${notes}
-    <hr>${resultLines.join("<hr>")}`;
+    <br><b>Attack:</b> ${modeLabel}${formatSignedNumber(weaponModifier)}
+    <br><b>Parry:</b> ${formatSignedNumber(parseInt(parryText))}
+    <hr>${resultLines.join("<hr>")}
+    `;
 
   const chatData = {
     user: game.user.id,
@@ -379,36 +367,6 @@ function parseNumberList(value) {
     .map(part => Number(part.trim()))
     .filter(number => Number.isFinite(number));
   return parsed.length ? parsed : [0];
-}
-
-function formatAttackTargetResult({
-  index,
-  showIndex,
-  attack,
-  hitRoll,
-  keptD20,
-  parryModifier,
-  modifiedRoll,
-  threshold,
-  criticalSuccess,
-  criticalFailure,
-  success,
-  damageRoll
-}) {
-  const targetLabel = showIndex ? `<b>Target ${index + 1}</b><br>` : "";
-  const critText = criticalSuccess ? " Critical success." : criticalFailure ? " Critical failure." : "";
-  const outcome = success ? "Success" : "Failure";
-  const parryText = attack.parry?.apply === false ? "ignored" : formatSignedNumber(parryModifier);
-  const damageText = damageRoll ? `<br><b>Damage:</b> ${damageRoll.total}` : "";
-
-  return `${targetLabel}
-    <b>Hit Roll:</b> ${hitRoll.formula} = ${hitRoll.total}
-    <br><b>Kept d20:</b> ${keptD20}
-    <br><b>Parry:</b> ${parryText}
-    <br><b>Modified Roll:</b> ${modifiedRoll}
-    <br><b>Check:</b> ${modifiedRoll} ≤ ${threshold}
-    <br><b>Result:</b> ${outcome}.${critText}
-    ${damageText}`;
 }
 
 function formatSignedNumber(number) {
