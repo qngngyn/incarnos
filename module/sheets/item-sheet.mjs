@@ -22,6 +22,9 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     form: {
       closeOnSubmit: false,
       submitOnChange: true
+    },
+    actions: {
+      editImage: IncarnosItemSheet.#onEditImage
     }
   };
 
@@ -94,5 +97,22 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     for (const input of this.element.querySelectorAll(".auto-select")) {
       input.addEventListener("focus", event => event.currentTarget.select());
     }
+  }
+
+  static async #onEditImage(event, target) {
+    event.preventDefault();
+
+    const field = target.dataset.field ?? "img";
+    const current = foundry.utils.getProperty(this.document, field) ?? "";
+
+    const picker = new foundry.applications.apps.FilePicker({
+      type: "image",
+      current,
+      callback: path => {
+        return this.document.update({ [field]: path });
+      }
+    });
+
+    picker.render(true);
   }
 }
