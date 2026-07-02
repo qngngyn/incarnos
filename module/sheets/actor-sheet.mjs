@@ -281,12 +281,19 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const options = ["Strength", "Dexterity", "Constitution", "Willpower", "Perception", "Speed", "Intelligence", "Charisma"]
       .map(stat => `<option value="${stat}">${stat}</option>`)
       .join("");
+    const type = ["Attack", "Save"]
+      .map(stat => `<option value="${stat}">${stat}</option>`)
+      .join("");
 
-    const stat = await foundry.applications.api.DialogV2.prompt({
+    const result = await foundry.applications.api.DialogV2.prompt({
       window: { title: "Choose your Contest stat" },
       content: `
         <fieldset>
           <legend>Stats</legend>
+          <div class="form-group">
+            <label>Type</label>
+            <select name="type">${type}</select>
+          </div>
           <div class="form-group">
             <label>Stat</label>
             <select name="stat">${options}</select>
@@ -294,38 +301,65 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         </fieldset>`,
       ok: {
         label: "Contest",
-        callback: (event, button) => button.form.elements.stat.value
+        callback: (event, button) => 
+          ({
+            type: button.form.elements.type.value,
+            stat: button.form.elements.stat.value
+          })
       },
       rejectClose: false,
       modal: true
     });
 
-    if (!stat) return;
+    if (!result) return;
 
+    let content;
     let value;
-    switch (stat) {
-      case "Strength": value = abilities.str.value; break;
-      case "Dexterity": value = abilities.dex.value; break;
-      case "Constitution": value = abilities.con.value; break;
-      case "Willpower": value = abilities.wis.value; break;
-      case "Perception": value = abilities.prc.value; break;
-      case "Speed": value = abilities.spd.value; break;
-      case "Intelligence": value = abilities.int.value; break;
-      case "Charisma": value = abilities.cha.value; break;
+    if (result.type === "Attack") {
+      switch (result.stat) {
+        case "Strength": value = abilities.str.value; break;
+        case "Dexterity": value = abilities.dex.value; break;
+        case "Constitution": value = abilities.con.value; break;
+        case "Willpower": value = abilities.wis.value; break;
+        case "Perception": value = abilities.prc.value; break;
+        case "Speed": value = abilities.spd.value; break;
+        case "Intelligence": value = abilities.int.value; break;
+        case "Charisma": value = abilities.cha.value; break;
+      }
+      await ChatMessage.create({ speaker, flavor: `Attacker ${result.stat} Contest: ${value}` });
+      content = "Go get 'em!"
+    } else {
+      switch (result.stat) {
+        case "Strength": value = abilities.str.save; break;
+        case "Dexterity": value = abilities.dex.save; break;
+        case "Constitution": value = abilities.con.save; break;
+        case "Willpower": value = abilities.wis.save; break;
+        case "Perception": value = abilities.prc.save; break;
+        case "Speed": value = abilities.spd.save; break;
+        case "Intelligence": value = abilities.int.save; break;
+        case "Charisma": value = abilities.cha.save; break;
+      }
+      await ChatMessage.create({ speaker, flavor: `Defendant ${result.stat} Contest: ${value}` });
+      content = "Defend yourself!"
     }
 
-    await ChatMessage.create({ speaker, flavor: `${stat} Contest: ${value}` });
 
     const proceed = await foundry.applications.api.DialogV2.confirm({
       window: { title: "Ready to roll?" },
-      content: "Roll the contest die?",
+      content: content,
       rejectClose: false,
       modal: true
     });
 
+    const die = 20 - value;
+    const rollHitText = `d${die}`;
     if (proceed) {
-      const rollHit = await new Roll("1d20").evaluate({ async: true });
-      await ChatMessage.create({ speaker, flavor: "Let's see who wins", rolls: [rollHit] });
+      if (die < 1) {
+        await ChatMessage.create({ speaker, flavor: `your roll is negative, how is this possible??? ${rollHitText}` });
+        return;
+      }
+      const rollHit = await new Roll(rollHitText).evaluate({ async: true });
+      await ChatMessage.create({ speaker, flavor: "Contester", rolls: [rollHit] });
     }
     else {
       await ChatMessage.create({ speaker, flavor: "wussed out of the contest" });
