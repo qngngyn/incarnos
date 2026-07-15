@@ -189,14 +189,14 @@ export async function rollWeaponAttackAction({
     const criticalFailure = hasKeptD20Result(hitRoll, 20);
     const modifiedRoll = keptD20 + parryModifier;
     const threshold = abilityValue + weaponModifier;
-    const rollDifference = threshold - modifiedRoll;
     const success = criticalSuccess || (!criticalFailure && modifiedRoll <= threshold);
-
+    
     let damageRoll = null;
     if (success && damageFormula) {
       damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
       rolls.push(damageRoll);
     }
+    const rollDifference = threshold - modifiedRoll;
     resultLines.push(getOutcomeText(success, criticalSuccess, criticalFailure, rollDifference));
   }
 
@@ -204,8 +204,8 @@ export async function rollWeaponAttackAction({
     const outcome = success ? 
     criticalSuccess ? "Critical Success!" :"Success" : 
     criticalSuccess ? "Critical Failure!" : "Failure";
-    const sign = rollDifference >= 0 ? '+' : '-';
-    return `<br><b>Result:</b> ${outcome} ${sign}${rollDifference}`
+    const sign = rollDifference >= 0 ? '+' : '';
+    return `<br><b>Result:</b> ${outcome} by ${sign}${rollDifference}`
   }
 
   const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
