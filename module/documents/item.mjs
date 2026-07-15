@@ -173,7 +173,6 @@ export async function rollWeaponAttackAction({
   const targetParryModifiers = (attack.multiTarget ? parryModifiers : [parryModifiers[0] ?? 0]).map(Number);
   const abilityValue = getAbilityValue(rollData, selectedStat);
   const weaponModifier = Number(item.system?.modifier ?? 0);
-  const threshold = abilityValue + weaponModifier;
   const hitFormula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
   const damageFormula = getAttackDamageFormula(item, attack);
 
@@ -186,9 +185,11 @@ export async function rollWeaponAttackAction({
     rolls.push(hitRoll);
 
     const keptD20 = getKeptD20Result(hitRoll);
-    const modifiedRoll = keptD20 + parryModifier;
     const criticalSuccess = hasKeptD20Result(hitRoll, 1);
     const criticalFailure = hasKeptD20Result(hitRoll, 20);
+    const modifiedRoll = keptD20 + parryModifier;
+    const threshold = abilityValue + weaponModifier;
+    const rollDifference = threshold - modifiedRoll;
     const success = criticalSuccess || (!criticalFailure && modifiedRoll <= threshold);
 
     let damageRoll = null;
@@ -196,14 +197,15 @@ export async function rollWeaponAttackAction({
       damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
       rolls.push(damageRoll);
     }
-    resultLines.push(getOutcomeText(success, criticalSuccess, criticalFailure));
+    resultLines.push(getOutcomeText(success, criticalSuccess, criticalFailure, rollDifference));
   }
 
-  function getOutcomeText(success, criticalSuccess, criticalFailure) {
+  function getOutcomeText(success, criticalSuccess, criticalFailure, rollDifference) {
     const outcome = success ? 
     criticalSuccess ? "Critical Success!" :"Success" : 
     criticalSuccess ? "Critical Failure!" : "Failure";
-    return `<br><b>Result:</b> ${outcome}`
+    const sign = rollDifference >= 0 ? '+' : '-';
+    return `<br><b>Result:</b> ${outcome} ${sign}${rollDifference}`
   }
 
   const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
