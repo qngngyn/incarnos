@@ -212,7 +212,7 @@ export async function rollWeaponAttackAction({
   const advantageText = attack.roll?.allowAdvantage === false ? "None; this attack cannot benefit from advantage" : `${advantageCount}x ${advantageType}`;
 
   const text = `<br><b>${attack.name}</b>
-    <br><b>Attack:</b> ${modeLabel}${formatSignedNumber(weaponModifier)}
+    <br><b>Attack:</b> ${modeLabel}${formatSignedNumber(weaponModifier)} (${selectedStat})
     <br><b>Parry:</b> ${formatSignedNumber(parseInt(parryText))}
     <hr>${resultLines.join("<hr>")}
     `;
