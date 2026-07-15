@@ -109,7 +109,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async _onRender(context, options) {
     await super._onRender(context, options);
 
-    for (const input of this.element.querySelectorAll(".auto-select")) {
+    for (const input of this.element.querySelectorAll("input, textarea")) {
       input.addEventListener("focus", event => event.currentTarget.select());
     }
   }

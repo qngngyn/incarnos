@@ -27,7 +27,7 @@ export class IncarnosItem extends Item {
   async roll() {
     const item = this;
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
-    const rollMode = game.settings.get("core", "rollMode");
+    const rollMode = game.settings.get("core", "messageMode");
     const label = `<b>${item.name}</b><br><i>${item.system.description ?? ""}</i>`;
 
     const damageFormula = getWeaponDamageFormula(item);
@@ -169,7 +169,7 @@ export async function rollWeaponAttackAction({
 
   for (let i = 0; i < targetParryModifiers.length; i++) {
     const parryModifier = attack.parry?.apply === false ? 0 : Number(targetParryModifiers[i] ?? 0);
-    const hitRoll = await new Roll(hitFormula, rollData).evaluate({ async: true });
+    const hitRoll = await new Roll(hitFormula, rollData).evaluateSync({ strict: false });
     rolls.push(hitRoll);
 
     const keptD20 = getKeptD20Result(hitRoll);
@@ -180,7 +180,7 @@ export async function rollWeaponAttackAction({
 
     let damageRoll = null;
     if (success && damageFormula) {
-      damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
+      damageRoll = await new Roll(damageFormula, rollData).evaluateSync({ strict: false });
       rolls.push(damageRoll);
     }
     resultLines.push(getOutcome(success, criticalSuccess, criticalFailure));
@@ -257,7 +257,7 @@ async function promptWeaponAttack(item) {
         </div>
         <div class="form-group">
           <label>Target Parry Modifier(s)</label>
-          <input name="parryModifiers" type="text" class="auto-select" value="0" placeholder="e.g. -5, 2, +1"/>
+          <input name="parryModifiers" type="text" value="0" placeholder="e.g. -5, 2, +1"/>
         </div>
         <div class="form-group">
           <label>Weapon Modifier</label>
@@ -266,7 +266,7 @@ async function promptWeaponAttack(item) {
         <div class="form-group">
           <label>Advantage</label>
           <select name="advantageType">${advantageOptions}</select>
-          <input name="advantageCount" type="number" class="auto-select" value="0" min="0" step="1"/>
+          <input name="advantageCount" type="number" value="0" min="0" step="1"/>
         </div>
       </fieldset>`,
 
