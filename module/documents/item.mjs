@@ -106,8 +106,21 @@ export function getWeaponAttackModes(item) {
  */
 export function getAvailableAttackActions(item) {
   const weaponModes = getWeaponAttackModes(item);
-  const attackActions = Object.values(CONFIG.INCARNOS?.attackActions ?? {});
-  return attackActions.filter(action => action.modes.some(mode => weaponModes.includes(mode)));
+  const configuredActions = CONFIG.INCARNOS?.attackActions ?? {};
+  const weaveAction = configuredActions.weave;
+
+  const attackActions =
+    item.name === "Attack: Weave"
+      ? weaveAction
+        ? [weaveAction]
+        : []
+      : Object.entries(configuredActions)
+          .filter(([key]) => key !== "weave")
+          .map(([, action]) => action);
+
+  return attackActions.filter(action =>
+    action.modes?.some(mode => weaponModes.includes(mode))
+  );
 }
 
 /**
