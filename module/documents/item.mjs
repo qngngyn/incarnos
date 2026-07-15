@@ -196,10 +196,10 @@ export async function rollWeaponAttackAction({
       damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
       rolls.push(damageRoll);
     }
-    resultLines.push(getOutcome(success, criticalSuccess, criticalFailure));
+    resultLines.push(getOutcomeText(success, criticalSuccess, criticalFailure));
   }
 
-  function getOutcome(success, criticalSuccess, criticalFailure) {
+  function getOutcomeText(success, criticalSuccess, criticalFailure) {
     const outcome = success ? 
     criticalSuccess ? "Critical Success!" :"Success" : 
     criticalSuccess ? "Critical Failure!" : "Failure";
