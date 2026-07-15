@@ -152,7 +152,7 @@ export async function rollWeaponAttackAction({
     return ui.notifications.warn(`${attack.name} cannot be used with ${mode} attacks.`);
   }
 
-  const selectedStat = resolveAttackStat(attack, mode);
+  const selectedStat = resolveAttackStat(attack, mode, rollData);
   if (!selectedStat) {
     return ui.notifications.warn(`${attack.name} needs a valid attack stat.`);
   }
@@ -169,7 +169,7 @@ export async function rollWeaponAttackAction({
 
   for (let i = 0; i < targetParryModifiers.length; i++) {
     const parryModifier = attack.parry?.apply === false ? 0 : Number(targetParryModifiers[i] ?? 0);
-    const hitRoll = await new Roll(hitFormula, rollData).evaluateSync({ strict: false });
+    const hitRoll = await new Roll(hitFormula, rollData).evaluate({ async: true });
     rolls.push(hitRoll);
 
     const keptD20 = getKeptD20Result(hitRoll);
@@ -180,7 +180,7 @@ export async function rollWeaponAttackAction({
 
     let damageRoll = null;
     if (success && damageFormula) {
-      damageRoll = await new Roll(damageFormula, rollData).evaluateSync({ strict: false });
+      damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
       rolls.push(damageRoll);
     }
     resultLines.push(getOutcome(success, criticalSuccess, criticalFailure));
@@ -308,8 +308,14 @@ async function promptWeaponAttack(item) {
   return form;
 }
 
-function resolveAttackStat(attack, mode) {
-  return attack.statByMode?.[mode] ?? attack.stat ?? null;
+function resolveAttackStat(attack, mode, rollData) {
+  const int = getAbilityValue(rollData, "int");  
+  const cha = getAbilityValue(rollData, "cha");
+  if (attack.id === "weave") {
+    return int > cha ? "int" : "cha";
+  }
+  
+  return attack.statByMode?.[mode] ?? null;
 }
 
 function getAbilityValue(rollData, stat) {
