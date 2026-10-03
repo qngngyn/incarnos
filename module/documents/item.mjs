@@ -79,7 +79,8 @@ export class IncarnosItem extends Item {
       stat: form.stat,
       advantageType: form.advantageType,
       advantageCount: form.advantageCount,
-      parryModifiers: form.parryModifiers
+      // Players enter the signed modifier announced by the GM; the roll adds target Parry to the die.
+      parryModifiers: form.enemyParryModifiers.map(modifier => -modifier)
     });
   }
 }
@@ -210,12 +211,12 @@ export async function rollWeaponAttackAction({
 
   const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
   const notes = attack.notes?.length ? `<br><b>Notes:</b><ul>${attack.notes.map(note => `<li>${note}</li>`).join("")}</ul>` : "";
-  const parryText = attack.parry?.apply === false ? "Ignored" : targetParryModifiers.join(", ");
+  const enemyParryModifierText = attack.parry?.apply === false ? "Ignored" : targetParryModifiers.map(modifier => formatSignedNumber(-modifier)).join(", ");
   const advantageText = attack.roll?.allowAdvantage === false ? "None; this attack cannot benefit from advantage" : `${advantageCount}x ${advantageType}`;
 
   const text = `<br><b>${attack.name}</b>
     <br><b>Attack:</b> ${modeLabel}${formatSignedNumber(weaponModifier)} (${selectedStat})
-    <br><b>Parry:</b> ${formatSignedNumber(parseInt(parryText))}
+    <br><b>Enemy Parry modifier:</b> ${enemyParryModifierText}
     <hr>${resultLines.join("<hr>")}
     `;
 
@@ -271,8 +272,9 @@ async function promptWeaponAttack(item) {
           </select>
         </div>
         <div class="form-group">
-          <label>Target Parry Modifier(s)</label>
-          <input name="parryModifiers" type="text" value="0" placeholder="e.g. -5, 2, +1"/>
+          <label>Enemy Parry Modifier</label>
+          <input name="enemyParryModifiers" type="text" value="0" placeholder="e.g. -6"/>
+          <p class="hint">Enter the modifier exactly as the GM announces it: -6 makes the attack harder, +6 makes it easier. For Cleave, separate each target modifier with a comma. Bypass ignores this modifier.</p>
         </div>
         <div class="form-group">
           <label>Weapon Modifier</label>
@@ -290,7 +292,7 @@ async function promptWeaponAttack(item) {
       callback: (event, button) => ({
         attackId: button.form.elements.attackId.value,
         mode: button.form.elements.mode.value,
-        parryModifiers: parseNumberList(button.form.elements.parryModifiers.value),
+        enemyParryModifiers: parseNumberList(button.form.elements.enemyParryModifiers.value),
         advantageType: button.form.elements.advantageType.value,
         advantageCount: Number(button.form.elements.advantageCount.value || 0)
       })
