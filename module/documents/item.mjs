@@ -65,7 +65,7 @@ export class IncarnosItem extends Item {
       return ui.notifications.warn("Weapon attacks must be rolled from an owned item on an actor.");
     }
 
-    const form = await promptWeaponAttack(item);
+    const form = await promptWeaponAttack(item, rollData);
     if (!form) return;
 
     return rollWeaponAttackAction({
@@ -242,7 +242,7 @@ export async function rollWeaponAttackAction({
  * @param {Item} item
  * @returns {Promise<object|null>}
  */
-async function promptWeaponAttack(item) {
+async function promptWeaponAttack(item, rollData) {
   const attacks = getAvailableAttackActions(item);
   if (!attacks.length) {
     ui.notifications.warn(`${item.name} has no available attack actions.`);
@@ -272,20 +272,24 @@ async function promptWeaponAttack(item) {
           </select>
         </div>
         <div class="form-group">
+          <label>Weapon Modifier</label>
+          <input type="number" value="${modifier}" readonly />
+        </div>
+        <div class="form-group">
           <label>Enemy Parry Modifier</label>
           <input name="enemyParryModifiers" type="text" value="0" placeholder="e.g. -6"/>
           <p class="hint">Enter the modifier exactly as the GM announces it: -6 makes the attack harder, +6 makes it easier. For Cleave, separate each target modifier with a comma. Bypass ignores this modifier.</p>
-        </div>
-        <div class="form-group">
-          <label>Weapon Modifier</label>
-          <input type="number" value="${modifier}" />
         </div>
         <div class="form-group">
           <label>Advantage</label>
           <select name="advantageType">${advantageOptions}</select>
           <input name="advantageCount" type="number" value="0" min="0" step="1"/>
         </div>
-      </fieldset>`,
+      </fieldset>
+      <div class="form-group">
+        <label>Final roll</label>
+        <output name="rollPreview" aria-live="polite" style="font-weight: bold; text-align: right; white-space: pre-line;"></output>
+      </div>`,
 
     ok: {
       label: "Roll",
@@ -314,8 +318,24 @@ async function promptWeaponAttack(item) {
         if (!isNormal) input.value = 1;
       };
 
+      const element = dialog.element;
+      const preview = element.querySelector('[name="rollPreview"]');
+      const updatePreview = () => {
+        if (!preview) return;
+        preview.textContent = getWeaponAttackPreview(item, rollData, {
+          attackId: element.querySelector('[name="attackId"]').value,
+          mode: element.querySelector('[name="mode"]').value,
+          enemyParryModifiers: parseNumberList(element.querySelector('[name="enemyParryModifiers"]').value),
+          advantageType: select.value,
+          advantageCount: Number(input.value || 0)
+        });
+      };
+
       select.addEventListener("change", updateAdvantageCount);
+      element.addEventListener("input", updatePreview);
+      element.addEventListener("change", updatePreview);
       updateAdvantageCount();
+      updatePreview();
     },
 
     rejectClose: false,
@@ -325,6 +345,25 @@ async function promptWeaponAttack(item) {
   return form;
 }
 
+/** Describe the pending roll without rolling dice or changing actor/item data. */
+function getWeaponAttackPreview(item, rollData, { attackId, mode, enemyParryModifiers, advantageType, advantageCount }) {
+  const attack = CONFIG.INCARNOS.attackActions[attackId];
+  if (!attack || !attack.modes.includes(mode)) return "This attack cannot be used in the selected weapon mode.";
+
+  const stat = resolveAttackStat(attack, mode, rollData);
+  if (!stat) return "This attack needs a valid attack stat.";
+
+  const ability = getAbilityValue(rollData, stat);
+  const weaponModifier = Number(item.system?.modifier ?? 0);
+  const formula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
+  const modifiers = attack.multiTarget ? enemyParryModifiers : [enemyParryModifiers[0] ?? 0];
+  const lines = modifiers.map(modifier => {
+    const enemyModifier = attack.parry?.apply === false ? 0 : modifier;
+    const target = ability + weaponModifier + enemyModifier;
+    return `${formula} ≤ ${target}`;
+  });
+  return lines.join("\n");
+}
 function resolveAttackStat(attack, mode, rollData) {
   const int = getAbilityValue(rollData, "int");  
   const cha = getAbilityValue(rollData, "cha");
