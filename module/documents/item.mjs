@@ -273,7 +273,7 @@ async function promptWeaponAttack(item, rollData) {
         </div>
         <div class="form-group">
           <label>Weapon Modifier</label>
-          <input type="number" value="${modifier}" readonly />
+          <input type="text" value="${formatSignedNumber(modifier)}" readonly />
         </div>
         <div class="form-group">
           <label>Enemy Parry Modifier</label>
@@ -286,10 +286,7 @@ async function promptWeaponAttack(item, rollData) {
           <input name="advantageCount" type="number" value="0" min="0" step="1"/>
         </div>
       </fieldset>
-      <div class="form-group">
-        <label>Final roll</label>
-        <output name="rollPreview" aria-live="polite" style="font-weight: bold; text-align: right; white-space: pre-line;"></output>
-      </div>`,
+      <output name="rollPreview" aria-label="Final roll" aria-live="polite" style="display: inline-block; flex: 0 1 auto; align-self: center; padding: 3px 8px; border-radius: 4px; background: var(--color-bg-option); font-size: 0.85em; font-weight: bold; white-space: pre-line;"></output>`,
 
     ok: {
       label: "Roll",
@@ -320,6 +317,13 @@ async function promptWeaponAttack(item, rollData) {
 
       const element = dialog.element;
       const preview = element.querySelector('[name="rollPreview"]');
+      const rollButton = element.querySelector('[data-action="ok"]');
+      if (preview && rollButton) {
+        rollButton.after(preview);
+        rollButton.style.flex = "0 0 calc(66.666% - var(--dialog-button-gap, 8px) / 3)";
+        preview.style.flex = "1 1 0";
+        preview.style.minWidth = "0";
+      }
       const updatePreview = () => {
         if (!preview) return;
         preview.textContent = getWeaponAttackPreview(item, rollData, {
@@ -431,7 +435,7 @@ function parseNumberList(value) {
   return parsed.length ? parsed : [0];
 }
 
-function formatSignedNumber(number) {
+export function formatSignedNumber(number) {
   const value = Number(number ?? 0);
   return value >= 0 ? `+${value}` : `${value}`;
 }

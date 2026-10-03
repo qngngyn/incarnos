@@ -1,3 +1,4 @@
+import { formatSignedNumber } from "../documents/item.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -156,6 +157,10 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
     for (const item of context.items) {
       item.img = item.img || CONST.DEFAULT_TOKEN;
+
+      if (item.type === "weapon") {
+        item.attackRoll = formatSignedNumber(item.system?.modifier);
+      }
 
       if ((item.type === "item") || (item.type === "weapon")) {
         gear.push(item);
