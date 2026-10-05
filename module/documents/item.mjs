@@ -88,7 +88,7 @@ export class IncarnosItem extends Item {
 /**
  * Return the weapon's effective attack modes.
  * A missing attackMode is treated as melee so old weapons continue to work.
- * A versatile weapon can attack in both melee and ranged modes.
+ * A versatile weapon can attack in both modes, with its configured mode first.
  *
  * @param {Item} item
  * @returns {string[]}
@@ -96,7 +96,7 @@ export class IncarnosItem extends Item {
 export function getWeaponAttackModes(item) {
   const configuredMode = item?.system?.attackMode || "melee";
   const baseMode = CONFIG.INCARNOS?.weaponModes?.[configuredMode] ? configuredMode : "melee";
-  return item?.system?.versatile ? ["melee", "ranged"] : [baseMode];
+  return item?.system?.versatile ? [baseMode, baseMode === "melee" ? "ranged" : "melee"] : [baseMode];
 }
 
 /**
