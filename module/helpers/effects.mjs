@@ -1,3 +1,5 @@
+import { getItemPassiveEntries } from "./passives.mjs";
+
 /**
  * Manage Active Effect instances through the Actor Sheet via effect control buttons.
  * @param {MouseEvent|PointerEvent} event      The click event on the effect control
@@ -38,9 +40,10 @@ export function onManageActiveEffect(event, owner, target) {
 /**
  * Prepare the data structure for Active Effects which are currently applied to an Actor or Item.
  * @param {Collection<ActiveEffect>|ActiveEffect[]} effects    The Active Effect instances to prepare sheet data for
+ * @param {Collection<Item>|Item[]} [items]                    Owned items with passive modifiers
  * @return {object}                                           Data for rendering
  */
-export function prepareActiveEffectCategories(effects) {
+export function prepareActiveEffectCategories(effects, items = []) {
   const categories = {
     temporary: {
       type: "temporary",
@@ -63,6 +66,25 @@ export function prepareActiveEffectCategories(effects) {
     if (effect.disabled) categories.inactive.effects.push(effect);
     else if (effect.isTemporary) categories.temporary.effects.push(effect);
     else categories.passive.effects.push(effect);
+  }
+
+  // Item passives are display entries only; their modifiers are applied by the Actor.
+  // Group all modifiers from an item into one row using the original effects layout.
+  for (const item of items) {
+    const passives = getItemPassiveEntries([item]);
+    if (!passives.length) continue;
+    const first = passives[0];
+    const effect = {
+      isItemPassive: true,
+      itemId: item.id,
+      name: item.name,
+      icon: first.img,
+      sourceName: item.name,
+      disabled: !first.active,
+      duration: { label: "Permanent" },
+      description: passives.map(passive => [passive.summary, passive.description].filter(Boolean).join(" ")).join("\n")
+    };
+    categories[effect.disabled ? "inactive" : "passive"].effects.push(effect);
   }
 
   return categories;

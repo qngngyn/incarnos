@@ -100,7 +100,9 @@
     ],
     "templates": {
       "base": {
-        "description": ""
+        "description": "",
+        "passivesEnabled": true,
+        "passives": {}
       }
     },
     "item": {

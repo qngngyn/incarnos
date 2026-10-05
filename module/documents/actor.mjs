@@ -1,3 +1,5 @@
+import { getItemPassiveModifiers, applyItemPassiveModifiers } from "../helpers/passives.mjs";
+
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -13,14 +15,17 @@ export class IncarnosActor extends Actor {
    * is queried and has a roll executed directly from it).
    */
   prepareDerivedData() {
-    const actorData = this;
-    const systemData = actorData.system;
-    const flags = actorData.flags.incarnos || {};
-
-    // Make separate methods for each Actor type (character, npc, etc.) to keep
-    // things organized.
-    this._prepareCharacterData(actorData);
-    this._prepareNpcData(actorData);
+    const modifiers = getItemPassiveModifiers(this.items);
+    // Foundry resets prepared data from the source before each preparation cycle.
+    applyItemPassiveModifiers(this.system, modifiers, true);
+    if (this.type === "character") {
+      for (const ability of Object.values(this.system.abilities)) {
+        ability.value = Number(ability.value) + Number(ability.bonus ?? 0);
+      }
+    }
+    this._prepareCharacterData(this);
+    this._prepareNpcData(this);
+    applyItemPassiveModifiers(this.system, modifiers, false);
   }
 
   /**
@@ -29,7 +34,6 @@ export class IncarnosActor extends Actor {
   _prepareCharacterData(actorData) {
     if (actorData.type !== 'character') return;
 
-    console.log(actorData);
     // Make modifications to data here. For example:
     const systemData = actorData.system;
     const abilityScore = systemData.abilities;
@@ -51,9 +55,6 @@ export class IncarnosActor extends Actor {
 
     // Loop through ability scores, and add their modifiers to our sheet output
     for (let [key, ability] of Object.entries(abilityScore)) {
-      // Calculate the abilityscore bonus value for its correspondant ability score
-      const abilitybonus = ability.bonus
-      ability.value += abilitybonus
       // Calculate the saving throw value for its correspondant ability score
       if (key == "str" || key == "dex" || key == "spd" || key == "con") {
         ability.save = Math.floor((ability.value*2 + abilityScore.con.value)/3)

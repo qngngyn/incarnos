@@ -1,3 +1,5 @@
+import { PASSIVE_STATS } from "../helpers/passives.mjs";
+
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 const TextEditor = foundry.applications.ux.TextEditor.implementation;
@@ -24,7 +26,9 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       submitOnChange: true
     },
     actions: {
-      editImage: IncarnosItemSheet.#onEditImage
+      editImage: IncarnosItemSheet.#onEditImage,
+      passiveAdd: IncarnosItemSheet.#onPassiveAdd,
+      passiveDelete: IncarnosItemSheet.#onPassiveDelete
     }
   };
 
@@ -34,7 +38,8 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       initial: "description",
       tabs: [
         { id: "description", group: "primary", label: "Description" },
-        { id: "attributes", group: "primary", label: "Attributes" }
+        { id: "attributes", group: "primary", label: "Attributes" },
+        { id: "passives", group: "primary", label: "Passives" }
       ]
     }
   };
@@ -64,6 +69,9 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.item = item;
     context.system = itemData.system;
     context.flags = itemData.flags;
+    context.system.passivesEnabled ??= true;
+    context.system.passives ??= {};
+    context.passiveStats = PASSIVE_STATS;
     context.owner = item.isOwner;
     context.editable = this.isEditable;
     context.tabs = this._prepareTabs("primary");
@@ -97,6 +105,21 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     for (const input of this.element.querySelectorAll(".auto-select")) {
       input.addEventListener("focus", event => event.currentTarget.select());
     }
+  }
+
+  static async #onPassiveAdd(event) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+    const id = foundry.utils.randomID();
+    await this.item.update({ [`system.passives.${id}`]: { stat: "abilities.str.value", value: 0, description: "" } });
+  }
+
+  static async #onPassiveDelete(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+    const id = target.dataset.passiveId;
+    if (!Object.hasOwn(this.item.system.passives ?? {}, id)) return;
+    await this.item.update({ [`system.passives.-=${id}`]: null });
   }
 
   static async #onEditImage(event, target) {

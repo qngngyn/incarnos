@@ -11,3 +11,17 @@ The Table of Content is as followed:
 
 
 # incarnos
+
+## Item passives
+
+Open an item, weapon, feature, or spell and select **Passives**. Click **Add passive**, choose a stat, and enter a signed modifier (for example, Strength +2 or Parry -1). Changes save automatically.
+
+Enabled passives apply while the item is owned by an actor. Multiple items and modifiers stack. Each item applies once regardless of quantity; quantity zero or unchecking **Enable item passives** disables its modifiers. Removing the item removes its bonuses. Existing items need no migration.
+
+Ability modifiers affect saving throws, rolls, and character-derived Health, Power, Parry, and Movement. Direct derived-stat modifiers apply after those calculations. Maximum Action Points can also be modified. NPCs retain their manually configured derived stats, with item modifiers added to them. Current Health and Power are unchanged.
+
+Actor sheets show one effective value per stat, including item passives. Editing an effective value adjusts the underlying base while keeping item bonuses separate, so removing an item removes only its modifiers. Character ability bonuses now apply before all derived calculations, including saving throws.
+
+Run passive regression checks with `node --test tests/*.test.mjs`.
+
+The actor?s existing **Passive Effects** section lists one row per item, named after that item. Disabled item passives appear under **Inactive Effects**. Hover the row to read its modifiers and descriptions; use its edit icon to open the item. Add optional notes in each passive?s **Description** field on the item?s Passives tab. These entries reflect the items directly and do not apply a second copy of the bonus.

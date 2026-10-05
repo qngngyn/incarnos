@@ -10,6 +10,7 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
     <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
+    <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -34,5 +35,6 @@
         <input type="text" name="system.spellLevel" value="{{system.spellLevel}}" data-dtype="Number"/>
       </div>
     </div>
+    {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>
 </section>

@@ -1,0 +1,24 @@
+<div class="tab {{tabs.passives.cssClass}}" data-group="primary" data-tab="passives">
+  <label class="resource-label checkbox">
+    <input type="checkbox" name="system.passivesEnabled" data-dtype="Boolean" {{checked system.passivesEnabled}} {{#unless editable}}disabled{{/unless}}/>
+    Enable item passives
+  </label>
+  <p class="hint">Enabled passives apply while this item belongs to an actor. Use positive values to add and negative values to subtract. Each item applies once, regardless of quantity; quantity zero disables its passives.</p>
+  {{#each system.passives as |passive id|}}
+  <div class="passive-entry flexcol">
+  <div class="form-group flexrow" style="gap: 8px; margin-bottom: 8px;">
+    <select name="system.passives.{{id}}.stat" aria-label="Passive stat" {{#unless ../editable}}disabled{{/unless}}>
+      {{selectOptions ../passiveStats selected=passive.stat localize=false}}
+    </select>
+    <input type="number" name="system.passives.{{id}}.value" value="{{passive.value}}" step="any" data-dtype="Number" aria-label="Passive modifier" {{#unless ../editable}}disabled{{/unless}}/>
+    {{#if ../editable}}<button type="button" data-action="passiveDelete" data-passive-id="{{id}}" aria-label="Remove passive" style="flex: 0 0 auto;">Remove</button>{{/if}}
+  </div>
+  <label style="margin-bottom: 12px;">Description (optional)
+    <textarea name="system.passives.{{id}}.description" rows="2" placeholder="Describe this passive" {{#unless ../editable}}disabled{{/unless}}>{{passive.description}}</textarea>
+  </label>
+  </div>
+  {{else}}
+  <p>No passive modifiers.</p>
+  {{/each}}
+  {{#if editable}}<button type="button" data-action="passiveAdd">Add passive</button>{{/if}}
+</div>

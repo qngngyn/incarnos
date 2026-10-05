@@ -38,6 +38,7 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
     <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
+    <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -62,5 +63,6 @@
         <p class="hint">Old weapons that still use system.formula will keep working; this field replaces formula for new weapons.</p>
       </div>
     </div>
+    {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>
 </section>

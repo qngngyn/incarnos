@@ -1,3 +1,4 @@
+import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
@@ -78,9 +79,22 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
     context.actor = actor;
     context.system = actorData.system;
+    // Remember the displayed total and its underlying base for safe form edits.
+    const sourceSystem = actor.toObject().system;
+    this._displayedStatValues = {};
+    for (const path of Object.keys(PASSIVE_STATS)) {
+      if (!path.startsWith("abilities.") && actor.type !== "npc") continue;
+      let displayed = foundry.utils.getProperty(context.system, path);
+      const base = foundry.utils.getProperty(sourceSystem, path);
+      // The NPC parry input uses numberFormat with zero decimal places.
+      if (path === "attributes.parry.value") displayed = Math.round(Number(displayed));
+      if (Number.isFinite(Number(displayed)) && Number.isFinite(Number(base))) {
+        this._displayedStatValues[path] = { displayed: Number(displayed), base: Number(base) };
+      }
+    }
     context.flags = actorData.flags;
     context.items = actorData.items ?? [];
-    context.effects = prepareActiveEffectCategories(actor.effects);
+    context.effects = prepareActiveEffectCategories(actor.effects, actor.items);
     context.tabs = this._prepareTabs("primary");
     context.rollData = actor.getRollData();
     context.owner = actor.isOwner;
@@ -104,6 +118,19 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
 
     return context;
+  }
+
+  /** Preserve stored base stats when the form submits displayed effective totals. */
+  _processFormData(event, form, formData) {
+    const data = super._processFormData(event, form, formData);
+    for (const [path, { displayed, base }] of Object.entries(this._displayedStatValues ?? {})) {
+      const field = `system.${path}`;
+      const value = foundry.utils.getProperty(data, field);
+      if (value === undefined || value === null || value === "" || !Number.isFinite(Number(value))) continue;
+      // An unchanged total saves the original base. Editing a total changes only the base.
+      foundry.utils.setProperty(data, field, base + Number(value) - displayed);
+    }
+    return data;
   }
 
   /** @inheritDoc */

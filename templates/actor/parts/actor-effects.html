@@ -13,14 +13,19 @@
 
     <ol class="item-list">
     {{#each section.effects as |effect|}}
-      <li class="item effect flexrow draggable" data-effect-id="{{effect.id}}">
+      <li class="item effect flexrow {{#unless effect.isItemPassive}}draggable{{/unless}}" {{#if effect.isItemPassive}}data-item-id="{{effect.itemId}}" title="{{effect.description}}"{{else}}data-effect-id="{{effect.id}}"{{/if}}>
         <div class="item-name effect-name flexrow">
           <img class="item-image" src="{{effect.icon}}"/>
           <h4>{{effect.name}}</h4>
         </div>
-        <div class="effect-source">{{effect.sourceName}}</div>
+        <div class="effect-source" {{#if effect.isItemPassive}}title="{{effect.description}}"{{/if}}>{{#if effect.isItemPassive}}Item{{else}}Status{{/if}}</div>
         <div class="effect-duration">{{effect.duration.label}}</div>
         <div class="item-controls effect-controls flexrow">
+          {{#if effect.isItemPassive}}
+          <a class="effect-control" data-action="itemEdit" title="Edit item passives">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{else}}
           <a class="effect-control" data-action="effectToggle" data-effect-action="toggle" title="{{localize 'INCARNOS.EffectToggle'}}">
             <i class="fas {{#if effect.disabled}}fa-check{{else}}fa-times{{/if}}"></i>
           </a>
@@ -30,6 +35,7 @@
           <a class="effect-control" data-action="effectDelete" data-effect-action="delete" title="{{localize 'INCARNOS.EffectDelete'}}">
             <i class="fas fa-trash"></i>
           </a>
+          {{/if}}
         </div>
       </li>
     {{/each}}
