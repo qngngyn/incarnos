@@ -150,3 +150,30 @@ test("item passives share existing categories, keep item names and group descrip
   assert.equal(context.effects.inactive.effects[0].name, "Empty Ring");
   assert.equal(context.itemPassives, undefined);
 });
+
+test("legacy features become talents with Profile summaries while gear stays separate", async () => {
+  globalThis.CONST = { DEFAULT_TOKEN: "default.webp" };
+  const { sheet } = await setup();
+  const context = { items: [
+    { type: "feature", name: "Old talent", system: {} },
+    { type: "feature", name: "Riposte", system: { talentType: "active", apCost: 2, trigger: "After parrying", duration: "One round" } },
+    { type: "feature", name: "Passive talent", system: { talentType: "passive", apCost: 4 } },
+    { type: "weapon", name: "Sword", system: { modifier: 1 } }
+  ] };
+  IncarnosActorSheet.prototype._prepareItems.call(sheet, context);
+  assert.equal(context.talents.length, 3);
+  assert.equal(context.gear.length, 1);
+  assert.equal(context.talents[0].talentSummary, "Passive");
+  assert.equal(context.talents[1].talentSummary, "Active ? 2 AP ? Trigger: After parrying ? Duration: One round");
+  assert.equal(context.talents[2].talentSummary, "Passive");
+});
+
+test("creating a talent uses the new name and compatible stored type", async () => {
+  const { actor, sheet } = await setup();
+  let created;
+  actor.createEmbeddedDocuments = async (type, data) => { created = { type, data }; };
+  await IncarnosActorSheet.DEFAULT_OPTIONS.actions.itemCreate.call(sheet, { preventDefault() {} }, { dataset: { type: "feature" } });
+  assert.equal(created.type, "Item");
+  assert.equal(created.data[0].name, "New Talent");
+  assert.equal(created.data[0].type, "feature");
+});

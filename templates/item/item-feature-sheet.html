@@ -2,6 +2,7 @@
   <header class="sheet-header">
     <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
     <div class="header-fields">
+      <label class="resource-label">Talent</label>
       <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
     </div>
   </header>
@@ -29,7 +30,27 @@
 
     {{!-- Attributes Tab --}}
     <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
-      {{!-- As you add new fields, add them in here! --}}
+      <div class="resource">
+        <label class="resource-label" for="talent-type">Talent Type</label>
+        <select id="talent-type" name="system.talentType" data-dtype="String" {{#unless editable}}disabled{{/unless}}>
+          {{selectOptions talentTypes selected=system.talentType localize=false}}
+        </select>
+      </div>
+      {{#if isActiveTalent}}
+      <div class="resource">
+        <label class="resource-label" for="talent-ap-cost">AP Cost</label>
+        <input id="talent-ap-cost" type="number" name="system.apCost" value="{{system.apCost}}" min="0" step="1" data-dtype="Number" {{#unless editable}}disabled{{/unless}}/>
+      </div>
+      {{/if}}
+      <div class="resource">
+        <label class="resource-label" for="talent-trigger">Trigger / Requirement</label>
+        <input id="talent-trigger" type="text" name="system.trigger" value="{{system.trigger}}" placeholder="e.g. After successfully parrying" {{#unless editable}}disabled{{/unless}}/>
+      </div>
+      <div class="resource">
+        <label class="resource-label" for="talent-duration">Duration</label>
+        <input id="talent-duration" type="text" name="system.duration" value="{{system.duration}}" placeholder="e.g. Instant or one round" {{#unless editable}}disabled{{/unless}}/>
+      </div>
+      <p class="hint">These details describe how to use the talent. AP spending and effect activation are manual. Add stat modifiers in Passives.</p>
     </div>
     {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>

@@ -1,4 +1,7 @@
 {
+  "TYPES.Item.feature": "Talent",
+  "TYPES.Item.featurePl": "Talents",
+
   "INCARNOS.AbilityStr": "Strength",
   "INCARNOS.AbilityCon": "Constitution",
   "INCARNOS.AbilityDex": "Dexterity",

@@ -66,7 +66,7 @@
   {{!-- Sheet Body --}}
   <section class="sheet-body">
 
-    {{!-- Owned Features Tab --}}
+    {{!-- Profile Tab --}}
     <div class="tab features {{tabs.features.cssClass}}" data-group="{{tabs.features.group}}" data-tab="{{tabs.features.id}}">
       <section class="grid">
         <aside class="sidebar grid-span-2">
@@ -85,13 +85,13 @@
             </div>
             {{/each}}
           </div>
-          <button type="button" style ="margin-top: 10px;" class="ability-mod contestroll" data-action="contestRoll">Contest</button>
+          <button type="button" style="display: block; width: 50%; margin: 10px auto 0;" class="ability-mod contestroll" data-action="contestRoll">Contest</button>
         </aside>
       </section>
       <section class="grid grid-2col">
         <section class="main grid-span-2">
           {{!-- This is a Handlebars partial. They're stored in the `/parts` folder next to this sheet, and defined in module/helpers/templates.mjs --}}
-          {{> "systems/incarnos/templates/actor/parts/actor-items.html"}}
+          {{> "systems/incarnos/templates/actor/parts/actor-talents.html"}}
         </section>
 
       </section>

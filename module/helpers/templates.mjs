@@ -9,7 +9,7 @@
     "systems/incarnos/templates/item/item-passives.html",
 
     // Actor partials.
-    "systems/incarnos/templates/actor/parts/actor-features.html",
+    "systems/incarnos/templates/actor/parts/actor-talents.html",
     "systems/incarnos/templates/actor/parts/actor-items.html",
     "systems/incarnos/templates/actor/parts/actor-spells.html",
     "systems/incarnos/templates/actor/parts/actor-effects.html",

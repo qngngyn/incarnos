@@ -1,3 +1,4 @@
+import { TALENT_TYPES, getTalentDetails } from "../helpers/talents.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -86,6 +87,12 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       relativeTo: item,
       rollData: context.rollData
     });
+
+    if (item.type === "feature") {
+      Object.assign(context.system, getTalentDetails(context.system));
+      context.talentTypes = TALENT_TYPES;
+      context.isActiveTalent = context.system.talentType === "active";
+    }
 
     if (item.type === "weapon") {
       context.system.attackMode ??= "melee";

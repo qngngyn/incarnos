@@ -413,12 +413,14 @@
   background: rgba(0, 0, 0, 0.05);
   border: 2px groove #eeede0;
   font-weight: bold;
+  color: var(--color-text-primary, #444);
 }
 .incarnos .items-list .items-header > * {
   font-size: 12px;
   text-align: center;
 }
 .incarnos .items-list .items-header .item-name {
+  color: inherit;
   padding-left: 5px;
   text-align: left;
 }

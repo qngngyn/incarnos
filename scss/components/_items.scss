@@ -101,11 +101,13 @@
     background: rgba(0, 0, 0, 0.05);
     border: $border-groove;
     font-weight: bold;
+    color: var(--color-text-primary, #{$c-tan});
     > * {
       font-size: 12px;
       text-align: center;
     }
     .item-name {
+      color: inherit;
       padding-left: 5px;
       text-align: left;
       // font-size: 16px;

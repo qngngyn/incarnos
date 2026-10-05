@@ -14,7 +14,7 @@ The Table of Content is as followed:
 
 ## Item passives
 
-Open an item, weapon, feature, or spell and select **Passives**. Click **Add passive**, choose a stat, and enter a signed modifier (for example, Strength +2 or Parry -1). Changes save automatically.
+Open an item, weapon, talent, or spell and select **Passives**. Click **Add passive**, choose a stat, and enter a signed modifier (for example, Strength +2 or Parry -1). Changes save automatically.
 
 Enabled passives apply while the item is owned by an actor. Multiple items and modifiers stack. Each item applies once regardless of quantity; quantity zero or unchecking **Enable item passives** disables its modifiers. Removing the item removes its bonuses. Existing items need no migration.
 
@@ -25,3 +25,9 @@ Actor sheets show one effective value per stat, including item passives. Editing
 Run passive regression checks with `node --test tests/*.test.mjs`.
 
 The actor?s existing **Passive Effects** section lists one row per item, named after that item. Disabled item passives appear under **Inactive Effects**. Hover the row to read its modifiers and descriptions; use its edit icon to open the item. Add optional notes in each passive?s **Description** field on the item?s Passives tab. These entries reflect the items directly and do not apply a second copy of the bonus.
+
+## Talents
+
+Features are now called **Talents** in the interface. Existing feature items continue to work; their internal item type stays `feature` for compatibility.
+
+The talent?s **Attributes** tab contains Passive/Active type, AP cost (active talents), Trigger / Requirement, and Duration. These details save automatically and appear as a compact summary beneath the talent name on character and NPC Profiles. AP spending and activation remain manual; automatic stat modifiers belong in **Passives**. Existing talents default to Passive with empty trigger/duration and zero AP cost.

@@ -1,3 +1,4 @@
+import { getTalentSummary } from "../helpers/talents.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
@@ -168,7 +169,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
    */
   _prepareItems(context) {
     const gear = [];
-    const features = [];
+    const talents = [];
     const spells = {
       0: [],
       1: [],
@@ -193,7 +194,8 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         gear.push(item);
       }
       else if (item.type === "feature") {
-        features.push(item);
+        item.talentSummary = getTalentSummary(item.system);
+        talents.push(item);
       }
       else if (item.type === "spell") {
         const spellLevel = item.system.spellLevel ?? 0;
@@ -203,7 +205,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }
 
     context.gear = gear;
-    context.features = features;
+    context.talents = talents;
     context.spells = spells;
   }
 
@@ -220,7 +222,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const system = foundry.utils.deepClone(target.dataset);
     delete system.type;
 
-    const name = `New ${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+    const name = type === "feature" ? "New Talent" : `New ${type.charAt(0).toUpperCase()}${type.slice(1)}`;
     const itemData = { name, type, system };
 
     return this.actor.createEmbeddedDocuments("Item", [itemData]);

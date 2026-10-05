@@ -53,3 +53,23 @@ test("legacy items receive editor defaults without changing stored item data", a
     assert.equal(source.system.passives, undefined);
   }
 });
+
+test("talent attributes preserve saved values and supply defaults for old features", async () => {
+  for (const [source, expectedType, expectedCost] of [
+    [{ description: "Old talent" }, "passive", 0],
+    [{ talentType: "active", apCost: 2, trigger: "After parrying", duration: "One round" }, "active", 2]
+  ]) {
+    const snapshot = structuredClone(source);
+    const sheet = new IncarnosItemSheet();
+    Object.assign(sheet, { isEditable: true, options: { classes: [] }, item: {
+      type: "feature", isOwner: true, toObject: () => ({ system: structuredClone(source), flags: {} })
+    } });
+    const context = await sheet._prepareContext({});
+    assert.equal(context.system.talentType, expectedType);
+    assert.equal(context.system.apCost, expectedCost);
+    assert.equal(context.isActiveTalent, expectedType === "active");
+    assert.equal(context.system.trigger, source.trigger ?? "");
+    assert.equal(context.system.duration, source.duration ?? "");
+    assert.deepEqual(source, snapshot);
+  }
+});
