@@ -188,10 +188,16 @@ test("attack and save Contest buttons select their own stat values without a typ
   ]) {
     const messages = [];
     const formulas = [];
-    globalThis.ChatMessage = { getSpeaker: () => ({}), create: async message => messages.push(message) };
+    const updates = [];
+    globalThis.ChatMessage = { getSpeaker: () => ({}), create: async message => {
+      messages.push(message);
+      return { update: async data => updates.push(data) };
+    } };
     globalThis.Roll = class {
-      constructor(formula) { formulas.push(formula); }
+      constructor(formula) { this.formula = formula; formulas.push(formula); }
       async evaluate() { return this; }
+      async render() { return `<div class="dice-roll">${this.formula}</div>`; }
+      toJSON() { return { formula: this.formula, evaluated: true }; }
     };
     foundry.applications.api.DialogV2 = {
       prompt: async options => {
@@ -204,6 +210,33 @@ test("attack and save Contest buttons select their own stat values without a typ
     await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType } });
     assert.deepEqual(formulas, [expectedFormula]);
     assert.equal(messages[0].flavor, expectedFlavor);
-    assert.equal(messages[1].flavor, "Contester");
+    assert.equal(messages.length, 1);
+    assert.equal(updates.length, 1);
+    assert.deepEqual(updates[0].rolls, [{ formula: expectedFormula, evaluated: true }]);
+    assert.equal(updates[0].content, `<div class="dice-roll">${expectedFormula}</div>`);
+    assert.equal(updates[0].flavor, undefined);
+  }
+});
+
+test("cancelling or rejecting an invalid contest updates the original message without rolling", async () => {
+  const { actor, sheet } = await setup();
+  for (const scenario of ["cancel", "invalid", "dismiss-stat"]) {
+    const messages = [];
+    const updates = [];
+    actor.system.abilities.str.value = scenario === "invalid" ? 20 : 8;
+    globalThis.ChatMessage = {
+      getSpeaker: () => ({}),
+      create: async data => { messages.push(data); return { update: async update => updates.push(update) }; }
+    };
+    globalThis.Roll = class { constructor() { assert.fail("Unexpected roll"); } };
+    foundry.applications.api.DialogV2 = {
+      prompt: async options => scenario === "dismiss-stat" ? null : options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } }),
+      confirm: async () => scenario === "invalid"
+    };
+    await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
+    assert.equal(messages.length, scenario === "dismiss-stat" ? 0 : 1);
+    assert.equal(updates.length, scenario === "dismiss-stat" ? 0 : 1);
+    if (scenario === "cancel") assert.equal(updates[0].content, "<p>Contest cancelled.</p>");
+    if (scenario === "invalid") assert.match(updates[0].content, /Cannot roll this contest/);
   }
 });

@@ -352,6 +352,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
     let content;
     let value;
+    let contestMessage;
     if (result.type === "Attack") {
       switch (result.stat) {
         case "Strength": value = abilities.str.value; break;
@@ -363,7 +364,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         case "Intelligence": value = abilities.int.value; break;
         case "Charisma": value = abilities.cha.value; break;
       }
-      await ChatMessage.create({ speaker, flavor: `Attacker ${result.stat} Contest: ${value}` });
+      contestMessage = await ChatMessage.create({ speaker, flavor: `Attacker ${result.stat} Contest: ${value}`, content: "<p>Waiting for the contest roll.</p>" });
       content = "Go get 'em!"
     } else {
       switch (result.stat) {
@@ -376,7 +377,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         case "Intelligence": value = abilities.int.save; break;
         case "Charisma": value = abilities.cha.save; break;
       }
-      await ChatMessage.create({ speaker, flavor: `Defendant ${result.stat} Contest: ${value}` });
+      contestMessage = await ChatMessage.create({ speaker, flavor: `Defendant ${result.stat} Contest: ${value}`, content: "<p>Waiting for the contest roll.</p>" });
       content = "Defend yourself!"
     }
 
@@ -392,14 +393,17 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const rollHitText = `d${die}`;
     if (proceed) {
       if (die < 1) {
-        await ChatMessage.create({ speaker, flavor: `your roll is negative, how is this possible??? ${rollHitText}` });
+        await contestMessage.update({ content: `<p>Cannot roll this contest: ${rollHitText} has fewer than one side.</p>` });
         return;
       }
       const rollHit = await new Roll(rollHitText).evaluate({ async: true });
-      await ChatMessage.create({ speaker, flavor: "Contester", rolls: [rollHit] });
+      await contestMessage.update({
+        content: await rollHit.render(),
+        rolls: [rollHit.toJSON()]
+      });
     }
     else {
-      await ChatMessage.create({ speaker, flavor: "wussed out of the contest" });
+      await contestMessage.update({ content: "<p>Contest cancelled.</p>" });
     }
   }
   
