@@ -1,5 +1,10 @@
 /** Private defender requests use chat documents so the GM can authorize responses. */
 export const CONTEST_STATS = { Strength: "str", Dexterity: "dex", Constitution: "con", Willpower: "wis", Perception: "prc", Speed: "spd", Intelligence: "int", Charisma: "cha" };
+/** Contest improvements stop at d2; invalid stat values cannot produce a roll. */
+export function getContestDie(value) {
+  const stat = Number(value);
+  return Number.isInteger(stat) ? Math.max(2, 20 - stat) : NaN;
+}
 const processing = new Set();
 const rolling = new Set();
 const submitted = new Set();
@@ -88,7 +93,7 @@ export async function rollDefenderContest(message) {
     if (!stat || requestData(message)?.status !== "pending") return;
     if (!Object.hasOwn(CONTEST_STATS, stat)) return ui.notifications.warn("Choose a valid saving throw.");
     const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.save);
-    const die = 20 - value;
+    const die = getContestDie(value);
     if (!Number.isInteger(die) || die < 1) return ui.notifications.warn("This defender's saving throw does not produce a valid contest die.");
     const roll = await new Roll(`d${die}`).evaluate({ async: true });
     const response = { requestId: message.id, stat, value, roll: roll.toJSON() };
@@ -117,7 +122,7 @@ export async function completeDefenderContest(message, actor, response, userId) 
   const stat = response.stat ?? data.stat; // Pending responses from older clients use the requested stat.
   if (!Object.hasOwn(CONTEST_STATS, stat)) return false;
   const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.save);
-  const die = 20 - value;
+  const die = getContestDie(value);
   if (response.value !== value || !Number.isInteger(die) || die < 1) return false;
   const roll = Roll.fromData(response.roll);
   if (!roll._evaluated || !new RegExp(`^1?d${die}$`).test(roll.formula) || !Number.isInteger(roll.total) || roll.total < 1 || roll.total > die) return false;

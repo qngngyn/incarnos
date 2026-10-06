@@ -184,8 +184,11 @@ test("attack and save Contest buttons select their own stat values without a typ
   actor.system.abilities.str.save = 12;
   for (const [contestType, expectedFormula, expectedFlavor] of [
     ["attack", "d12", "Attacker Strength Contest: 8"],
-    ["save", "d8", "Defendant Strength Contest: 12"]
+    ["save", "d8", "Defendant Strength Contest: 12"],
+    ["attack", "d2", "Attacker Strength Contest: 25"],
+    ["save", "d2", "Defendant Strength Contest: 25"]
   ]) {
+    if (expectedFormula === "d2") { actor.system.abilities.str.value = 25; actor.system.abilities.str.save = 25; }
     const messages = [];
     const formulas = [];
     const updates = [];
@@ -223,7 +226,7 @@ test("cancelling or rejecting an invalid contest updates the original message wi
   for (const scenario of ["cancel", "invalid", "dismiss-stat"]) {
     const messages = [];
     const updates = [];
-    actor.system.abilities.str.value = scenario === "invalid" ? 20 : 8;
+    actor.system.abilities.str.value = scenario === "invalid" ? NaN : 8;
     globalThis.ChatMessage = {
       getSpeaker: () => ({}),
       create: async data => { messages.push(data); return { update: async update => updates.push(update) }; }

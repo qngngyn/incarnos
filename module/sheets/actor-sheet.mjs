@@ -1,4 +1,4 @@
-import { getContestDefender, requestDefenderContest, formatContestMatchup } from "../helpers/contest-requests.mjs";
+import { getContestDefender, requestDefenderContest, formatContestMatchup, getContestDie } from "../helpers/contest-requests.mjs";
 import { getTalentSummary } from "../helpers/talents.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
@@ -392,11 +392,11 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       modal: true
     });
 
-    const die = 20 - value;
+    const die = getContestDie(value);
     const rollHitText = `d${die}`;
     if (proceed) {
-      if (die < 1) {
-        await contestMessage.update({ content: `<p>Cannot roll this contest: ${rollHitText} has fewer than one side.</p>` });
+      if (!Number.isInteger(die)) {
+        await contestMessage.update({ content: `<p>Cannot roll this contest: the selected stat must be a finite integer.</p>` });
         return;
       }
       const rollHit = await new Roll(rollHitText).evaluate({ async: true });

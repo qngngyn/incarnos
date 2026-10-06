@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getContestDefender, requestDefenderContest, rollDefenderContest, processContestResponse, completeDefenderContest } from "../module/helpers/contest-requests.mjs";
+import { getContestDie, getContestDefender, requestDefenderContest, rollDefenderContest, processContestResponse, completeDefenderContest } from "../module/helpers/contest-requests.mjs";
 
 let nextMessageId = 0;
 
@@ -51,7 +51,7 @@ function setup() {
     }
   };
   globalThis.Roll = class {
-    constructor(formula) { this.formula = formula; this.total = 7; this._evaluated = false; }
+    constructor(formula) { this.formula = formula; this.total = Math.min(7, Number(formula.replace(/^1?d/, ""))); this._evaluated = false; }
     async evaluate() { rollCount++; this._evaluated = true; return this; }
     toJSON() { return { formula: this.formula, total: this.total, evaluated: this._evaluated }; }
     async render() { return "<div>" + this.formula + ": " + this.total + "</div>"; }
@@ -144,7 +144,7 @@ test("no online GM and invalid dice are reported without sending or rolling", as
   assert.match(env.warnings[0], /GM must be online/);
   env = setup();
   const card = await request(env);
-  env.defender.system.abilities.str.save = 20;
+  env.defender.system.abilities.str.save = NaN;
   game.user = env.defendUser;
   await rollDefenderContest(card);
   assert.equal(env.rollCount(), 0);
@@ -240,4 +240,27 @@ test("unsupported saving throws cannot be rolled or accepted by the GM", async (
   assert.equal(await completeDefenderContest(card, env.defender, { stat: "Unknown", value: 5, roll: { formula: "d15", total: 7, evaluated: true } }, env.defendUser.id), false);
   assert.equal(card.updates.length, 0);
   assert(card.whisper.length > 0);
+});
+
+
+test("contest dice improve down to d2 and stay there for higher stats", () => {
+  for (const [value, die] of [[5, 15], [17, 3], [18, 2], [19, 2], [20, 2], [25, 2]]) {
+    assert.equal(getContestDie(value), die);
+  }
+  for (const value of [NaN, Infinity, 18.5]) assert(Number.isNaN(getContestDie(value)));
+});
+
+test("high defender saves roll d2 and the GM accepts the capped response", async () => {
+  const env = setup();
+  env.defender.system.abilities.str.save = 25;
+  const card = await request(env);
+  game.user = env.defendUser;
+  await rollDefenderContest(card);
+  const packet = env.created[1];
+  assert.equal(packet.flags.incarnos.contestResponse.roll.formula, "d2");
+  game.user = env.gm;
+  await processContestResponse(packet, env.defendUser.id);
+  assert.equal(card.flags.incarnos.contestRequest.status, "complete");
+  assert.equal(card.rolls[0].formula, "d2");
+  assert.deepEqual(card.whisper, []);
 });
