@@ -14,9 +14,8 @@
   input { width: 100%; min-width: 0; }
 }
 .contest-buttons {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 0.5fr) minmax(0, 3fr);
+  display: flex;
+  justify-content: center;
   margin-top: 10px;
-  button { width: 100%; justify-self: start; margin: 0; }
-  button:last-child { grid-column: 3; }
+  button { width: 50%; flex: 0 0 50%; margin: 0; }
 }

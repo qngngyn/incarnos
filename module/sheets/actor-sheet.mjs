@@ -335,7 +335,19 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       .map(stat => `<option value="${stat}">${stat}</option>`)
       .join("");
     const contestType = target?.dataset.contestType === "save" ? "Save" : "Attack";
-    const defender = contestType === "Attack" ? getContestDefender(this.actor) : null;
+    const noTarget = contestType === "Attack" && !(game.user?.targets?.size);
+    if (noTarget) {
+      const rollAnyway = await foundry.applications.api.DialogV2.confirm({
+        window: { title: "No contest target selected" },
+        content: "<p>A target is required to request a defender's contest roll. No token is currently targeted.</p><p>Do you want to roll this contest anyway, without prompting a defender?</p>",
+        yes: { label: "Roll anyway" },
+        no: { label: "Cancel" },
+        rejectClose: false,
+        modal: true
+      });
+      if (!rollAnyway) return;
+    }
+    const defender = contestType === "Attack" && !noTarget ? getContestDefender(this.actor) : null;
     const matchup = defender?.actor ? ` - ${formatContestMatchup(this.actor.name, defender.actor.name)}` : "";
 
     const result = await foundry.applications.api.DialogV2.prompt({
@@ -394,26 +406,28 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }
 
 
-    const proceed = await foundry.applications.api.DialogV2.confirm({
+    const die = getContestDie(value);
+    const rollHitText = `d${die}`;
+    if (!Number.isInteger(die)) {
+      await contestMessage.update({ content: "<p>Cannot roll this contest: the selected stat must be a finite integer.</p>" });
+      return;
+    }
+    if (contestType === "Attack" && !noTarget) await requestDefenderContest({ attacker: this.actor, defender, attackMessage: contestMessage, stat: result.stat });
+
+    const proceed = await foundry.applications.api.DialogV2.prompt({
       window: { title: "Ready to roll?" },
       content: content,
+      ok: { label: "Roll", callback: () => true },
       rejectClose: false,
       modal: true
     });
 
-    const die = getContestDie(value);
-    const rollHitText = `d${die}`;
     if (proceed) {
-      if (!Number.isInteger(die)) {
-        await contestMessage.update({ content: `<p>Cannot roll this contest: the selected stat must be a finite integer.</p>` });
-        return;
-      }
       const rollHit = await new Roll(rollHitText).evaluate({ async: true });
       await contestMessage.update({
         content: await rollHit.render(),
         rolls: [rollHit.toJSON()]
       });
-      if (contestType === "Attack") await requestDefenderContest({ attacker: this.actor, defender, attackMessage: contestMessage, stat: result.stat });
     }
     else {
       await contestMessage.update({ content: "<p>Contest cancelled.</p>" });

@@ -63,8 +63,8 @@ export async function requestDefenderContest({ attacker, defender, attackMessage
   };
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }), whisper,
-    flavor: `Save: ${stat} Contest - ${formatContestMatchup(attacker.name, actor.name)}`,
-    content: `<p><strong>${escape(attacker.name)}</strong> requests a <strong>${escape(stat)} save contest</strong> from ${escape(actor.name)}.</p><button type="button" data-incarnos-contest="roll">Roll Contest</button>`,
+    flavor: `Save Contest - ${formatContestMatchup(attacker.name, actor.name)}`,
+    content: `<p><strong>${escape(attacker.name)}</strong> requests a <strong>save contest</strong> from ${escape(actor.name)}.</p><button type="button" data-incarnos-contest="roll">Roll Contest</button>`,
     flags: { incarnos: { contestRequest: data } }
   });
 }

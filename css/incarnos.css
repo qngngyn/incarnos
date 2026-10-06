@@ -458,12 +458,11 @@
 }
 .incarnos .abilities .ability input { width: 100%; min-width: 0; }
 .incarnos .contest-buttons {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 0.5fr) minmax(0, 3fr);
+  display: flex;
+  justify-content: center;
   margin-top: 10px;
 }
-.incarnos .contest-buttons button { width: 100%; justify-self: start; margin: 0; }
-.incarnos .contest-buttons button:last-child { grid-column: 3; }
+.incarnos .contest-buttons button { width: 50%; flex: 0 0 50%; margin: 0; }
 
 .incarnos .items-list.talents-list .talent-description {
   flex: 3;

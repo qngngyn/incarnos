@@ -204,6 +204,7 @@ test("attack and save Contest buttons select their own stat values without a typ
     };
     foundry.applications.api.DialogV2 = {
       prompt: async options => {
+        if (options.window.title === "Ready to roll?") { assert.equal(options.ok.label, "Roll"); return options.ok.callback(); }
         assert(!options.content.includes('name="type"'));
         assert(options.window.title.includes(contestType));
         return options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } });
@@ -233,8 +234,8 @@ test("cancelling or rejecting an invalid contest updates the original message wi
     };
     globalThis.Roll = class { constructor() { assert.fail("Unexpected roll"); } };
     foundry.applications.api.DialogV2 = {
-      prompt: async options => scenario === "dismiss-stat" ? null : options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } }),
-      confirm: async () => scenario === "invalid"
+      prompt: async options => options.window.title === "Ready to roll?" ? null : scenario === "dismiss-stat" ? null : options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } }),
+      confirm: async options => options.window.title === "No contest target selected" || scenario === "invalid"
     };
     await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
     assert.equal(messages.length, scenario === "dismiss-stat" ? 0 : 1);
@@ -267,7 +268,16 @@ test("sheet attack requests the target player's assigned save; standalone saves 
     toJSON() { return {}; }
   };
   foundry.applications.api.DialogV2 = {
-    prompt: async options => options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } }), confirm: async () => true
+    prompt: async options => {
+      if (options.window.title === "Ready to roll?") {
+        assert.equal(options.ok.label, "Roll");
+        assert.equal(options.no, undefined);
+        assert.equal(messages.length, messages.length === 2 ? 2 : 3);
+        if (messages.length === 2) assert.equal(messages[1].flags.incarnos.contestRequest.status, "pending");
+        return options.ok.callback();
+      }
+      return options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } });
+    }, confirm: async () => true
   };
   await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
   assert.equal(messages.length, 2);
@@ -279,4 +289,45 @@ test("sheet attack requests the target player's assigned save; standalone saves 
   await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "save" } });
   assert.equal(messages.length, 3);
   assert.equal(messages[2].flags?.incarnos?.contestRequest, undefined);
+});
+
+test("untargeted attacks ask permission before rolling and can be cancelled without chat", async () => {
+  const { actor, sheet } = await setup();
+  actor.system.abilities.str.value = 8;
+  game.user = { targets: new Set() };
+  const messages = [];
+  const confirmations = [];
+  let promptCount = 0;
+  let rollCount = 0;
+  let proceedWithoutTarget = false;
+  globalThis.ui = { notifications: { warn: () => assert.fail("No-target flow must not warn") } };
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async data => { messages.push(data); return { update: async () => {} }; } };
+  globalThis.Roll = class {
+    async evaluate() { rollCount++; return this; }
+    async render() { return "roll"; }
+    toJSON() { return {}; }
+  };
+  foundry.applications.api.DialogV2 = {
+    confirm: async options => {
+      confirmations.push(options);
+      return options.window.title === "No contest target selected" ? proceedWithoutTarget : true;
+    },
+    prompt: async options => {
+      if (options.window.title === "Ready to roll?") return options.ok.callback();
+      promptCount++;
+      return options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } });
+    }
+  };
+  const roll = () => IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
+  await roll();
+  assert.equal(messages.length, 0);
+  assert.equal(promptCount, 0);
+  assert.match(confirmations[0].content, /target is required/);
+  assert.equal(confirmations[0].yes.label, "Roll anyway");
+  proceedWithoutTarget = true;
+  await roll();
+  assert.equal(rollCount, 1);
+  assert.equal(messages.length, 1);
+  assert.equal(promptCount, 1);
+  assert.equal(messages[0].flags?.incarnos?.contestRequest, undefined);
 });
