@@ -21,9 +21,9 @@
           "bonus": 0
         },
         "actionpoints": {
-          "value": 4,
+          "value": 3,
           "min": 0,
-          "max": 4,
+          "max": 3,
           "bonus": 0
         },
         "attributes": {

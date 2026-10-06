@@ -47,6 +47,7 @@ async function setup(type = "character") {
     for (const [key, ability] of Object.entries(processed.system?.abilities ?? {})) {
       Object.assign(source.abilities[key], ability);
     }
+    if (processed.system?.actionpoints) Object.assign(source.actionpoints, processed.system.actionpoints);
     if (processed.system?.health) Object.assign(source.health, processed.system.health);
     if (processed.system?.attributes?.parry) Object.assign(source.attributes.parry, processed.system.attributes.parry);
     await prepare();
@@ -332,4 +333,19 @@ test("untargeted attacks ask permission before rolling and can be cancelled with
   assert.equal(messages.length, 1);
   assert.equal(promptCount, 1);
   assert.equal(messages[0].flags?.incarnos?.contestRequest, undefined);
+});
+
+
+test("editing maximum actions preserves item passive bonuses as reversible modifiers", async () => {
+  const { actor, source, prepare, save } = await setup();
+  actor.items.push(item("actionpoints.max", 3));
+  await prepare();
+  assert.equal(actor.system.actionpoints.max, 6);
+  await save({ system: { actionpoints: { max: 6 } } });
+  assert.equal(source.actionpoints.max, 3);
+  await save({ system: { actionpoints: { max: 9 } } });
+  assert.equal(source.actionpoints.max, 6);
+  actor.items = [];
+  await prepare();
+  assert.equal(actor.system.actionpoints.max, 6);
 });

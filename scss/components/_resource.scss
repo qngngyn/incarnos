@@ -19,3 +19,5 @@
   margin-top: 10px;
   button { width: 50%; flex: 0 0 50%; margin: 0; }
 }
+
+.action-resource { display: flex; align-items: center; gap: 6px; margin-top: 10px; input { width: 45px; min-width: 0; } button { width: auto; flex: 0 0 auto; margin: 0; padding: 0 8px; } }

@@ -50,7 +50,7 @@ test("base modifiers feed derived stats, saves and rolls; direct derived modifie
   assert.equal(result.system.power.max, 20);
   assert.equal(result.system.attributes.parry.value, 6);
   assert.equal(result.system.attributes.movement.value, 6.75);
-  assert.equal(result.system.actionpoints.max, 6);
+  assert.equal(result.system.actionpoints.max, 5);
   assert.equal(result.system.health.value, source.health.value);
   assert.equal(result.getRollData().str.value, 7);
   assert.equal(source.abilities.str.value, 5);

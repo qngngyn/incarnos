@@ -87,6 +87,19 @@
           <div class="contest-buttons">
             <button type="button" class="ability-mod contestroll" data-action="contestRoll" data-contest-type="attack" title="Attack contest">Contest</button>
           </div>
+          {{#if showActionTracker}}
+          <div class="action-resource">
+            <span class="resource-label">Actions</span>
+            <input type="number" name="system.actionpoints.value" value="{{system.actionpoints.value}}" min="0" max="{{system.actionpoints.max}}" aria-label="Actions remaining" title="Actions remaining" {{#unless editable}}disabled{{/unless}}>
+            <span>/</span>
+            <input type="number" name="system.actionpoints.max" value="{{system.actionpoints.max}}" min="0" aria-label="Maximum actions" title="Maximum actions per turn (normally 3, 6 or 9)" {{#unless editable}}disabled{{/unless}}>
+            {{#if editable}}
+            <button type="button" data-action="spendAction" title="Spend one action" aria-label="Spend one action">&minus;</button>
+            <button type="button" data-action="restoreAction" title="Restore one action" aria-label="Restore one action">+</button>
+            <button type="button" data-action="resetActions" title="Restore all actions">Reset</button>
+            {{/if}}
+          </div>
+          {{/if}}
         </aside>
       </section>
       <section class="grid grid-2col">

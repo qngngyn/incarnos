@@ -1,3 +1,4 @@
+import { registerActionTrackerHooks } from "./helpers/action-tracker.mjs";
 import { registerContestRequestHooks } from "./helpers/contest-requests.mjs";
 // Import document classes.
 import { IncarnosActor } from "./documents/actor.mjs";
@@ -14,6 +15,7 @@ import { INCARNOS } from "./helpers/config.mjs";
 /* -------------------------------------------- */
 
 registerContestRequestHooks();
+registerActionTrackerHooks();
 
 Hooks.once('init', async function() {
 

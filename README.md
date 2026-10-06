@@ -50,3 +50,13 @@ Completed contests announce the winner in a separate public chat message after t
 Contest windows are queued per client, including attack choosers, defender prompts, and tie rerolls. A new request waits for the current window to finish. Each dialog has its own ID; queued requests already completed elsewhere are skipped. Closing or failing a dialog releases the queue for the next request.
 
 Contest result messages are authored by the actual roller, preserving Dice So Nice player appearance and visibility preferences. The original requester is stored separately for permission checks.
+
+## Actions on tokens
+
+Actions belong to the system and are implemented in `module/helpers/action-tracker.mjs`, using the existing `system.actionpoints` resource. New actors start with 3 actions. On loading the world as GM, the former 4-action default is converted to 3 for existing characters/NPCs, including unlinked tokens. Custom pools such as 6 and 9 are preserved. Item passives modifying maximum actions continue to apply.
+
+Green segments above visible tokens show remaining actions, in rows of three. Spent actions are dark. The action UI is shown only during a started, active combat and only for its participants. Participating owned characters show their segments continuously; other participants show them on hover. GMs see all visible tokens. Health and Power bars are unaffected. Pools above 9 use a numeric counter.
+
+Right-click an owned token to use the Actions controls (spend, restore, reset), or use the same controls on its sheet. Spending is manual, so no action cost is assumed for contests, movement or attacks. Advancing combat refills the actor whose turn ended, including the round wrap; rewinding and initial combat start do not refill actors. A GM processes replenishment once, with an online owner of the outgoing actor as fallback when no GM is online. Replenishment uses the committed combatTurnChange event and its previous/current state, so forward turns, round wraps, solo encounters and direct turn updates work without preliminary hook metadata. Duplicate notifications cannot reset actions spent after replenishment. Token HUD and sheet action controls also hide outside combat. Unlinked NPC tokens keep separate resources.
+
+Reload all Foundry clients after updating the system.

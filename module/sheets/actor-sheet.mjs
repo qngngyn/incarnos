@@ -1,3 +1,4 @@
+import { changeActions, actorParticipatesInCombat } from "../helpers/action-tracker.mjs";
 import { getContestDefender, requestDefenderContest, formatContestMatchup, getContestDie, showContestDialog } from "../helpers/contest-requests.mjs";
 import { getTalentSummary } from "../helpers/talents.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
@@ -31,6 +32,9 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     },
     actions: {
       roll: IncarnosActorSheet.#onRoll,
+      spendAction: function () { return changeActions(this.actor, "spend"); },
+      restoreAction: function () { return changeActions(this.actor, "restore"); },
+      resetActions: function () { return changeActions(this.actor, "reset"); },
       contestRoll: IncarnosActorSheet.#onContestRoll,
       editImage: IncarnosActorSheet.#onEditImage,
       itemCreate: IncarnosActorSheet.#onItemCreate,
@@ -80,12 +84,13 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const actorData = actor.toObject(false);
 
     context.actor = actor;
+    context.showActionTracker = actorParticipatesInCombat(actor);
     context.system = actorData.system;
     // Remember the displayed total and its underlying base for safe form edits.
     const sourceSystem = actor.toObject().system;
     this._displayedStatValues = {};
     for (const path of Object.keys(PASSIVE_STATS)) {
-      if (!path.startsWith("abilities.") && actor.type !== "npc") continue;
+      if (!path.startsWith("abilities.") && path !== "actionpoints.max" && actor.type !== "npc") continue;
       let displayed = foundry.utils.getProperty(context.system, path);
       const base = foundry.utils.getProperty(sourceSystem, path);
       // The NPC parry input uses numberFormat with zero decimal places.
