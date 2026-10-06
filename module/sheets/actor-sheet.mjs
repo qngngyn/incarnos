@@ -147,8 +147,17 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async _onRender(context, options) {
     await super._onRender(context, options);
 
-    for (const input of this.element.querySelectorAll("input, textarea")) {
-      input.addEventListener("focus", event => event.currentTarget.select());
+    const fields = 'input:not([type]), input[type="text"], input[type="number"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"], textarea';
+    for (const input of this.element.querySelectorAll(fields)) {
+      if (input.disabled || input.readOnly) continue;
+      input.addEventListener("focus", () => input.select());
+      input.addEventListener("pointerdown", event => {
+        if (event.button !== 0 || input.ownerDocument.activeElement === input) return;
+        // Keep the initial click from collapsing the selection after focus.
+        event.preventDefault();
+        input.focus();
+        input.select();
+      });
     }
   }
 
