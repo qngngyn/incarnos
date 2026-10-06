@@ -240,3 +240,40 @@ test("cancelling or rejecting an invalid contest updates the original message wi
     if (scenario === "invalid") assert.match(updates[0].content, /Cannot roll this contest/);
   }
 });
+
+test("sheet attack requests the target player's assigned save; standalone saves send no request", async () => {
+  const { actor, sheet } = await setup();
+  actor.uuid = "Actor.attacker";
+  actor.name = "Attacker";
+  actor.testUserPermission = user => user.id === "attacker";
+  actor.system.abilities.str.value = 8;
+  actor.system.abilities.str.save = 12;
+  const defender = { id: "defender", uuid: "Actor.defender", name: "Defender", testUserPermission: user => user.id === "defender" };
+  const summon = { id: "summon", uuid: "Actor.summon", testUserPermission: defender.testUserPermission };
+  const attackerUser = { id: "attacker", targets: new Set([{ actor: summon }]) };
+  game.user = attackerUser;
+  game.users = [attackerUser, { id: "defender", character: defender }, { id: "gm", isGM: true, active: true }];
+  const messages = [];
+  globalThis.ChatMessage = {
+    getSpeaker: () => ({}),
+    create: async data => { messages.push(data); return { id: "attack-card", update: async () => {} }; }
+  };
+  globalThis.Roll = class {
+    async evaluate() { return this; }
+    async render() { return "roll"; }
+    toJSON() { return {}; }
+  };
+  foundry.applications.api.DialogV2 = {
+    prompt: async options => options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } }), confirm: async () => true
+  };
+  await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
+  assert.equal(messages.length, 2);
+  assert(messages[0].flavor.endsWith(`${actor.name} vs. Defender`));
+  assert(messages[1].flavor.endsWith(`${actor.name} vs. Defender`));
+  assert.equal(messages[1].flags.incarnos.contestRequest.defenderUuid, defender.uuid);
+  assert.equal(messages[1].flags.incarnos.contestRequest.attackMessageId, "attack-card");
+  assert.equal(messages[1].flags.incarnos.contestRequest.stat, "Strength");
+  await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "save" } });
+  assert.equal(messages.length, 3);
+  assert.equal(messages[2].flags?.incarnos?.contestRequest, undefined);
+});

@@ -31,3 +31,11 @@ The actor?s existing **Passive Effects** section lists one row per item, named a
 Features are now called **Talents** in the interface. Existing feature items continue to work; their internal item type stays `feature` for compatibility.
 
 The talent?s **Attributes** tab contains Passive/Active type, AP cost (active talents), Trigger / Requirement, and Duration. These details save automatically and appear as a compact summary beneath the talent name on character and NPC Profiles. AP spending and activation remain manual; automatic stat modifiers belong in **Passives**. Existing talents default to Passive with empty trigger/duration and zero AP cost.
+
+## Defender contest requests
+
+Target one defender token, then roll **Contest** on the attacking character's Profile. The target identifies the defending player; the save uses that player's assigned character in **User Configuration**. Targets without player owners use the targeted NPC. Ambiguous player ownership or a missing assigned character produces a warning.
+
+The defender receives a private chat card with **Roll Contest**, shared with the attacker and GMs. The assigned player or a GM can answer by clicking **Roll Contest**. A saving-throw chooser defaults to the requested stat and allows another save to be selected. Closing the chooser leaves the request private and available to answer later. The result uses and labels the selected saving throw. Attack and defender cards identify the attacker vs. defender. A successful defender roll replaces the request on that same card and makes it public; unanswered requests remain private. Repeated clicks do not roll again. **Save: Contest** still rolls a standalone save without prompting another character.
+
+A GM must be online to update requests answered by another player. Reload Foundry on all connected clients after installing this change.

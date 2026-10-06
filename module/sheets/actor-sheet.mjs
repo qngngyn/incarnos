@@ -1,3 +1,4 @@
+import { getContestDefender, requestDefenderContest, formatContestMatchup } from "../helpers/contest-requests.mjs";
 import { getTalentSummary } from "../helpers/talents.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
@@ -325,6 +326,8 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       .map(stat => `<option value="${stat}">${stat}</option>`)
       .join("");
     const contestType = target?.dataset.contestType === "save" ? "Save" : "Attack";
+    const defender = contestType === "Attack" ? getContestDefender(this.actor) : null;
+    const matchup = defender?.actor ? ` - ${formatContestMatchup(this.actor.name, defender.actor.name)}` : "";
 
     const result = await foundry.applications.api.DialogV2.prompt({
       window: { title: `Choose your ${contestType.toLowerCase()} contest stat` },
@@ -364,7 +367,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         case "Intelligence": value = abilities.int.value; break;
         case "Charisma": value = abilities.cha.value; break;
       }
-      contestMessage = await ChatMessage.create({ speaker, flavor: `Attacker ${result.stat} Contest: ${value}`, content: "<p>Waiting for the contest roll.</p>" });
+      contestMessage = await ChatMessage.create({ speaker, flavor: `Attacker ${result.stat} Contest: ${value}${matchup}`, content: "<p>Waiting for the contest roll.</p>" });
       content = "Go get 'em!"
     } else {
       switch (result.stat) {
@@ -401,6 +404,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         content: await rollHit.render(),
         rolls: [rollHit.toJSON()]
       });
+      if (contestType === "Attack") await requestDefenderContest({ attacker: this.actor, defender, attackMessage: contestMessage, stat: result.stat });
     }
     else {
       await contestMessage.update({ content: "<p>Contest cancelled.</p>" });

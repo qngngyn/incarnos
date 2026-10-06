@@ -1,3 +1,4 @@
+import { registerContestRequestHooks } from "./helpers/contest-requests.mjs";
 // Import document classes.
 import { IncarnosActor } from "./documents/actor.mjs";
 import { IncarnosItem } from "./documents/item.mjs";
@@ -11,6 +12,8 @@ import { INCARNOS } from "./helpers/config.mjs";
 /* -------------------------------------------- */
 /*  Init Hook                                   */
 /* -------------------------------------------- */
+
+registerContestRequestHooks();
 
 Hooks.once('init', async function() {
 
