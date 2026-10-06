@@ -156,16 +156,16 @@ test("legacy features become talents with Profile summaries while gear stays sep
   const { sheet } = await setup();
   const context = { items: [
     { type: "feature", name: "Old talent", system: {} },
-    { type: "feature", name: "Riposte", system: { talentType: "active", apCost: 2, trigger: "After parrying", duration: "One round" } },
+    { type: "feature", name: "Riposte", system: { description: "After parrying\nGain an advantage." } },
     { type: "feature", name: "Passive talent", system: { talentType: "passive", apCost: 4 } },
     { type: "weapon", name: "Sword", system: { modifier: 1 } }
   ] };
   IncarnosActorSheet.prototype._prepareItems.call(sheet, context);
   assert.equal(context.talents.length, 3);
   assert.equal(context.gear.length, 1);
-  assert.equal(context.talents[0].talentSummary, "Passive");
-  assert.equal(context.talents[1].talentSummary, "Active ? 2 AP ? Trigger: After parrying ? Duration: One round");
-  assert.equal(context.talents[2].talentSummary, "Passive");
+  assert.equal(context.talents[0].talentSummary, "");
+  assert.equal(context.talents[1].talentSummary, "After parrying\nGain an advantage.");
+  assert.equal(context.talents[2].talentSummary, "");
 });
 
 test("creating a talent uses the new name and compatible stored type", async () => {
@@ -176,4 +176,34 @@ test("creating a talent uses the new name and compatible stored type", async () 
   assert.equal(created.type, "Item");
   assert.equal(created.data[0].name, "New Talent");
   assert.equal(created.data[0].type, "feature");
+});
+
+test("attack and save Contest buttons select their own stat values without a type selector", async () => {
+  const { actor, sheet } = await setup();
+  actor.system.abilities.str.value = 8;
+  actor.system.abilities.str.save = 12;
+  for (const [contestType, expectedFormula, expectedFlavor] of [
+    ["attack", "d12", "Attacker Strength Contest: 8"],
+    ["save", "d8", "Defendant Strength Contest: 12"]
+  ]) {
+    const messages = [];
+    const formulas = [];
+    globalThis.ChatMessage = { getSpeaker: () => ({}), create: async message => messages.push(message) };
+    globalThis.Roll = class {
+      constructor(formula) { formulas.push(formula); }
+      async evaluate() { return this; }
+    };
+    foundry.applications.api.DialogV2 = {
+      prompt: async options => {
+        assert(!options.content.includes('name="type"'));
+        assert(options.window.title.includes(contestType));
+        return options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } });
+      },
+      confirm: async () => true
+    };
+    await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType } });
+    assert.deepEqual(formulas, [expectedFormula]);
+    assert.equal(messages[0].flavor, expectedFlavor);
+    assert.equal(messages[1].flavor, "Contester");
+  }
 });

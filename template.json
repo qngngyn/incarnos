@@ -126,11 +126,7 @@
     "feature": {
       "templates": [
         "base"
-      ],
-      "talentType": "passive",
-      "apCost": 0,
-      "trigger": "",
-      "duration": ""
+      ]
     },
     "spell": {
       "templates": [

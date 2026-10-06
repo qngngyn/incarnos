@@ -124,3 +124,19 @@
   flex: 0 0 80px;
   padding: 0 8px;
 }
+
+.items-list.talents-list .talent-description {
+  flex: 3;
+  min-width: 0;
+  padding: 0 8px;
+  text-align: left;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.items-list.talents-list .talent-description p { margin: 4px 0; }
+
+// Muted warm gray keeps inventory, talent and effect rows readable on dark backgrounds.
+.items-list:is(.inventory-list, .talents-list, .effects-list) .item:not(.items-header) {
+  color: #b9b3a8;
+  .item-name, .item-name h4, .item-prop { color: inherit; }
+}

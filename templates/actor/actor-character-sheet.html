@@ -80,12 +80,15 @@
               <label for="system.abilities.{{key}}.value" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-label="{{ability.label}} Ability Check">{{ability.label}}</label>
               <input type="text" name="system.abilities.{{key}}.value" value="{{ability.value}}" data-dtype="Number"  />
               <span></span>
-              <label for="system.abilities.{{key}}.save" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-label="{{ability.label}} Saving Throw: {{ability.save}}">{{ability.label}} Save</label>
+              <label for="system.abilities.{{key}}.save" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-label="{{ability.label}} Saving Throw: {{ability.save}}">Save: {{ability.label}}</label>
               <span class="ability-mod">{{numberFormat ability.save decimals=0 sign=false}}</span>
             </div>
             {{/each}}
           </div>
-          <button type="button" style="display: block; width: 50%; margin: 10px auto 0;" class="ability-mod contestroll" data-action="contestRoll">Contest</button>
+          <div class="contest-buttons">
+            <button type="button" class="ability-mod contestroll" data-action="contestRoll" data-contest-type="attack" title="Attack contest">Contest</button>
+            <button type="button" class="ability-mod contestroll" data-action="contestRoll" data-contest-type="save" title="Saving throw contest">Save: Contest</button>
+          </div>
         </aside>
       </section>
       <section class="grid grid-2col">

@@ -10,7 +10,6 @@
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
-    <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
     <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
   </nav>
 
@@ -28,30 +27,6 @@
       {{/if}}
     </div>
 
-    {{!-- Attributes Tab --}}
-    <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
-      <div class="resource">
-        <label class="resource-label" for="talent-type">Talent Type</label>
-        <select id="talent-type" name="system.talentType" data-dtype="String" {{#unless editable}}disabled{{/unless}}>
-          {{selectOptions talentTypes selected=system.talentType localize=false}}
-        </select>
-      </div>
-      {{#if isActiveTalent}}
-      <div class="resource">
-        <label class="resource-label" for="talent-ap-cost">AP Cost</label>
-        <input id="talent-ap-cost" type="number" name="system.apCost" value="{{system.apCost}}" min="0" step="1" data-dtype="Number" {{#unless editable}}disabled{{/unless}}/>
-      </div>
-      {{/if}}
-      <div class="resource">
-        <label class="resource-label" for="talent-trigger">Trigger / Requirement</label>
-        <input id="talent-trigger" type="text" name="system.trigger" value="{{system.trigger}}" placeholder="e.g. After successfully parrying" {{#unless editable}}disabled{{/unless}}/>
-      </div>
-      <div class="resource">
-        <label class="resource-label" for="talent-duration">Duration</label>
-        <input id="talent-duration" type="text" name="system.duration" value="{{system.duration}}" placeholder="e.g. Instant or one round" {{#unless editable}}disabled{{/unless}}/>
-      </div>
-      <p class="hint">These details describe how to use the talent. AP spending and effect activation are manual. Add stat modifiers in Passives.</p>
-    </div>
     {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>
 </section>

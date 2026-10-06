@@ -19,7 +19,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     tag: "form",
     position: {
       width: 600,
-      height: 600
+      height: 700
     },
     window: {
       resizable: true
@@ -111,6 +111,14 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       this._prepareItems(context);
       this._prepareNpcData(context);
     }
+
+    await Promise.all((context.talents ?? []).map(async talent => {
+      talent.descriptionHTML = await TextEditor.enrichHTML(talent.talentSummary, {
+        secrets: actor.isOwner,
+        relativeTo: actor.items.get?.(talent._id) ?? actor,
+        rollData: context.rollData
+      });
+    }));
 
     context.biographyHTML = await TextEditor.enrichHTML(context.system.biography ?? "", {
       secrets: actor.isOwner,
@@ -308,7 +316,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
    * @this {IncarnosActorSheet}
    * @param {PointerEvent} event
    */
-  static async #onContestRoll(event) {
+  static async #onContestRoll(event, target) {
     event.preventDefault();
 
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
@@ -316,19 +324,13 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const options = ["Strength", "Dexterity", "Constitution", "Willpower", "Perception", "Speed", "Intelligence", "Charisma"]
       .map(stat => `<option value="${stat}">${stat}</option>`)
       .join("");
-    const type = ["Attack", "Save"]
-      .map(stat => `<option value="${stat}">${stat}</option>`)
-      .join("");
+    const contestType = target?.dataset.contestType === "save" ? "Save" : "Attack";
 
     const result = await foundry.applications.api.DialogV2.prompt({
-      window: { title: "Choose your Contest stat" },
+      window: { title: `Choose your ${contestType.toLowerCase()} contest stat` },
       content: `
         <fieldset>
           <legend>Stats</legend>
-          <div class="form-group">
-            <label>Type</label>
-            <select name="type">${type}</select>
-          </div>
           <div class="form-group">
             <label>Stat</label>
             <select name="stat">${options}</select>
@@ -338,7 +340,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         label: "Contest",
         callback: (event, button) => 
           ({
-            type: button.form.elements.type.value,
+            type: contestType,
             stat: button.form.elements.stat.value
           })
       },
