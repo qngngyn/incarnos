@@ -5,17 +5,37 @@ export function getContestDie(value) {
   const stat = Number(value);
   return Number.isInteger(stat) ? Math.max(2, 20 - stat) : NaN;
 }
+let dialogQueue = Promise.resolve();
+let dialogSequence = 0;
+
+/** Keep contest modals separate and open just one at a time on each client. */
+export function showContestDialog(method, options, beforeOpen = () => true) {
+  const result = dialogQueue.then(async () => {
+    if (!await beforeOpen()) return null;
+    return foundry.applications.api.DialogV2[method]({
+      ...options, id: `incarnos-contest-dialog-${++dialogSequence}`
+    });
+  });
+  // A closed or failed dialog must never prevent later requests from opening.
+  dialogQueue = result.catch(() => {});
+  return result;
+}
+
 const processing = new Set();
 const rolling = new Set();
 const submitted = new Set();
+const prompted = new Set();
+const resolvingTies = new Set();
 const requestData = message => message.flags?.incarnos?.contestRequest;
+const requestAuthor = message => game.users.get(requestData(message)?.requestAuthorId) ?? message.author;
 const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 const activeGM = () => [...game.users].filter(user => user.active && user.isGM).sort((a, b) => a.id.localeCompare(b.id))[0];
 const owns = (actor, user) => Boolean(user && (user.isGM || actor?.testUserPermission(user, "OWNER")));
 
 /** HTML-safe matchup label shared by the attack and defender cards. */
 export function formatContestMatchup(attacker, defender) {
-  return defender ? `${escape(attacker)} vs. ${escape(defender)}` : escape(attacker);
+  const attackName = `<span style="color: #c62828">${escape(attacker)}</span>`;
+  return defender ? `${attackName} vs. <span style="color: #2e7d32">${escape(defender)}</span>` : attackName;
 }
 
 /** Resolve the targeted player's assigned character before the attack dialog opens. */
@@ -59,7 +79,7 @@ export async function requestDefenderContest({ attacker, defender, attackMessage
   const whisper = [...new Set([game.user.id, ...owners.map(user => user.id), ...gms.map(user => user.id)])];
   const data = {
     defenderUuid: actor.uuid, attackerUuid: attacker.uuid, attackMessageId: attackMessage.id,
-    stat, recipientUserId: defender.playerId ?? null, status: "pending", defenderName: actor.name, attackerName: attacker.name
+    stat, requestAuthorId: game.user.id, popup: true, recipientUserId: defender.playerId ?? null, status: "pending", defenderName: actor.name, attackerName: attacker.name
   };
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }), whisper,
@@ -80,19 +100,26 @@ export async function rollDefenderContest(message) {
     if (!game.user.isGM && message.author?.id !== game.user.id && !activeGM()) {
       return ui.notifications.warn("A GM must be online to process this contest response.");
     }
+    const isAttack = data.role === "attack";
     const options = Object.keys(CONTEST_STATS)
       .map(stat => `<option value="${stat}"${stat === data.stat ? " selected" : ""}>${stat}</option>`)
       .join("");
-    const stat = await foundry.applications.api.DialogV2.prompt({
-      window: { title: "Choose your save contest stat" },
-      content: `<fieldset><legend>Saving throw</legend><div class="form-group"><label>Stat</label><select name="stat">${options}</select></div></fieldset>`,
-      ok: { label: "Roll Contest", callback: (event, button) => button.form.elements.stat.value },
+    const stat = await showContestDialog("prompt", {
+      window: { title: data.reroll ? "TIE! Roll contest again" : "Choose your save contest stat" },
+      content: data.reroll
+        ? `<p><strong>TIE!</strong> ${formatContestMatchup(data.attackerName, data.defenderName)}</p><p>Roll again using ${escape(data.stat)} (${isAttack ? "attack" : "save"}).</p>`
+        : `<p><span style="color: #c62828">${escape(data.attackerName)}</span> challenges you!</p><fieldset><legend>Saving throw</legend><div class="form-group"><label>Stat</label><select name="stat">${options}</select></div></fieldset>`,
+      ok: { label: "Roll!", callback: (event, button) => data.reroll ? data.stat : button.form.elements.stat.value },
       rejectClose: false,
       modal: true
+    }, async () => {
+      if (data.reroll) await waitForContestAnimations(data.previousMessageIds ?? []);
+      return requestData(message)?.status === "pending" && !submitted.has(message.id)
+        && owns(actor, game.user);
     });
     if (!stat || requestData(message)?.status !== "pending") return;
     if (!Object.hasOwn(CONTEST_STATS, stat)) return ui.notifications.warn("Choose a valid saving throw.");
-    const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.save);
+    const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.[data.role === "attack" ? "value" : "save"]);
     const die = getContestDie(value);
     if (!Number.isInteger(die) || die < 1) return ui.notifications.warn("This defender's saving throw does not produce a valid contest die.");
     const roll = await new Roll(`d${die}`).evaluate({ async: true });
@@ -120,8 +147,8 @@ export async function completeDefenderContest(message, actor, response, userId) 
   if (actor.uuid !== data.defenderUuid || !CONTEST_STATS[data.stat]) return false;
   if (!user.isGM && data.recipientUserId && data.recipientUserId !== userId) return false;
   const stat = response.stat ?? data.stat; // Pending responses from older clients use the requested stat.
-  if (!Object.hasOwn(CONTEST_STATS, stat)) return false;
-  const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.save);
+  if (!Object.hasOwn(CONTEST_STATS, stat) || (data.reroll && stat !== data.stat)) return false;
+  const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.[data.role === "attack" ? "value" : "save"]);
   const die = getContestDie(value);
   if (response.value !== value || !Number.isInteger(die) || die < 1) return false;
   const roll = Roll.fromData(response.roll);
@@ -129,10 +156,13 @@ export async function completeDefenderContest(message, actor, response, userId) 
   processing.add(message.id);
   try {
     await message.update({
-      flavor: `Save: ${stat} Contest: ${value} - ${formatContestMatchup(data.attackerName, data.defenderName)}`,
+      flavor: `${data.role === "attack" ? "Attack:" : "Save:"} ${stat} Contest: ${value} - ${formatContestMatchup(data.attackerName, data.defenderName)}`,
+      // Dice So Nice uses the author for appearance and "show only my dice".
+      author: userId,
       content: await roll.render(), rolls: [roll.toJSON()],
       whisper: [], blind: false,
       "flags.incarnos.contestRequest.status": "complete",
+      "flags.incarnos.contestRequest.requestAuthorId": data.requestAuthorId ?? message.author.id,
       "flags.incarnos.contestRequest.responderId": userId,
       "flags.incarnos.contestRequest.responseStat": stat
     });
@@ -152,7 +182,7 @@ export async function processContestResponse(message, userId) {
     if (!data) return;
     const actor = await fromUuid(data.defenderUuid);
     const attacker = await fromUuid(data.attackerUuid);
-    if (!owns(attacker, request.author)) return;
+    if (!owns(attacker, requestAuthor(request))) return;
     await completeDefenderContest(request, actor, response, userId);
   } catch (error) {
     console.error("Incarnos contest response failed", error);
@@ -161,9 +191,123 @@ export async function processContestResponse(message, userId) {
   }
 }
 
-/** Bind chat controls separately on each client; no remote popup is forced. */
+/** Wait for local Dice So Nice animations when available; no artificial delay. */
+export async function waitForContestAnimations(messageIds) {
+  // Allow every synchronous chat-update hook to start its animation first.
+  await Promise.resolve();
+  if (typeof game.dice3d?.waitFor3DAnimationByMessageID !== "function") return;
+  await Promise.all([...new Set(messageIds)].map(id => game.dice3d.waitFor3DAnimationByMessageID(id)));
+}
+
+/** Finalize a completed pair on one GM client; lower totals win, ties start a new pair. */
+export async function resolveContestTie(message) {
+  if (activeGM()?.id !== game.user.id) return;
+  const candidates = requestData(message)?.role !== "attack" && requestData(message)
+    ? [message]
+    : [...game.messages.values()].filter(card => requestData(card)?.role !== "attack" && requestData(card)?.attackMessageId === message.id);
+  for (const defenderMessage of candidates) {
+    const data = requestData(defenderMessage);
+    if (data.status !== "complete" || data.tieProcessed || data.outcomeProcessed || resolvingTies.has(defenderMessage.id)) continue;
+    const attackMessage = game.messages.get(data.attackMessageId);
+    const attackTotal = attackMessage?.rolls?.[0]?.total;
+    const saveTotal = defenderMessage.rolls?.[0]?.total;
+    if (!Number.isFinite(attackTotal) || !Number.isFinite(saveTotal)) continue;
+    resolvingTies.add(defenderMessage.id);
+    try {
+      const attacker = await fromUuid(data.attackerUuid);
+      const defender = await fromUuid(data.defenderUuid);
+      if (!attacker || !defender || !owns(attacker, requestAuthor(defenderMessage)) || !owns(attacker, attackMessage.author)) continue;
+      await waitForContestAnimations([attackMessage.id, defenderMessage.id]);
+      if (activeGM()?.id !== game.user.id || requestData(defenderMessage)?.tieProcessed || requestData(defenderMessage)?.outcomeProcessed
+        || requestData(defenderMessage)?.status !== "complete"
+        || attackMessage.rolls?.[0]?.total !== attackTotal || defenderMessage.rolls?.[0]?.total !== saveTotal) continue;
+      const coloredMatchup = `<span style="color: #c62828">${escape(data.attackerName)}</span> vs. <span style="color: #2e7d32">${escape(data.defenderName)}</span>`;
+      const colorFlavor = card => (card.flavor ?? "").replace(`${escape(data.attackerName)} vs. ${escape(data.defenderName)}`, coloredMatchup);
+      if (attackTotal !== saveTotal) {
+        const attackWon = attackTotal < saveTotal;
+        const winnerName = attackWon ? data.attackerName : data.defenderName;
+        const outcome = { winner: attackWon ? "attack" : "defender", winnerName, attackTotal, saveTotal };
+        const footer = `<p><span style="color: ${attackWon ? "#c62828" : "#2e7d32"}">${escape(winnerName)}</span> wins!</p>`;
+        await defenderMessage.update({
+          flavor: colorFlavor(defenderMessage),
+          "flags.incarnos.contestRequest.outcomeProcessed": true,
+          "flags.incarnos.contestOutcome": outcome
+        });
+        await attackMessage.update({
+          flavor: colorFlavor(attackMessage),
+          "flags.incarnos.contestOutcome": outcome
+        });
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor: attackWon ? attacker : defender }),
+          whisper: [], blind: false,
+          flavor: "",
+          content: footer,
+          flags: { incarnos: { contestOutcome: { ...outcome, attackMessageId: attackMessage.id, defenderMessageId: defenderMessage.id } } }
+        });
+        continue;
+      }
+      await defenderMessage.update({
+        flavor: colorFlavor(defenderMessage),
+        "flags.incarnos.contestRequest.tieProcessed": true
+      });
+      await attackMessage.update({ flavor: colorFlavor(attackMessage) });
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: attacker }),
+        whisper: [], blind: false,
+        flavor: `Contest result - ${coloredMatchup}`,
+        content: "<p><strong>TIE!</strong> Both contestants roll again.</p>",
+        flags: { incarnos: { contestOutcome: { winner: null, tie: true, attackTotal, saveTotal,
+          attackMessageId: attackMessage.id, defenderMessageId: defenderMessage.id } } }
+      });
+      const attackData = requestData(attackMessage);
+      const attackOwner = !attackMessage.author.isGM && owns(attacker, attackMessage.author)
+        ? attackMessage.author.id : null;
+      const attackRecipient = attackData?.recipientUserId ?? attackOwner;
+      const base = { attackerUuid: data.attackerUuid, attackerName: data.attackerName, defenderName: data.defenderName,
+        requestAuthorId: game.user.id, popup: true, reroll: true, previousMessageIds: [attackMessage.id, defenderMessage.id], status: "pending" };
+      const createReroll = (actor, recipientUserId, extra) => ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        whisper: [...new Set([game.user.id, ...[...game.users].filter(user => user.isGM ||
+          (!user.isGM && owns(actor, user) && (!recipientUserId || user.id === recipientUserId))).map(user => user.id)])],
+        flavor: `Contest reroll - ${formatContestMatchup(data.attackerName, data.defenderName)}`,
+        content: "<p>TIE! Roll the contest again.</p>",
+        flags: { incarnos: { contestRequest: { ...base, defenderUuid: actor.uuid, recipientUserId, ...extra } } }
+      });
+      const nextAttack = await createReroll(attacker, attackRecipient, {
+        role: "attack", stat: attackData?.responseStat ?? attackData?.stat ?? data.stat
+      });
+      await createReroll(defender, data.recipientUserId, {
+        role: "save", stat: data.responseStat ?? data.stat, attackMessageId: nextAttack.id
+      });
+    } catch (error) {
+      console.error("Incarnos tie reroll failed", error);
+      ui.notifications.error("The tied contest could not be restarted.");
+    } finally { resolvingTies.delete(defenderMessage.id); }
+  }
+}
+
+/** Show each new request on its assigned player's client, or one GM for NPCs. */
+export async function promptDefenderContest(message) {
+  const data = requestData(message);
+  if (!data?.popup || data.status !== "pending" || prompted.has(message.id)) return;
+  const recipientId = data.recipientUserId ?? activeGM()?.id;
+  if (recipientId !== game.user.id) return;
+  prompted.add(message.id);
+  try {
+    const attacker = await fromUuid(data.attackerUuid);
+    if (!owns(attacker, requestAuthor(message))) return;
+    await rollDefenderContest(message);
+  } catch (error) {
+    prompted.delete(message.id);
+    console.error("Incarnos defender popup failed", error);
+    ui.notifications.error("The defender contest could not be opened.");
+  }
+}
+
+/** Chat documents carry requests; pending popup cards stay out of the chat UI. */
 export function registerContestRequestHooks() {
   Hooks.on("renderChatMessageHTML", (message, html) => {
+    if (requestData(message)?.popup && requestData(message)?.status === "pending") { html.style.display = "none"; return; }
     if (message.flags?.incarnos?.contestResponse) { html.style.display = "none"; return; }
     const button = html.querySelector('[data-incarnos-contest="roll"]');
     if (!button) return;
@@ -179,12 +323,14 @@ export function registerContestRequestHooks() {
       finally { button.disabled = requestData(message)?.status !== "pending" || submitted.has(message.id); }
     });
   });
-  Hooks.on("updateChatMessage", message => { if (requestData(message)?.status === "complete") submitted.delete(message.id); });
-  Hooks.on("createChatMessage", (message, options, userId) => { void processContestResponse(message, userId); });
-  Hooks.once("ready", () => {
-    // Resume legitimate responses if a client reconnects before the GM processed them.
-    if (activeGM()?.id === game.user.id) for (const message of game.messages) {
-      if (message.flags?.incarnos?.contestResponse) void processContestResponse(message, message.author?.id);
-    }
+  Hooks.on("updateChatMessage", message => {
+    if (requestData(message)?.status === "complete") submitted.delete(message.id);
+    void resolveContestTie(message);
   });
+  Hooks.on("createChatMessage", (message, options, userId) => {
+    void processContestResponse(message, userId);
+    void promptDefenderContest(message);
+  });
+  // Only live create/update events trigger dialogs and outcomes. Replaying chat
+  // history on ready revives abandoned requests and unresolved historical ties.
 }

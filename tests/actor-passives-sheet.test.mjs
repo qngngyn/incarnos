@@ -204,7 +204,8 @@ test("attack and save Contest buttons select their own stat values without a typ
     };
     foundry.applications.api.DialogV2 = {
       prompt: async options => {
-        if (options.window.title === "Ready to roll?") { assert.equal(options.ok.label, "Roll"); return options.ok.callback(); }
+        if (options.window.title === "Ready to roll?") { assert.equal(contestType, "save"); assert.equal(options.ok.label, "Roll"); return options.ok.callback(); }
+        assert.equal(options.ok.label, "Roll!");
         assert(!options.content.includes('name="type"'));
         assert(options.window.title.includes(contestType));
         return options.ok.callback(null, { form: { elements: { stat: { value: "Strength" } } } });
@@ -213,7 +214,8 @@ test("attack and save Contest buttons select their own stat values without a typ
     };
     await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType } });
     assert.deepEqual(formulas, [expectedFormula]);
-    assert.equal(messages[0].flavor, expectedFlavor);
+    assert.equal(messages[0].flavor.replace(/<[^>]*>/g, ""), expectedFlavor);
+    assert(!messages[0].flavor.includes("color:"));
     assert.equal(messages.length, 1);
     assert.equal(updates.length, 1);
     assert.deepEqual(updates[0].rolls, [{ formula: expectedFormula, evaluated: true }]);
@@ -224,7 +226,7 @@ test("attack and save Contest buttons select their own stat values without a typ
 
 test("cancelling or rejecting an invalid contest updates the original message without rolling", async () => {
   const { actor, sheet } = await setup();
-  for (const scenario of ["cancel", "invalid", "dismiss-stat"]) {
+  for (const scenario of ["invalid", "dismiss-stat"]) {
     const messages = [];
     const updates = [];
     actor.system.abilities.str.value = scenario === "invalid" ? NaN : 8;
@@ -281,8 +283,8 @@ test("sheet attack requests the target player's assigned save; standalone saves 
   };
   await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
   assert.equal(messages.length, 2);
-  assert(messages[0].flavor.endsWith(`${actor.name} vs. Defender`));
-  assert(messages[1].flavor.endsWith(`${actor.name} vs. Defender`));
+  assert(messages[0].flavor.replace(/<[^>]*>/g, "").endsWith(`${actor.name} vs. Defender`));
+  assert(messages[1].flavor.replace(/<[^>]*>/g, "").endsWith(`${actor.name} vs. Defender`));
   assert.equal(messages[1].flags.incarnos.contestRequest.defenderUuid, defender.uuid);
   assert.equal(messages[1].flags.incarnos.contestRequest.attackMessageId, "attack-card");
   assert.equal(messages[1].flags.incarnos.contestRequest.stat, "Strength");

@@ -36,7 +36,17 @@ The talent?s **Attributes** tab contains Passive/Active type, AP cost (active ta
 
 Target one defender token, then roll **Contest** on the attacking character's Profile. The target identifies the defending player; the save uses that player's assigned character in **User Configuration**. Targets without player owners use the targeted NPC. Ambiguous player ownership or a missing assigned character produces a warning.
 
-The defender receives a private chat card with **Roll Contest**, shared with the attacker and GMs. The assigned player or a GM can answer by clicking **Roll Contest**. A saving-throw chooser defaults to the requested stat and allows another save to be selected. Closing the chooser leaves the request private and available to answer later. The result uses and labels the selected saving throw. Attack and defender cards identify the attacker vs. defender. A successful defender roll replaces the request on that same card and makes it public; unanswered requests remain private. Repeated clicks do not roll again. **Save: Contest** still rolls a standalone save without prompting another character.
+The assigned defender receives an automatic popup with a saving-throw chooser. For NPCs, one active GM receives the popup. The chooser defaults to the requested stat and allows another save to be selected. Pending requests are stored as hidden private chat documents; successful rolls make the result public. Closing the chooser leaves the request pending, but reconnecting or reloading does not reopen historical requests. Only new contest requests open popups automatically. The result uses and labels the selected saving throw. Attack and defender cards identify the attacker vs. defender. A successful defender roll replaces the request on that same card and makes it public; unanswered requests remain private. Repeated clicks do not roll again. **Save: Contest** still rolls a standalone save without prompting another character.
 
 A GM must be online to update requests answered by another player. Reload Foundry on all connected clients after installing this change.
 Contest dice use `d(max(2, 20 - stat))`: d2 is the best possible die for attacks and saves, including defender responses.
+
+When both contestants roll the same total, the active GM posts **TIE!** in a separate public chat message and sends new popup requests to both contestants. Attack rerolls use ability values; defender rerolls use saves. After the dice animations finish (when Dice So Nice is available), each reroll popup has only a **Roll!** button and reuses the contestant's previous stat. Repeated ties start another round, and the original results remain in chat.
+
+The initial attack stat chooser uses **Roll!** and immediately rolls; there is no additional Ready to roll confirmation.
+
+Completed contests announce the winner in a separate public chat message after the dice animations finish. The original roll cards retain their roll results. The lower total wins. Attacker names and victories are red; defender names and victories are green. Ties keep their reroll flow.
+
+Contest windows are queued per client, including attack choosers, defender prompts, and tie rerolls. A new request waits for the current window to finish. Each dialog has its own ID; queued requests already completed elsewhere are skipped. Closing or failing a dialog releases the queue for the next request.
+
+Contest result messages are authored by the actual roller, preserving Dice So Nice player appearance and visibility preferences. The original requester is stored separately for permission checks.

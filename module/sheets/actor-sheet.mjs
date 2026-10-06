@@ -1,4 +1,4 @@
-import { getContestDefender, requestDefenderContest, formatContestMatchup, getContestDie } from "../helpers/contest-requests.mjs";
+import { getContestDefender, requestDefenderContest, formatContestMatchup, getContestDie, showContestDialog } from "../helpers/contest-requests.mjs";
 import { getTalentSummary } from "../helpers/talents.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
@@ -337,7 +337,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const contestType = target?.dataset.contestType === "save" ? "Save" : "Attack";
     const noTarget = contestType === "Attack" && !(game.user?.targets?.size);
     if (noTarget) {
-      const rollAnyway = await foundry.applications.api.DialogV2.confirm({
+      const rollAnyway = await showContestDialog("confirm", {
         window: { title: "No contest target selected" },
         content: "<p>A target is required to request a defender's contest roll. No token is currently targeted.</p><p>Do you want to roll this contest anyway, without prompting a defender?</p>",
         yes: { label: "Roll anyway" },
@@ -350,7 +350,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const defender = contestType === "Attack" && !noTarget ? getContestDefender(this.actor) : null;
     const matchup = defender?.actor ? ` - ${formatContestMatchup(this.actor.name, defender.actor.name)}` : "";
 
-    const result = await foundry.applications.api.DialogV2.prompt({
+    const result = await showContestDialog("prompt", {
       window: { title: `Choose your ${contestType.toLowerCase()} contest stat` },
       content: `
         <fieldset>
@@ -361,7 +361,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
           </div>
         </fieldset>`,
       ok: {
-        label: "Contest",
+        label: "Roll!",
         callback: (event, button) => 
           ({
             type: contestType,
@@ -414,7 +414,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }
     if (contestType === "Attack" && !noTarget) await requestDefenderContest({ attacker: this.actor, defender, attackMessage: contestMessage, stat: result.stat });
 
-    const proceed = await foundry.applications.api.DialogV2.prompt({
+    const proceed = contestType === "Attack" || await showContestDialog("prompt", {
       window: { title: "Ready to roll?" },
       content: content,
       ok: { label: "Roll", callback: () => true },
