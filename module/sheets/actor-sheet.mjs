@@ -15,6 +15,14 @@ const TextEditor = foundry.applications.ux.TextEditor.implementation;
  */
 export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
+  /** Display only the actor type in the window header. */
+  get title() {
+    const type = this.actor.type;
+    const key = `TYPES.Actor.${type}`;
+    const label = game.i18n.localize(key);
+    return label !== key ? label : type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
   /** @inheritDoc */
   static DEFAULT_OPTIONS = {
     classes: ["incarnos", "sheet", "actor"],

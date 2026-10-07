@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getActionState, positionActionHUD, tokenParticipatesInCombat, actorParticipatesInCombat, migrateDefaultActions, actionTrackerVisible, changeActions, drawActionTracker, replenishCombatTurn, replenishEndedTurn, registerActionTrackerHooks } from "../module/helpers/action-tracker.mjs";
+import { getActionState, drawPersistentActionHUD, updatePersistentActionHUDs, positionActionHUD, tokenParticipatesInCombat, actorParticipatesInCombat, migrateDefaultActions, actionTrackerVisible, changeActions, drawActionTracker, replenishCombatTurn, replenishEndedTurn, registerActionTrackerHooks } from "../module/helpers/action-tracker.mjs";
+
+function mockActionDOM() {
+  const createElement = () => ({ style: {}, children: [], events: {},
+    append(...children) { this.children.push(...children); },
+    setAttribute(name, value) { this[name] = value; },
+    addEventListener(name, callback) { this.events[name] = callback; },
+    remove() { this.removed = true; }
+  });
+  globalThis.document = { createElement, body: createElement() };
+}
 
 function setup(value = 3, max = 3) {
   const owner = { id: "owner", active: true };
@@ -86,10 +96,11 @@ test("an owner can refill at end of turn when no GM is online", async () => {
   assert.equal(env.actor.system.actionpoints.value, 6);
 });
 
-test("token segments scale to 3/6/9 and redraw removes the previous display", () => {
+test("token segments fit 3/6/9 actions in one row and redraw removes the previous display", () => {
   class Container {
     constructor() { this.children = []; this.position = { set: (x, y) => { this.x = x; this.y = y; } }; }
-    addChild(child) { this.children.push(child); }
+    addChild(...children) { for (const child of children) { this.children.push(child); child.parent = this; } }
+    on() { return this; }
     destroy() { this.destroyed = true; }
   }
   class Graphics {
@@ -98,10 +109,14 @@ test("token segments scale to 3/6/9 and redraw removes the previous display", ()
     drawRoundedRect(x, y, width, height) { Object.assign(this, { x, y, width, height }); return this; }
     endFill() { return this; }
   }
-  globalThis.PIXI = { Container, Graphics };
+  class Text { constructor() { this.anchor = { set() {} }; this.position = { set() {} }; } }
+  globalThis.PIXI = { Container, Graphics, Text };
+  mockActionDOM();
   const env = setup();
   const token = { document: { id: "token", parent: { id: "scene" } }, actor: env.actor, w: 100, isVisible: true, hover: false, children: [], addChild(child) { this.children.push(child); } };
   let previous;
+  let previousWidth = Infinity;
+  let previousY;
   for (const max of [3, 6, 9]) {
     env.actor.system.actionpoints = { value: 2, max };
     drawActionTracker(token);
@@ -110,10 +125,19 @@ test("token segments scale to 3/6/9 and redraw removes the previous display", ()
     assert.equal(display.children.filter(segment => segment.color === 0x39d353).length, 2);
     assert(display.y < 0);
     assert(display.visible);
-    assert.equal(new Set(display.children.map(segment => segment.y)).size, max / 3);
+    assert.equal(new Set(display.children.map(segment => segment.y)).size, 1);
+    assert.equal(display.children[0].x, 0);
+    const last = display.children.at(-1);
+    assert(Math.abs(last.x + last.width - token.w) < 0.000001);
+    assert(display.children[0].width < previousWidth);
+    previousWidth = display.children[0].width;
+    if (previousY !== undefined) assert.equal(display.y, previousY);
+    previousY = display.y;
     if (previous) assert(previous.destroyed);
     previous = display;
   }
+  token.destroyed = true;
+  updatePersistentActionHUDs();
 });
 
 
@@ -161,19 +185,20 @@ test("legacy defaults become 3 while custom action pools and spent values surviv
 });
 
 
-test("action HUD sits below overflowing native buttons at different canvas scales", () => {
+test("compact action HUD stays centered below HP at different canvas scales", () => {
   for (const scale of [0.5, 1, 2]) {
-    const child = {};
-    const controls = { isConnected: true, style: {}, contains: element => element === child };
+    const controls = { isConnected: true, style: {} };
     const root = { isConnected: true, offsetHeight: 100,
-      getBoundingClientRect: () => ({ top: 20, bottom: 20 + 100 * scale, height: 100 * scale }),
-      querySelectorAll: () => [
-        { getBoundingClientRect: () => ({ width: 40, height: 40, bottom: 20 + 160 * scale }) },
-        { getBoundingClientRect: () => ({ width: 0, height: 0, bottom: 999 }) }, controls, child
-      ]
+      getBoundingClientRect: () => ({ left: 10, top: 20, bottom: 20 + 100 * scale, height: 100 * scale }),
+      querySelector: selector => {
+        assert.equal(selector, '.attribute.bar1 input');
+        return { getBoundingClientRect: () => ({ left: 10 + 20 * scale, width: 80 * scale, top: 20 + 110 * scale, height: 30 * scale, bottom: 20 + 140 * scale }) };
+      }
     };
     positionActionHUD(root, controls);
-    assert.equal(controls.style.top, "172px");
+    assert.equal(controls.style.top, "150px");
+    assert.equal(controls.style.left, "60px");
+    assert.equal(controls.style.width, "max-content");
   }
 });
 
@@ -247,4 +272,45 @@ test("a failed automatic reset can be retried on the same confirmed transition",
   env.actor.update = update;
   await replenishCombatTurn(combat, prior, current);
   assert.equal(env.actor.system.actionpoints.value, 9);
+});
+
+
+test("persistent HTML buttons accept clicks, follow tokens, and hide while the right-click HUD is open", async () => {
+  mockActionDOM();
+  const env = setup();
+  const token = { document: { id: "token", parent: { id: "scene" } }, actor: env.actor, isVisible: true, w: 100, h: 100,
+    worldTransform: { apply: point => ({ x: point.x + 40, y: point.y + 50 }) } };
+  const hud = { rendered: false, object: token };
+  globalThis.canvas = { tokens: { hud }, app: {
+    view: { getBoundingClientRect: () => ({ left: 10, top: 20, width: 800, height: 600 }) },
+    renderer: { screen: { width: 800, height: 600 } }
+  } };
+  game.combat.started = false;
+  drawPersistentActionHUD(token); assert.equal(document.body.children.length, 0);
+  game.combat.started = true;
+  token.document.id = "non-participant";
+  drawPersistentActionHUD(token); assert.equal(document.body.children.length, 0);
+  token.document.id = "token";
+  drawPersistentActionHUD(token);
+  const controls = document.body.children[0];
+  assert.equal(controls.children.length, 2);
+  assert.equal(controls.children[0].textContent, "-");
+  assert.equal(controls.children[1].textContent, "+");
+  assert.equal(controls.style.left, "100px");
+  assert.equal(controls.style.top, "176px");
+  assert.equal(controls.style.transform, "translateX(-50%) scale(1)");
+  const event = { preventDefault() {}, stopPropagation() {} };
+  await controls.children[0].events.click(event);
+  assert.equal(env.actor.system.actionpoints.value, 2);
+  await controls.children[1].events.click(event);
+  assert.equal(env.actor.system.actionpoints.value, 3);
+  drawPersistentActionHUD(token); assert.equal(document.body.children.length, 1);
+  hud.rendered = true; updatePersistentActionHUDs(); assert.equal(controls.style.display, "none");
+  hud.rendered = false; updatePersistentActionHUDs(); assert.equal(controls.style.display, "flex");
+  game.combat.started = false; updatePersistentActionHUDs(); assert.equal(controls.style.display, "none");
+  game.combat.started = true;
+  token.isVisible = false; updatePersistentActionHUDs(); assert.equal(controls.style.display, "none");
+  token.isVisible = true; game.user = env.other;
+  drawPersistentActionHUD(token); assert(controls.removed);
+  globalThis.canvas = undefined;
 });

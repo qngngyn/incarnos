@@ -1,6 +1,22 @@
 /** Incarnos action resource, token segments and end-of-turn replenishment. */
 const writes = new WeakMap();
 const displays = new WeakMap();
+const tokenControls = new Map();
+const ACTION_HUD_STYLE = {
+  display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center",
+  justifyContent: "center", gap: "3px", margin: "0", padding: "2px 4px",
+  width: "max-content", minWidth: "0", height: "auto",
+  background: "rgba(20, 24, 20, 0.95)", color: "#eee",
+  border: "1px solid #566656", borderRadius: "4px", fontSize: "10px",
+  lineHeight: "1.2", whiteSpace: "nowrap", pointerEvents: "auto", boxSizing: "border-box"
+};
+const ACTION_BUTTON_STYLE = {
+  width: "auto", minWidth: "18px", height: "20px", flex: "0 0 auto",
+  padding: "0 4px", margin: "0", fontSize: "inherit", lineHeight: "normal",
+  color: "#eee", background: "#273127", border: "1px solid #566656",
+  borderRadius: "4px", boxSizing: "border-box"
+};
+
 const replenishedTurns = new WeakMap();
 const canEdit = actor => Boolean(actor && (game.user.isGM || actor.testUserPermission(game.user, "OWNER")));
 
@@ -68,6 +84,7 @@ export function changeActions(actor, action) {
 }
 
 export function drawActionTracker(token) {
+  drawPersistentActionHUD(token);
   const previous = displays.get(token);
   const state = getActionState(token.actor);
   const signature = [state.value, state.max, token.w].join(":");
@@ -85,20 +102,18 @@ export function drawActionTracker(token) {
   const width = token.w;
   const gap = Math.max(2, width * 0.025);
   const height = Math.max(6, Math.min(14, width * 0.1));
-  // Three columns keep 3, 6 and 9 actions equally legible above the token bars.
-  // Large custom pools use a numeric counter rather than a tall stack.
+  // Fit every action segment into one row across the token width.
+  // Large custom pools use a numeric counter.
   const count = max <= 9 ? max : 1;
-  const rows = Math.ceil(count / 3);
-  const columns = Math.min(3, count);
-  const segmentWidth = (width - gap * (columns - 1)) / columns;
-  container.position.set(0, -(rows * (height + gap)) - gap);
+  const segmentWidth = (width - gap * (count - 1)) / count;
+  container.position.set(0, -height - gap * 2);
   container.visible = actionTrackerVisible(token);
   // A display-only child preserves normal token dragging and selection.
   container.eventMode = "none";
   for (let i = 0; i < count; i++) {
     const segment = new PIXI.Graphics();
     segment.lineStyle(1, 0x101510, 1).beginFill(i < value ? 0x39d353 : 0x273127, 0.95)
-      .drawRoundedRect((i % 3) * (segmentWidth + gap), Math.floor(i / 3) * (height + gap), segmentWidth, height, 2).endFill();
+      .drawRoundedRect(i * (segmentWidth + gap), 0, segmentWidth, height, 2).endFill();
     container.addChild(segment);
   }
   if (max > 9) {
@@ -111,27 +126,104 @@ export function drawActionTracker(token) {
   displays.set(token, container);
 }
 
+/** HTML controls avoid the token canvas hit area clipping clicks below its bounds. */
+export function drawPersistentActionHUD(token) {
+  const allowed = !token.destroyed && token.isVisible && canEdit(token.actor)
+    && tokenParticipatesInCombat(token)
+    && ["character", "npc"].includes(token.actor?.type);
+  let controls = tokenControls.get(token);
+  if (!allowed) {
+    controls?.remove();
+    tokenControls.delete(token);
+    return;
+  }
+  if (!controls) {
+    controls = document.createElement("div");
+    controls.className = "incarnos-persistent-actions-hud";
+    Object.assign(controls.style, ACTION_HUD_STYLE, {
+      position: "fixed", zIndex: "30", transform: "translateX(-50%)",
+      transformOrigin: "top center"
+    });
+    for (const [action, label, title] of [["spend", "-", "Spend one action"], ["restore", "+", "Restore one action"]]) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.title = title;
+      button.setAttribute("aria-label", title);
+      Object.assign(button.style, ACTION_BUTTON_STYLE);
+      for (const type of ["pointerdown", "pointerup", "mousedown", "mouseup", "dblclick", "contextmenu"]) {
+        button.addEventListener(type, event => { event.stopPropagation(); if (type === "contextmenu") event.preventDefault(); });
+      }
+      button.addEventListener("click", async event => {
+        event.preventDefault(); event.stopPropagation();
+        button.disabled = true;
+        try { await changeActions(token.actor, action); }
+        catch (error) { reportActionError(error); }
+        finally { button.disabled = false; }
+      });
+      controls.append(button);
+    }
+    document.body.append(controls);
+    tokenControls.set(token, controls);
+  }
+  positionPersistentActionHUD(token, controls);
+}
+
+function positionPersistentActionHUD(token, controls) {
+  const hud = globalThis.canvas?.tokens?.hud;
+  const view = globalThis.canvas?.app?.view;
+  const screen = globalThis.canvas?.app?.renderer?.screen;
+  const visible = !token.destroyed && token.isVisible && canEdit(token.actor)
+    && tokenParticipatesInCombat(token)
+    && !(hud?.rendered && hud.object === token);
+  controls.style.display = visible && view && screen ? "flex" : "none";
+  if (!visible || !view || !screen) return;
+  const bounds = view.getBoundingClientRect();
+  const scale = (canvas.stage?.scale?.x ?? 1) * (canvas.dimensions?.uiScale ?? 1) * bounds.width / screen.width;
+  controls.style.transform = `translateX(-50%) scale(${scale})`;
+  const point = token.worldTransform.apply({ x: token.w / 2, y: token.h + 6 });
+  controls.style.left = (bounds.left + point.x * bounds.width / screen.width) + "px";
+  controls.style.top = (bounds.top + point.y * bounds.height / screen.height) + "px";
+}
+
+export function updatePersistentActionHUDs() {
+  for (const [token, controls] of tokenControls) {
+    if (token.destroyed || !canEdit(token.actor)) {
+      controls.remove(); tokenControls.delete(token);
+    } else positionPersistentActionHUD(token, controls);
+  }
+}
+
+function clearPersistentActionHUDs() {
+  for (const controls of tokenControls.values()) controls.remove();
+  tokenControls.clear();
+}
+
 function reportActionError(error) {
   console.error("Incarnos action tracker", error);
   ui.notifications.error("Actions could not be updated.");
 }
 
-/** HUD columns can extend below the token; clear their actual rendered bounds. */
+/** Center compact action controls directly below the primary resource (HP). */
 export function positionActionHUD(root, controls) {
   if (!root.isConnected || !controls.isConnected) return;
   const bounds = root.getBoundingClientRect();
   const scale = root.offsetHeight ? bounds.height / root.offsetHeight : 1;
   if (!bounds.height || !Number.isFinite(scale) || scale <= 0) return;
-  let bottom = bounds.bottom;
-  for (const element of root.querySelectorAll("*")) {
-    if (element === controls || controls.contains(element)) continue;
-    const rect = element.getBoundingClientRect();
-    if (rect.width && rect.height) bottom = Math.max(bottom, rect.bottom);
+  const hp = root.querySelector('.attribute.bar1 input');
+  const rect = hp?.getBoundingClientRect();
+  if (rect?.width && rect?.height) {
+    const gap = Math.max(0, (rect.top - bounds.bottom) / scale);
+    controls.style.top = ((rect.bottom - bounds.top) / scale + gap) + "px";
+    controls.style.left = ((rect.left + rect.width / 2 - bounds.left) / scale) + "px";
+    controls.style.width = "max-content";
+  } else {
+    controls.style.top = (bounds.height / scale + 4) + "px";
   }
-  controls.style.top = ((bottom - bounds.top) / scale + 12) + "px";
 }
 
 export function renderActionHUD(hud, html) {
+  updatePersistentActionHUDs();
   const actor = hud.actor;
   if (!canEdit(actor) || !["character", "npc"].includes(actor.type)) return;
   const root = html?.querySelector ? html : html?.[0];
@@ -143,39 +235,21 @@ export function renderActionHUD(hud, html) {
   // The HUD is outside the system sheet and inherits Foundry's large token-HUD
   // controls. Keep its essential styles with its markup, even if a client has
   // cached the older system CSS or a module supplies stronger HUD selectors.
-  Object.assign(controls.style, {
-    position: "absolute", top: "calc(100% + 80px)", left: "50%",
-    transform: "translateX(-50%)", margin: "0", display: "flex",
-    flexDirection: "row", flexWrap: "nowrap", alignItems: "center", gap: "4px",
-    padding: "4px 6px", width: "max-content", minWidth: "180px", height: "auto",
-    background: "rgba(20, 24, 20, 0.95)", color: "#eee",
-    border: "1px solid #566656", borderRadius: "4px", fontSize: "12px",
-    lineHeight: "1.2", whiteSpace: "nowrap", pointerEvents: "auto", boxSizing: "border-box"
+  Object.assign(controls.style, ACTION_HUD_STYLE, {
+    position: "absolute", top: "calc(100% + 4px)", left: "50%",
+    transform: "translateX(-50%)"
   });
-  const counter = document.createElement("span");
-  counter.className = "incarnos-action-count";
-  const refresh = () => {
-    const { value, max } = getActionState(actor);
-    counter.textContent = "Actions " + value + "/" + max;
-  };
-  refresh();
-  controls.append(counter);
-  for (const [action, label, title] of [["spend", "-", "Spend one action"], ["restore", "+", "Restore one action"], ["reset", "Reset", "Restore all actions"]]) {
+  for (const [action, label, title] of [["spend", "-", "Spend one action"], ["restore", "+", "Restore one action"]]) {
     const button = document.createElement("button");
     button.type = "button";
-    Object.assign(button.style, {
-      width: "auto", minWidth: "24px", height: "28px", flex: "0 0 auto",
-      padding: "2px 6px", margin: "0", fontSize: "inherit", lineHeight: "normal",
-      color: "#eee", background: "#273127", border: "1px solid #566656",
-      borderRadius: "4px", boxSizing: "border-box"
-    });
+    Object.assign(button.style, ACTION_BUTTON_STYLE);
     button.textContent = label;
     button.title = title;
     button.setAttribute("aria-label", title);
     button.addEventListener("click", async event => {
       event.preventDefault(); event.stopPropagation();
       button.disabled = true;
-      try { await changeActions(actor, action); refresh(); }
+      try { await changeActions(actor, action); }
       catch (error) { reportActionError(error); }
       finally { button.disabled = false; }
     });
@@ -188,11 +262,6 @@ export function renderActionHUD(hud, html) {
 
 function refreshTrackers() {
   const hud = globalThis.canvas?.tokens?.hud;
-  const counter = hud?.element?.querySelector(".incarnos-action-count");
-  if (counter && hud.actor) {
-    const { value, max } = getActionState(hud.actor);
-    counter.textContent = "Actions " + value + "/" + max;
-  }
   if (hud?.object && hud.element) renderActionHUD(hud, hud.element);
   for (const token of globalThis.canvas?.tokens?.placeables ?? []) drawActionTracker(token);
 }
@@ -242,7 +311,19 @@ export function registerActionTrackerHooks() {
   Hooks.on("updateActor", refreshTrackers);
   Hooks.on("updateToken", refreshTrackers);
   Hooks.on("updateUser", refreshTrackers);
-  Hooks.on("canvasReady", refreshTrackers);
+  Hooks.on("canvasReady", () => {
+    canvas.app.ticker.remove(updatePersistentActionHUDs);
+    canvas.app.ticker.add(updatePersistentActionHUDs);
+    refreshTrackers();
+  });
+  Hooks.on("canvasTearDown", () => {
+    canvas.app?.ticker.remove(updatePersistentActionHUDs);
+    clearPersistentActionHUDs();
+  });
+  Hooks.on("destroyToken", token => {
+    tokenControls.get(token)?.remove(); tokenControls.delete(token);
+  });
+  Hooks.on("closeTokenHUD", updatePersistentActionHUDs);
   const refreshCombatUI = () => {
     refreshTrackers();
     for (const actor of game.actors ?? []) if (actor.sheet?.rendered) actor.sheet.render(false);

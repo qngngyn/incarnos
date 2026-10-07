@@ -1,3 +1,5 @@
+import { waitForContestAnimations } from "../helpers/contest-requests.mjs";
+
 /**
  * Extend the basic Item with Incarnos-specific roll behavior.
  * @extends {Item}
@@ -28,7 +30,7 @@ export class IncarnosItem extends Item {
     const item = this;
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
     const rollMode = game.settings.get("core", "messageMode");
-    const label = `<b>${item.name}</b><br><i>${item.system.description ?? ""}</i>`;
+    const label = `<b>${item.name}</b>${item.system.description ? `<br><i>${item.system.description}</i>` : ""}`;
 
     const damageFormula = getWeaponDamageFormula(item);
 
@@ -197,33 +199,33 @@ export async function rollWeaponAttackAction({
       damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
       rolls.push(damageRoll);
     }
-    const rollDifference = threshold - modifiedRoll;
-    resultLines.push(getOutcomeText(success, criticalSuccess, criticalFailure, rollDifference));
+    resultLines.push(`<div><b>Result:</b> <span style="color: ${success ? "#2e7d32" : "#c62828"}">${success ? "Success" : "Fail"}</span></div>`);
   }
 
-  function getOutcomeText(success, criticalSuccess, criticalFailure, rollDifference) {
-    const outcome = success ? 
-    criticalSuccess ? "Critical Success!" :"Success" : 
-    criticalSuccess ? "Critical Failure!" : "Failure";
-    const sign = rollDifference >= 0 ? '+' : '';
-    return `<br><b>Result:</b> ${outcome} by ${sign}${rollDifference}`
-  }
-
-  const modeLabel = CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode;
+  const statLabel = selectedStat.charAt(0).toUpperCase() + selectedStat.slice(1);
   const notes = attack.notes?.length ? `<br><b>Notes:</b><ul>${attack.notes.map(note => `<li>${note}</li>`).join("")}</ul>` : "";
-  const enemyParryModifierText = attack.parry?.apply === false ? "Ignored" : targetParryModifiers.map(modifier => formatSignedNumber(-modifier)).join(", ");
-  const advantageText = attack.roll?.allowAdvantage === false ? "None; this attack cannot benefit from advantage" : `${advantageCount}x ${advantageType}`;
+  const attackLines = targetParryModifiers.map((modifier, index) => {
+    const targetLabel = targetParryModifiers.length > 1 ? " (target " + (index + 1) + ")" : "";
+    const attackModifierText = attack.parry?.apply === false ? ""
+      : " " + formatSignedNumber(-modifier) + " (attack modifier)";
+    return "<div><b>Attack" + targetLabel + ":</b> " + statLabel + " "
+      + formatSignedNumber(weaponModifier) + " (weapon)" + attackModifierText + "</div>";
+  });
+  // Describe the effective dice adjustment, including attack-specific bonuses.
+  const advantageDice = /^(\d+)d20k([lh])$/.exec(hitFormula);
+  const advantageText = advantageDice
+    ? "<div><b>" + (advantageDice[2] === "l" ? "Advantage" : "Disadvantage") + ":</b> "
+      + formatSignedNumber((Number(advantageDice[1]) - 1) * (advantageDice[2] === "l" ? 1 : -1)) + "</div>"
+    : "";
 
-  const text = `<br><b>${attack.name}</b>
-    <br><b>Attack:</b> ${modeLabel}${formatSignedNumber(weaponModifier)} (${selectedStat})
-    <br><b>Enemy Parry modifier:</b> ${enemyParryModifierText}
-    <hr>${resultLines.join("<hr>")}
-    `;
+  const renderAttackText = results => '<div style="margin-top: 2px; white-space: normal; line-height: 1.3;">'
+    + '<div><b>' + attack.name + '</b></div>' + attackLines.join("") + advantageText
+    + '<div style="margin: 0; padding: 0;">' + results.join("") + '</div></div>';
 
   const chatData = {
     user: game.user.id,
     speaker,
-    flavor: flavor + text,
+    flavor: flavor + renderAttackText(resultLines.map(() => "<div><b>Result:</b></div>")),
     content: "",
     rolls: rolls.map(roll => roll.toJSON()),
     style: CONST.CHAT_MESSAGE_STYLES.ROLL,
@@ -231,7 +233,11 @@ export async function rollWeaponAttackAction({
   };
 
   ChatMessage.applyMode(chatData, rollMode);
-  await ChatMessage.create(chatData);
+  const message = await ChatMessage.create(chatData);
+  if (message) {
+    await waitForContestAnimations([message.id]);
+    await message.update({ flavor: flavor + renderAttackText(resultLines) });
+  }
 
   return rolls;
 }
@@ -272,13 +278,12 @@ async function promptWeaponAttack(item, rollData) {
           </select>
         </div>
         <div class="form-group">
-          <label>Weapon Modifier</label>
+          <label>Weapon</label>
           <input type="text" value="${formatSignedNumber(modifier)}" readonly />
         </div>
         <div class="form-group">
-          <label>Enemy Parry Modifier</label>
+          <label>Attack Modifier</label>
           <input name="enemyParryModifiers" type="text" value="0" placeholder="e.g. -6"/>
-          <p class="hint">Enter the modifier exactly as the GM announces it: -6 makes the attack harder, +6 makes it easier. For Cleave, separate each target modifier with a comma. Bypass ignores this modifier.</p>
         </div>
         <div class="form-group">
           <label>Advantage</label>
@@ -316,6 +321,19 @@ async function promptWeaponAttack(item, rollData) {
       };
 
       const element = dialog.element;
+      for (const field of element.querySelectorAll('input[type="text"], input[type="number"]')) {
+        if (field.readOnly) continue;
+        field.addEventListener("focus", () => {
+          if (!field.disabled) field.select();
+        });
+        field.addEventListener("pointerdown", event => {
+          if (event.button !== 0 || field.disabled || field.ownerDocument.activeElement === field) return;
+          // Preserve the full selection on the first click; later clicks can place the caret.
+          event.preventDefault();
+          field.focus();
+          field.select();
+        });
+      }
       const preview = element.querySelector('[name="rollPreview"]');
       const rollButton = element.querySelector('[data-action="ok"]');
       if (preview && rollButton) {

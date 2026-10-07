@@ -21,3 +21,14 @@
 }
 
 .action-resource { display: flex; align-items: center; gap: 6px; margin-top: 10px; input { width: 45px; min-width: 0; } button { width: auto; flex: 0 0 auto; margin: 0; padding: 0 8px; } }
+
+// Align the character action tracker and contest with the ability columns.
+.character-actions-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 0.5fr) minmax(0, 3fr);
+  align-items: center;
+  margin-top: 10px;
+  .action-resource { grid-column: 1; margin-top: 0; flex-wrap: wrap; }
+  .contest-buttons { grid-column: 3; margin-top: 0; }
+  .contest-buttons button { width: 100%; flex-basis: 100%; }
+}

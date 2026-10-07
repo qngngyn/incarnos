@@ -1,4 +1,6 @@
 {
+  "TYPES.Actor.character": "Character",
+  "TYPES.Actor.npc": "NPC",
   "TYPES.Item.feature": "Talent",
   "TYPES.Item.featurePl": "Talents",
 
