@@ -60,3 +60,11 @@ Green segments above visible tokens show remaining actions, in rows of three. Sp
 Right-click an owned token to use the Actions controls (spend, restore, reset), or use the same controls on its sheet. Spending is manual, so no action cost is assumed for contests, movement or attacks. Advancing combat refills the actor whose turn ended, including the round wrap; rewinding and initial combat start do not refill actors. A GM processes replenishment once, with an online owner of the outgoing actor as fallback when no GM is online. Replenishment uses the committed combatTurnChange event and its previous/current state, so forward turns, round wraps, solo encounters and direct turn updates work without preliminary hook metadata. Duplicate notifications cannot reset actions spent after replenishment. Token HUD and sheet action controls also hide outside combat. Unlinked NPC tokens keep separate resources.
 
 Reload all Foundry clients after updating the system.
+
+## Imported map scale
+
+As GM, open the **Scenes** sidebar, right-click an imported scene, and choose **Convert to Incarnos scale**. Review the preview and click **Convert scene**. The tool converts standard 5-foot scenes to gridless, 1.5 m while keeping the imported pixel grid size. Distances use the game convention of 5 feet = 1.5 m (factor 0.3), preserving their radius on the map.
+
+Core ambient light and sound ranges, token light/sight/detection ranges, measured template distances where supported, and core object/level/region elevations convert together. Pixel positions, wall coordinates, region shapes, images, and token sizes remain unchanged. Module-specific effect data and actor prototype tokens remain unchanged. A scene already using 1.5 m only switches to gridless. Other scales are rejected instead of guessed.
+
+Conversion requires confirmation and marks the scene to prevent repeat conversion. Cancel leaves the scene unchanged. The tool never runs automatically during import. Run its checks with `node --test tests/scene-scale.test.mjs`.

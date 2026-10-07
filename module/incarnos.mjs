@@ -1,3 +1,4 @@
+import { registerSceneScaleHooks } from "./helpers/scene-scale.mjs";
 import { registerActionTrackerHooks } from "./helpers/action-tracker.mjs";
 import { registerContestRequestHooks } from "./helpers/contest-requests.mjs";
 // Import document classes.
@@ -16,6 +17,7 @@ import { INCARNOS } from "./helpers/config.mjs";
 
 registerContestRequestHooks();
 registerActionTrackerHooks();
+registerSceneScaleHooks();
 
 Hooks.once('init', async function() {
 
