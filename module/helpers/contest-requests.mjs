@@ -1,4 +1,12 @@
-/** Private defender requests use chat documents so the GM can authorize responses. */
+/**
+ * Contests. Each round has one visible contest board (a chat card showing both sides); defender requests
+ * and their responses are hidden chat documents so the GM can authorize player responses.
+ *
+ * Board content is written by one client only (the active GM, or the board's author when no GM is online),
+ * queued per board and always rendered from the current data, so concurrent updates cannot overwrite each other.
+ * Anyone whose side is still open gets a Roll button on the board (resume after a disconnect); the GM can cancel.
+ */
+import { renderContestBoard } from "./roll-card.mjs";
 export const CONTEST_STATS = { Strength: "str", Dexterity: "dex", Constitution: "con", Willpower: "wis", Perception: "prc", Speed: "spd", Intelligence: "int", Charisma: "cha" };
 /** Contest improvements stop at d2; invalid stat values cannot produce a roll. */
 export function getContestDie(value) {
@@ -21,18 +29,25 @@ export function showContestDialog(method, options, beforeOpen = () => true) {
   return result;
 }
 
+/** Unresolved contests younger than this are picked up again after a reload or reconnect. */
+const RESUME_WINDOW = 12 * 60 * 60 * 1000;
 const processing = new Set();
 const rolling = new Set();
 const submitted = new Set();
 const prompted = new Set();
 const resolvingTies = new Set();
-const requestData = message => message.flags?.incarnos?.contestRequest;
+const revealed = new Set();
+const boardQueues = new Map();
+const requestData = message => message?.flags?.incarnos?.contestRequest;
+const boardData = message => message?.flags?.incarnos?.contestBoard;
 const requestAuthor = message => game.users.get(requestData(message)?.requestAuthorId) ?? message.author;
 const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 const activeGM = () => [...game.users].filter(user => user.active && user.isGM).sort((a, b) => a.id.localeCompare(b.id))[0];
 const owns = (actor, user) => Boolean(user && (user.isGM || actor?.testUserPermission(user, "OWNER")));
+const allMessages = () => [...(game.messages?.values?.() ?? [])];
+const isRecent = message => Date.now() - Number(message?.timestamp ?? 0) < RESUME_WINDOW;
 
-/** HTML-safe matchup label shared by the attack and defender cards. */
+/** HTML-safe matchup label used in request popups. */
 export function formatContestMatchup(attacker, defender) {
   const attackName = `<span style="color: #c62828">${escape(attacker)}</span>`;
   return defender ? `${attackName} vs. <span style="color: #2e7d32">${escape(defender)}</span>` : attackName;
@@ -57,6 +72,20 @@ export function getContestDefender(attacker) {
   return { actor, token: player.character.id === token.actor.id ? token.document : null, playerId: player.id };
 }
 
+/** The visible board a contest message belongs to (the board itself, or the board named by a request). */
+export function findBoard(message) {
+  if (boardData(message)) return message;
+  const id = requestData(message)?.boardId;
+  return id ? game.messages.get(id) ?? null : null;
+}
+
+/** Initial board for the sheet's contest roll, before any request exists. */
+export function renderNewContestBoard({ stat, attacker, defender = null, note = "" }) {
+  const sides = [{ key: attacker.role === "save" ? "save" : "attack", name: attacker.name, img: attacker.img, stat: attacker.stat, value: attacker.value, die: attacker.die, state: "waiting" }];
+  if (defender) sides.push({ key: "save", name: defender.name, img: defender.img, stat: "", state: "waiting" });
+  return renderContestBoard({ stat, sides, cancelled: Boolean(note), note });
+}
+
 /** Send a pending saving contest to the defender's owners, attacker and GMs. */
 export async function requestDefenderContest({ attacker, defender, attackMessage, stat }) {
   if (!defender?.actor) {
@@ -79,6 +108,7 @@ export async function requestDefenderContest({ attacker, defender, attackMessage
   const whisper = [...new Set([game.user.id, ...owners.map(user => user.id), ...gms.map(user => user.id)])];
   const data = {
     defenderUuid: actor.uuid, attackerUuid: attacker.uuid, attackMessageId: attackMessage.id,
+    boardId: boardData(attackMessage) ? attackMessage.id : requestData(attackMessage)?.boardId ?? null, rollerImg: actor.img ?? null,
     stat, requestAuthorId: game.user.id, popup: true, recipientUserId: defender.playerId ?? null, status: "pending", defenderName: actor.name, attackerName: attacker.name
   };
   return ChatMessage.create({
@@ -143,6 +173,7 @@ export async function rollDefenderContest(message) {
 export async function completeDefenderContest(message, actor, response, userId) {
   const data = requestData(message);
   const user = game.users.get(userId);
+  // A cancelled contest is no longer pending, so late responses are rejected here.
   if (!data || data.status !== "pending" || processing.has(message.id) || !owns(actor, user)) return false;
   if (actor.uuid !== data.defenderUuid || !CONTEST_STATS[data.stat]) return false;
   if (!user.isGM && data.recipientUserId && data.recipientUserId !== userId) return false;
@@ -156,15 +187,19 @@ export async function completeDefenderContest(message, actor, response, userId) 
   processing.add(message.id);
   try {
     await message.update({
-      flavor: `${data.role === "attack" ? "Attack:" : "Save:"} ${stat} Contest: ${value} - ${formatContestMatchup(data.attackerName, data.defenderName)}`,
+      flavor: "",
       // Dice So Nice uses the author for appearance and "show only my dice".
       author: userId,
-      content: await roll.render(), rolls: [roll.toJSON()],
+      // The request stays hidden; its result appears on the contest board.
+      content: `<p>${escape(actor.name)}: ${escape(stat)} ${value}, d${die} → ${roll.total}</p>`,
+      rolls: [roll.toJSON()],
       whisper: [], blind: false,
       "flags.incarnos.contestRequest.status": "complete",
       "flags.incarnos.contestRequest.requestAuthorId": data.requestAuthorId ?? message.author.id,
       "flags.incarnos.contestRequest.responderId": userId,
-      "flags.incarnos.contestRequest.responseStat": stat
+      "flags.incarnos.contestRequest.responseStat": stat,
+      "flags.incarnos.contestRequest.responseValue": value,
+      "flags.incarnos.contestRequest.responseDie": die
     });
     submitted.delete(message.id);
     return true;
@@ -199,12 +234,104 @@ export async function waitForContestAnimations(messageIds) {
   await Promise.all([...new Set(messageIds)].map(id => game.dice3d.waitFor3DAnimationByMessageID(id)));
 }
 
-/** Finalize a completed pair on one GM client; lower totals win, ties start a new pair. */
+/** Roll the board's own side (the sheet roller of round 1): its author or a GM, owning the actor. */
+export async function rollBoardSide(board, side = boardData(board)?.attacker) {
+  if (!board || !side || rolling.has(board.id)) return false;
+  const actor = await fromUuid(side.uuid);
+  if (!owns(actor, game.user) || (!game.user.isGM && board.author && board.author.id !== game.user.id)) {
+    ui.notifications.warn("Only the contest's roller or a GM can roll this side.");
+    return false;
+  }
+  if (boardData(board)?.cancelled || board.rolls?.length) return false;
+  if (!Number.isInteger(side.die) || side.die < 1) {
+    ui.notifications.warn("Cannot roll this contest: the selected stat must be a finite integer.");
+    return false;
+  }
+  rolling.add(board.id);
+  try {
+    const roll = await new Roll(`d${side.die}`).evaluate({ async: true });
+    await board.update({ rolls: [roll.toJSON()] });
+    return true;
+  } finally { rolling.delete(board.id); }
+}
+
+/** GM: end a contest without a result; pending requests close and late responses are rejected. */
+export async function cancelContest(board) {
+  if (!game.user.isGM || !boardData(board)) return;
+  await board.update({ "flags.incarnos.contestBoard.cancelled": true });
+  for (const request of boardRequests(board)) {
+    if (requestData(request).status === "pending") await request.update({ "flags.incarnos.contestRequest.status": "cancelled" });
+  }
+  await refreshBoard(board);
+}
+
+const boardRequests = board => allMessages().filter(message => requestData(message)?.boardId === board.id);
+
+/** Current state of each side on a board, read from the board and its requests. */
+async function boardSides(board) {
+  const data = boardData(board);
+  const requests = boardRequests(board);
+  const attackRequest = requests.filter(message => requestData(message).role === "attack").at(-1);
+  const saveRequest = requests.filter(message => requestData(message).role !== "attack").at(-1);
+  const side = (key, source, { name, img, stat, value, die, total }) => {
+    const revealKey = Number.isFinite(total) ? `${source}:${total}` : null;
+    return { key, source, name, img, stat, value, die, total, revealKey, state: !revealKey ? "waiting" : revealed.has(revealKey) ? "done" : "rolling" };
+  };
+  const fromRequest = (message, key) => {
+    const request = requestData(message);
+    const complete = request.status === "complete";
+    return side(key, message.id, {
+      name: key === "attack" ? request.attackerName : request.defenderName, img: request.rollerImg,
+      stat: request.responseStat ?? request.stat, value: request.responseValue, die: request.responseDie,
+      total: complete ? message.rolls?.[0]?.total : null
+    });
+  };
+  const sides = [];
+  if (attackRequest) sides.push(fromRequest(attackRequest, "attack"));
+  else if (data.attacker) {
+    sides.push(side(data.attacker.role === "save" ? "save" : "attack", board.id, { ...data.attacker, total: board.rolls?.[0]?.total }));
+  }
+  if (saveRequest) sides.push(fromRequest(saveRequest, "save"));
+  else if (data.defender) sides.push(side("save", null, { name: data.defender.name, img: data.defender.img, stat: "", total: null }));
+  return sides;
+}
+
+const boardWriter = board => activeGM() ?? board.author;
+
+/** Re-render a board from current data. Only one client writes; renders queue per board. */
+export function refreshBoard(board) {
+  if (!board || !boardData(board) || boardWriter(board)?.id !== game.user.id) return Promise.resolve();
+  const next = (boardQueues.get(board.id) ?? Promise.resolve()).catch(() => {}).then(async () => {
+    const current = game.messages.get(board.id) ?? board;
+    if (!boardData(current)) return;
+    const write = async sides => {
+      const data = boardData(current);
+      const content = renderContestBoard({
+        stat: data.stat ?? data.attacker?.stat ?? sides[0]?.stat, round: data.round ?? 1, sides,
+        outcome: current.flags?.incarnos?.contestOutcome ?? null, cancelled: Boolean(data.cancelled)
+      });
+      if (content !== current.content) await current.update({ content });
+    };
+    const sides = await boardSides(current);
+    await write(sides);
+    // New totals show "Rolling…" until the dice animation has finished on this client.
+    const rollingSides = sides.filter(side => side.state === "rolling");
+    if (rollingSides.length) {
+      await waitForContestAnimations(rollingSides.map(side => side.source));
+      rollingSides.forEach(side => revealed.add(side.revealKey));
+      await write(await boardSides(current));
+    }
+  }).catch(error => console.error("Incarnos contest board could not be updated", error));
+  boardQueues.set(board.id, next);
+  return next;
+}
+
+/** Finalize a completed pair on one GM client; lower totals win, ties start a new round on a new board. */
 export async function resolveContestTie(message) {
   if (activeGM()?.id !== game.user.id) return;
   const candidates = requestData(message)?.role !== "attack" && requestData(message)
     ? [message]
-    : [...game.messages.values()].filter(card => requestData(card)?.role !== "attack" && requestData(card)?.attackMessageId === message.id);
+    : allMessages().filter(card => requestData(card)?.role !== "attack" && requestData(card)?.attackMessageId === message.id);
   for (const defenderMessage of candidates) {
     const data = requestData(defenderMessage);
     if (data.status !== "complete" || data.tieProcessed || data.outcomeProcessed || resolvingTies.has(defenderMessage.id)) continue;
@@ -221,49 +348,42 @@ export async function resolveContestTie(message) {
       if (activeGM()?.id !== game.user.id || requestData(defenderMessage)?.tieProcessed || requestData(defenderMessage)?.outcomeProcessed
         || requestData(defenderMessage)?.status !== "complete"
         || attackMessage.rolls?.[0]?.total !== attackTotal || defenderMessage.rolls?.[0]?.total !== saveTotal) continue;
-      const coloredMatchup = `<span style="color: #c62828">${escape(data.attackerName)}</span> vs. <span style="color: #2e7d32">${escape(data.defenderName)}</span>`;
-      const colorFlavor = card => (card.flavor ?? "").replace(`${escape(data.attackerName)} vs. ${escape(data.defenderName)}`, coloredMatchup);
+      revealed.add(`${attackMessage.id}:${attackTotal}`).add(`${defenderMessage.id}:${saveTotal}`);
+      const board = findBoard(defenderMessage);
+      if (board && boardData(board)?.cancelled) continue;
       if (attackTotal !== saveTotal) {
         const attackWon = attackTotal < saveTotal;
         const winnerName = attackWon ? data.attackerName : data.defenderName;
         const outcome = { winner: attackWon ? "attack" : "defender", winnerName, attackTotal, saveTotal };
-        const footer = `<p><span style="color: ${attackWon ? "#c62828" : "#2e7d32"}">${escape(winnerName)}</span> wins!</p>`;
         await defenderMessage.update({
-          flavor: colorFlavor(defenderMessage),
           "flags.incarnos.contestRequest.outcomeProcessed": true,
           "flags.incarnos.contestOutcome": outcome
         });
-        await attackMessage.update({
-          flavor: colorFlavor(attackMessage),
-          "flags.incarnos.contestOutcome": outcome
-        });
-        await ChatMessage.create({
-          speaker: ChatMessage.getSpeaker({ actor: attackWon ? attacker : defender }),
-          whisper: [], blind: false,
-          flavor: "",
-          content: footer,
-          flags: { incarnos: { contestOutcome: { ...outcome, attackMessageId: attackMessage.id, defenderMessageId: defenderMessage.id } } }
-        });
+        await attackMessage.update({ "flags.incarnos.contestOutcome": outcome });
+        if (board && board !== attackMessage) await board.update({ "flags.incarnos.contestOutcome": outcome });
+        if (board) await refreshBoard(board);
+        else await postResultCard({ attacker, defender, data, attackTotal, saveTotal, outcome, attackMessage, defenderMessage });
         continue;
       }
-      await defenderMessage.update({
-        flavor: colorFlavor(defenderMessage),
-        "flags.incarnos.contestRequest.tieProcessed": true
-      });
-      await attackMessage.update({ flavor: colorFlavor(attackMessage) });
-      await ChatMessage.create({
+      const tie = { winner: null, tie: true, attackTotal, saveTotal };
+      await defenderMessage.update({ "flags.incarnos.contestRequest.tieProcessed": true });
+      if (board) {
+        await board.update({ "flags.incarnos.contestOutcome": tie });
+        await refreshBoard(board);
+      } else await postResultCard({ attacker, defender, data, attackTotal, saveTotal, outcome: tie, attackMessage, defenderMessage });
+
+      // The reroll gets its own board; its two requests point at it.
+      const nextBoard = await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: attacker }),
-        whisper: [], blind: false,
-        flavor: `Contest result - ${coloredMatchup}`,
-        content: "<p><strong>TIE!</strong> Both contestants roll again.</p>",
-        flags: { incarnos: { contestOutcome: { winner: null, tie: true, attackTotal, saveTotal,
-          attackMessageId: attackMessage.id, defenderMessageId: defenderMessage.id } } }
+        whisper: [], blind: false, flavor: "",
+        content: renderContestBoard({ stat: data.responseStat ?? data.stat, round: (boardData(board)?.round ?? 1) + 1, sides: [] }),
+        flags: { incarnos: { contestBoard: { round: (boardData(board)?.round ?? 1) + 1, stat: requestData(attackMessage)?.responseStat ?? boardData(board)?.attacker?.stat ?? data.stat } } }
       });
       const attackData = requestData(attackMessage);
       const attackOwner = !attackMessage.author.isGM && owns(attacker, attackMessage.author)
         ? attackMessage.author.id : null;
       const attackRecipient = attackData?.recipientUserId ?? attackOwner;
-      const base = { attackerUuid: data.attackerUuid, attackerName: data.attackerName, defenderName: data.defenderName,
+      const base = { attackerUuid: data.attackerUuid, attackerName: data.attackerName, defenderName: data.defenderName, boardId: nextBoard.id,
         requestAuthorId: game.user.id, popup: true, reroll: true, previousMessageIds: [attackMessage.id, defenderMessage.id], status: "pending" };
       const createReroll = (actor, recipientUserId, extra) => ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor }),
@@ -271,19 +391,36 @@ export async function resolveContestTie(message) {
           (!user.isGM && owns(actor, user) && (!recipientUserId || user.id === recipientUserId))).map(user => user.id)])],
         flavor: `Contest reroll - ${formatContestMatchup(data.attackerName, data.defenderName)}`,
         content: "<p>TIE! Roll the contest again.</p>",
-        flags: { incarnos: { contestRequest: { ...base, defenderUuid: actor.uuid, recipientUserId, ...extra } } }
+        flags: { incarnos: { contestRequest: { ...base, defenderUuid: actor.uuid, rollerImg: actor.img ?? null, recipientUserId, ...extra } } }
       });
       const nextAttack = await createReroll(attacker, attackRecipient, {
-        role: "attack", stat: attackData?.responseStat ?? attackData?.stat ?? data.stat
+        role: "attack", stat: attackData?.responseStat ?? attackData?.stat ?? boardData(attackMessage)?.attacker?.stat ?? data.stat
       });
       await createReroll(defender, data.recipientUserId, {
         role: "save", stat: data.responseStat ?? data.stat, attackMessageId: nextAttack.id
       });
+      await refreshBoard(nextBoard);
     } catch (error) {
-      console.error("Incarnos tie reroll failed", error);
-      ui.notifications.error("The tied contest could not be restarted.");
+      console.error("Incarnos contest resolution failed", error);
+      ui.notifications.error("The contest result could not be recorded.");
     } finally { resolvingTies.delete(defenderMessage.id); }
   }
+}
+
+/** Contests started without a board (older chat) still get a visible result. */
+function postResultCard({ attacker, defender, data, attackTotal, saveTotal, outcome, attackMessage, defenderMessage }) {
+  return ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor: outcome.winner === "defender" ? defender : attacker }),
+    whisper: [], blind: false, flavor: "",
+    content: renderContestBoard({
+      stat: data.responseStat ?? data.stat, outcome, canCancel: false,
+      sides: [
+        { key: "attack", name: data.attackerName, img: attacker.img, stat: "", total: attackTotal, state: "done" },
+        { key: "save", name: data.defenderName, img: defender.img, stat: data.responseStat ?? data.stat, total: saveTotal, state: "done" }
+      ]
+    }),
+    flags: { incarnos: { contestOutcome: { ...outcome, attackMessageId: attackMessage.id, defenderMessageId: defenderMessage.id } } }
+  });
 }
 
 /** Show each new request on its assigned player's client, or one GM for NPCs. */
@@ -304,33 +441,80 @@ export async function promptDefenderContest(message) {
   }
 }
 
-/** Chat documents carry requests; pending popup cards stay out of the chat UI. */
+/**
+ * After a reload or reconnect: the active GM finishes recent responses and results that were left open;
+ * every writer re-renders recent boards. Rolls made before the reload show at once (no animation).
+ * Popups are not reopened — waiting sides use the Roll button on their board instead.
+ */
+export async function resumeContests() {
+  const recent = allMessages().filter(isRecent);
+  if (activeGM()?.id === game.user.id) {
+    for (const message of recent.filter(message => message.flags?.incarnos?.contestResponse)) {
+      await processContestResponse(message, message.author?.id);
+    }
+    for (const message of recent.filter(message => requestData(message)?.boardId && requestData(message).role !== "attack")) {
+      await resolveContestTie(message);
+    }
+  }
+  for (const board of recent.filter(message => boardData(message))) {
+    for (const side of await boardSides(board)) if (side.revealKey) revealed.add(side.revealKey);
+    await refreshBoard(board);
+  }
+}
+
+/** Who may press a side's Roll button on a board. */
+async function rollButtonFor(board, key) {
+  const request = boardRequests(board).filter(message => (requestData(message).role === "attack") === (key === "attack")).at(-1);
+  if (request) {
+    const data = requestData(request);
+    const actor = await fromUuid(data.defenderUuid);
+    const allowed = data.status === "pending" && owns(actor, game.user) && (game.user.isGM || !data.recipientUserId || data.recipientUserId === game.user.id);
+    return allowed ? () => rollDefenderContest(request) : null;
+  }
+  const side = boardData(board)?.attacker;
+  if (!side || (side.role === "save" ? "save" : "attack") !== key || board.rolls?.length) return null;
+  const actor = await fromUuid(side.uuid);
+  const allowed = owns(actor, game.user) && (game.user.isGM || board.author?.id === game.user.id);
+  return allowed ? () => rollBoardSide(board) : null;
+}
+
+/** Requests and responses stay out of the chat log; boards get their Roll and Cancel buttons wired per user. */
 export function registerContestRequestHooks() {
   Hooks.on("renderChatMessageHTML", (message, html) => {
-    if (requestData(message)?.popup && requestData(message)?.status === "pending") { html.style.display = "none"; return; }
-    if (message.flags?.incarnos?.contestResponse) { html.style.display = "none"; return; }
-    const button = html.querySelector('[data-incarnos-contest="roll"]');
-    if (!button) return;
-    fromUuid(requestData(message)?.defenderUuid).then(actor => {
-      const data = requestData(message);
-      button.disabled = !owns(actor, game.user) || (data.recipientUserId && data.recipientUserId !== game.user.id && !game.user.isGM) || data.status !== "pending" || submitted.has(message.id);
-    }).catch(() => { button.disabled = true; });
-    button.disabled = true;
-    button.addEventListener("click", async () => {
-      button.disabled = true;
-      try { await rollDefenderContest(message); }
-      catch (error) { console.error(error); ui.notifications.error("The defender contest could not be rolled."); }
-      finally { button.disabled = requestData(message)?.status !== "pending" || submitted.has(message.id); }
-    });
+    if (requestData(message) || message.flags?.incarnos?.contestResponse) { html.style.display = "none"; return; }
+    if (!boardData(message)) return;
+    for (const button of html.querySelectorAll?.("[data-incarnos-contest-roll]") ?? []) {
+      button.style.display = "none";
+      rollButtonFor(message, button.dataset.incarnosContestRoll).then(roll => {
+        if (!roll) return button.remove();
+        button.style.display = "";
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          try { await roll(); }
+          catch (error) { console.error(error); ui.notifications.error("The contest roll failed. Try again from this card."); }
+          finally { button.disabled = false; }
+        });
+      }).catch(() => button.remove());
+    }
+    for (const button of html.querySelectorAll?.("[data-incarnos-contest-cancel]") ?? []) {
+      if (!game.user.isGM) { button.remove(); continue; }
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        try { await cancelContest(message); }
+        catch (error) { console.error(error); ui.notifications.error("The contest could not be cancelled."); button.disabled = false; }
+      });
+    }
   });
   Hooks.on("updateChatMessage", message => {
     if (requestData(message)?.status === "complete") submitted.delete(message.id);
     void resolveContestTie(message);
+    void refreshBoard(findBoard(message));
   });
   Hooks.on("createChatMessage", (message, options, userId) => {
     void processContestResponse(message, userId);
     void promptDefenderContest(message);
+    void refreshBoard(findBoard(message));
   });
-  // Only live create/update events trigger dialogs and outcomes. Replaying chat
-  // history on ready revives abandoned requests and unresolved historical ties.
+  // Popups only open from live events; on ready, open contests are resumed from their boards.
+  Hooks.once("ready", () => { void resumeContests(); });
 }

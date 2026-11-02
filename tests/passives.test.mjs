@@ -84,7 +84,7 @@ test("NPC passives preserve manually configured derived values", () => {
   assert.equal(result.system.abilities.con.value, 8);
   assert.equal(result.system.abilities.str.save, 6);
   assert.equal(result.system.health.max, 14);
-  assert.equal(result.system.attributes.parry.value, 3);
+  assert.equal(result.system.attributes.parry.value, base.attributes.parry.value - 2);
 });
 
 test("Effects entries describe modifiers and retain inactive sources without applying their bonuses", () => {

@@ -1,0 +1,9 @@
+{
+  "id": "incarnos-foundry-sync",
+  "name": "Incarnos Foundry Sync",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Button and command that update the Incarnos Foundry system's compendiums from this vault.",
+  "author": "hyuroki",
+  "isDesktopOnly": true
+}

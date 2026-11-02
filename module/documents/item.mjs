@@ -1,4 +1,13 @@
 import { waitForContestAnimations } from "../helpers/contest-requests.mjs";
+import { castSpell } from "../helpers/spell-cast.mjs";
+import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
+import { getTalentRules, getTalentSummary, isSpectacle } from "../helpers/talents.mjs";
+import { isPlayerSide, modifierForRoller } from "../helpers/modifiers.mjs";
+import { conditionAdvantage, consumeHindered, parseAttackConditions } from "../helpers/conditions.mjs";
+import {
+  amount as cardAmount, applyAllButton, applyButton, checkChip, chip as cardChip, criticalFailureButton, escape as escapeCard, renderRollCard, rollingChip
+} from "../helpers/roll-card.mjs";
+import { hasCriticalFailure } from "../helpers/critical-failure-rules.mjs";
 
 /**
  * Extend the basic Item with Incarnos-specific roll behavior.
@@ -32,33 +41,39 @@ export class IncarnosItem extends Item {
     const rollMode = game.settings.get("core", "messageMode");
     const label = `<b>${item.name}</b>${item.system.description ? `<br><i>${item.system.description}</i>` : ""}`;
 
+    // Spells pay their cost, resolve attacks/saves/damage and post a card with Apply buttons for the GM.
+    if (item.type === "spell") return castSpell(item);
+
     const damageFormula = getWeaponDamageFormula(item);
+    const typeLabel = { feature: "Talent", race: "Race", weapon: "Weapon" }[item.type] ?? "Item";
+    // Talents and races show their Bonus above the description.
+    const text = ["feature", "race"].includes(item.type) ? getTalentSummary(item.system) : item.system.description ?? "";
+    const itemCard = rows => renderRollCard({
+      img: item.img, title: escapeCard(item.name), tags: typeLabel, rows,
+      details: { summary: `${typeLabel} text`, html: text, open: !rows.length }
+    });
 
     if (!damageFormula) {
-      await ChatMessage.create({
-        speaker,
-        rollMode,
-        flavor: label,
-        content: item.system.description ?? ""
-      });
+      await ChatMessage.create({ speaker, rollMode, content: itemCard([]) });
       return;
     }
 
     if (this.type !== "weapon") {
       const rollData = this.getRollData() ?? { item: foundry.utils.deepClone(this.system) };
-
-      await new Roll("1d20").toMessage({
-        speaker,
-        rollMode,
-        flavor: label
-      });
-
-      const roll = new Roll(damageFormula, rollData);
-      await roll.toMessage({
-        speaker,
-        rollMode,
-        flavor: "Damage"
-      });
+      const d20 = await new Roll("1d20").evaluate();
+      const roll = await new Roll(damageFormula, rollData).evaluate();
+      const row = pending => [{
+        img: this.actor?.img, name: this.actor?.name ?? item.name,
+        chips: pending ? [rollingChip()] : [cardChip("d20", { tone: "note", small: String(d20.total) })],
+        values: pending ? [] : [cardAmount(roll.total, { kind: "damage", title: `${roll.formula}: ${roll.result}` })]
+      }];
+      const chatData = { speaker, content: itemCard(row(true)), rolls: [d20.toJSON(), roll.toJSON()], sound: CONFIG.sounds.dice };
+      ChatMessage.applyMode(chatData, rollMode);
+      const message = await ChatMessage.create(chatData);
+      if (message) {
+        await waitForContestAnimations([message.id]);
+        await message.update({ content: itemCard(row(false)) });
+      }
       return roll;
     }
 
@@ -70,7 +85,7 @@ export class IncarnosItem extends Item {
     const form = await promptWeaponAttack(item, rollData);
     if (!form) return;
 
-    return rollWeaponAttackAction({
+    const attackRolls = await rollWeaponAttackAction({
       item,
       rollData,
       speaker,
@@ -81,16 +96,20 @@ export class IncarnosItem extends Item {
       stat: form.stat,
       advantageType: form.advantageType,
       advantageCount: form.advantageCount,
+      twoHanded: form.twoHanded,
       // Players enter the signed modifier announced by the GM; the roll adds target Parry to the die.
       parryModifiers: form.enemyParryModifiers.map(modifier => -modifier)
     });
+    // Hindered lasts for one attack.
+    await consumeHindered(item.actor);
+    return attackRolls;
   }
 }
 
 /**
  * Return the weapon's effective attack modes.
  * A missing attackMode is treated as melee so old weapons continue to work.
- * A versatile weapon can attack in both modes, with its configured mode first.
+ * A versatile weapon can attack in both modes, with its configured mode first; Throwable makes a melee weapon versatile.
  *
  * @param {Item} item
  * @returns {string[]}
@@ -98,7 +117,8 @@ export class IncarnosItem extends Item {
 export function getWeaponAttackModes(item) {
   const configuredMode = item?.system?.attackMode || "melee";
   const baseMode = CONFIG.INCARNOS?.weaponModes?.[configuredMode] ? configuredMode : "melee";
-  return item?.system?.versatile ? [baseMode, baseMode === "melee" ? "ranged" : "melee"] : [baseMode];
+  const versatile = item?.system?.versatile || Boolean(getWeaponRules(item?.system).throwable);
+  return versatile ? [baseMode, baseMode === "melee" ? "ranged" : "melee"] : [baseMode];
 }
 
 /**
@@ -154,7 +174,8 @@ export async function rollWeaponAttackAction({
   mode,
   advantageType = "Normal",
   advantageCount = 0,
-  parryModifiers = [0]
+  parryModifiers = [0],
+  twoHanded = false
 } = {}) {
   const attack = CONFIG.INCARNOS?.attackActions?.[attackId];
   if (!attack) return ui.notifications.warn(`Unknown attack action: ${attackId}`);
@@ -168,19 +189,27 @@ export async function rollWeaponAttackAction({
     return ui.notifications.warn(`${attack.name} cannot be used with ${mode} attacks.`);
   }
 
-  const selectedStat = resolveAttackStat(attack, mode, rollData);
+  const rules = getWeaponRules(item.system);
+  const talents = getTalentRules(item.actor?.items);
+  const selectedStat = resolveAttackStat(attack, mode, rollData, rules);
   if (!selectedStat) {
     return ui.notifications.warn(`${attack.name} needs a valid attack stat.`);
   }
 
+  const useTwoHands = Boolean(twoHanded && rules.twoHand);
   const targetParryModifiers = (attack.multiTarget ? parryModifiers : [parryModifiers[0] ?? 0]).map(Number);
   const abilityValue = getAbilityValue(rollData, selectedStat);
-  const weaponModifier = Number(item.system?.modifier ?? 0);
+  // Two-Hand: −2 hitrate and the trait's damage die. A monster's weapon modifier is written for the heroes
+  // ("Melee -2" = −2 for heroes), so the monster itself rolls with the opposite sign.
+  const weaponModifier = modifierForRoller(item.system?.modifier, item.actor) - (useTwoHands ? 2 : 0);
   const hitFormula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
-  const damageFormula = getAttackDamageFormula(item, attack);
+  const damageFormula = getAttackDamageFormula(item, attack, rules);
 
   const rolls = [];
-  const resultLines = [];
+  const results = [];
+  // Targeted tokens name the rows and allow Apply when there is one per attack roll.
+  const targets = [...(game.user?.targets ?? [])];
+  const tokenFor = index => (targets.length === targetParryModifiers.length ? targets[index] : null);
 
   for (let i = 0; i < targetParryModifiers.length; i++) {
     const parryModifier = attack.parry?.apply === false ? 0 : Number(targetParryModifiers[i] ?? 0);
@@ -188,58 +217,111 @@ export async function rollWeaponAttackAction({
     rolls.push(hitRoll);
 
     const keptD20 = getKeptD20Result(hitRoll);
-    const criticalSuccess = hasKeptD20Result(hitRoll, 1);
-    const criticalFailure = hasKeptD20Result(hitRoll, 20);
-    const modifiedRoll = keptD20 + parryModifier;
     const threshold = abilityValue + weaponModifier;
-    const success = criticalSuccess || (!criticalFailure && modifiedRoll <= threshold);
-    
+    // d20 + modifier ≤ threshold is the same as d20 ≤ threshold − modifier: show what the die needed.
+    const needed = threshold - parryModifier;
+    const { success, crit } = getTraitHit(keptD20, needed, rules);
+
+    // Impressive Spectacle (talent): a one-handed hit rolled far enough under the target number doubles the damage.
+    const spectacle = isSpectacle(talents.spectacle, { success, d20: keptD20, needed, oneHanded: !useTwoHands && Number(item.system?.hands ?? 1) <= 1 });
     let damageRoll = null;
     if (success && damageFormula) {
-      damageRoll = await new Roll(damageFormula, rollData).evaluate({ async: true });
+      const formula = getTraitDamageFormula(damageFormula, rules, { crit, twoHanded: useTwoHands });
+      // Crits max the damage dice (after Deadly/Fatal changed them).
+      damageRoll = await new Roll(spectacle ? `(${formula}) * 2` : formula, rollData).evaluate({ maximize: crit });
       rolls.push(damageRoll);
     }
-    resultLines.push(`<div><b>Result:</b> <span style="color: ${success ? "#2e7d32" : "#c62828"}">${success ? "Success" : "Fail"}</span></div>`);
+    // Conditions in the weapon's traits ("Burn D4", "Prone") come with a hit; token dice are rolled now.
+    const conditions = [];
+    for (const { id, name, dice, timed } of success ? parseAttackConditions(item.system?.traits) : []) {
+      const tokenRoll = dice ? await new Roll(dice).evaluate() : null;
+      if (tokenRoll) rolls.push(tokenRoll);
+      conditions.push({ id, name, ...(tokenRoll ? { tokens: tokenRoll.total } : {}), ...(timed !== undefined ? { timed } : {}) });
+    }
+    const token = tokenFor(i);
+    results.push({
+      name: token?.name ?? (targetParryModifiers.length > 1 ? `Target ${i + 1}` : "Target"),
+      img: token?.document?.texture?.src, uuid: token?.actor?.uuid,
+      check: { d20: keptD20, threshold: needed, success, crit },
+      parryModifier, success, crit, damageRoll, damage: damageRoll?.total ?? 0,
+      spectacle: spectacle && damageRoll ? talents.spectacle : null,
+      conditions
+    });
   }
 
   const statLabel = selectedStat.charAt(0).toUpperCase() + selectedStat.slice(1);
-  const notes = attack.notes?.length ? `<br><b>Notes:</b><ul>${attack.notes.map(note => `<li>${note}</li>`).join("")}</ul>` : "";
-  const attackLines = targetParryModifiers.map((modifier, index) => {
-    const targetLabel = targetParryModifiers.length > 1 ? " (target " + (index + 1) + ")" : "";
-    const attackModifierText = attack.parry?.apply === false ? ""
-      : " " + formatSignedNumber(-modifier) + " (attack modifier)";
-    return "<div><b>Attack" + targetLabel + ":</b> " + statLabel + " "
-      + formatSignedNumber(weaponModifier) + " (weapon)" + attackModifierText + "</div>";
-  });
-  // Describe the effective dice adjustment, including attack-specific bonuses.
   const advantageDice = /^(\d+)d20k([lh])$/.exec(hitFormula);
-  const advantageText = advantageDice
-    ? "<div><b>" + (advantageDice[2] === "l" ? "Advantage" : "Disadvantage") + ":</b> "
-      + formatSignedNumber((Number(advantageDice[1]) - 1) * (advantageDice[2] === "l" ? 1 : -1)) + "</div>"
-    : "";
-
-  const renderAttackText = results => '<div style="margin-top: 2px; white-space: normal; line-height: 1.3;">'
-    + '<div><b>' + attack.name + '</b></div>' + attackLines.join("") + advantageText
-    + '<div style="margin: 0; padding: 0;">' + results.join("") + '</div></div>';
-
+  const card = pending => renderWeaponAttackCard({
+    item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending, rules, twoHanded: useTwoHands,
+    criticalFailureLabel: game.i18n?.localize("INCARNOS.CriticalFailure.title")
+  });
   const chatData = {
     user: game.user.id,
     speaker,
-    flavor: flavor + renderAttackText(resultLines.map(() => "<div><b>Result:</b></div>")),
-    content: "",
+    content: card(true),
     rolls: rolls.map(roll => roll.toJSON()),
     style: CONST.CHAT_MESSAGE_STYLES.ROLL,
-    sound: CONFIG.sounds.dice
+    sound: CONFIG.sounds.dice,
+    flags: { incarnos: { ...(hasCriticalFailure(results) ? { criticalFailureAttack: { actorUuid: item.actor.uuid, kind: attackId === "weave" ? "spell" : "weapon" } } : {}), spellCast: { itemName: item.name, targets: results.map(({ name, uuid, damage, conditions }) =>
+      ({ name, uuid, damage, heal: 0, conditions, appliedDamage: false, appliedHeal: false })) } } }
   };
 
   ChatMessage.applyMode(chatData, rollMode);
   const message = await ChatMessage.create(chatData);
   if (message) {
     await waitForContestAnimations([message.id]);
-    await message.update({ flavor: flavor + renderAttackText(resultLines) });
+    await message.update({ content: card(false) });
   }
 
   return rolls;
+}
+
+/** Weapon attack chat card on the shared roll card layout. */
+export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending = false, rules = getWeaponRules(item.system), twoHanded = false, criticalFailureLabel }) {
+  const advantage = advantageDice
+    ? `${advantageDice[2] === "l" ? "Advantage" : "Disadvantage"} ${formatSignedNumber((Number(advantageDice[1]) - 1) * (advantageDice[2] === "l" ? 1 : -1))}`
+    : "";
+  // A monster's weapon shows the modifier as written for the heroes next to what the monster rolls with.
+  const forHeroes = item.actor && !isPlayerSide(item.actor) ? ` (${formatSignedNumber(Number(item.system?.modifier ?? 0))} for heroes)` : "";
+  const facts = [`Weapon ${formatSignedNumber(weaponModifier)}${forHeroes}`, twoHanded ? "Two-handed" : "", advantage,
+    attack.parry?.apply === false ? "Ignores Parry" : "", rules.poorPrecision ? "Poor Precision" : ""]
+    .filter(Boolean).map(escapeCard).join(" · ");
+  const rows = results.map((result, index) => {
+    if (pending) return { img: result.img, name: result.name, chips: [rollingChip()] };
+    const modifierText = attack.parry?.apply === false ? "" : ` ${formatSignedNumber(-result.parryModifier)} attack modifier`;
+    const values = result.damage
+      ? [cardAmount(result.damage, { kind: "damage", title: `${result.damage} damage (${result.damageRoll.formula}: ${result.damageRoll.result})` })
+        + (result.uuid ? applyButton("damage", index, result.damage) : "")]
+      : [`<span class="isc-amount isc-none">${result.success ? "—" : "no effect"}</span>`];
+    return {
+      img: result.img, name: result.name, dim: !result.success, values,
+      chips: [checkChip(result.check, { pass: "Hit", fail: "Miss", label: `${statLabel} ${abilityValue} ${formatSignedNumber(weaponModifier)} weapon${modifierText}` }),
+        result.spectacle ? cardChip("×2", { tone: "crit", title: `${result.spectacle.source}: one-handed hit rolled ${result.spectacle.margin}+ under the target number, damage doubled` }) : "",
+        ...(result.conditions ?? []).map(condition => cardChip(`${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, {
+          tone: "note", title: `${condition.name}${condition.tokens ? ` (${condition.tokens} tokens)` : ""}: applied to the target together with the damage (Apply)` }))]
+    };
+  });
+  const damaged = pending ? [] : results.filter(result => result.damageRoll);
+  const notes = damaged.map(result => `<span title="${escapeCard(result.damageRoll.formula)}${result.crit ? " (crit: damage dice maxed)" : ""}"><i class="fas fa-dice"></i> ${damaged.length > 1 ? `${escapeCard(result.name)}: ` : ""}Damage ${escapeCard(result.damageRoll.result)} = <b>${result.damage}</b>${result.crit ? " · crit, max dice" : ""}</span>`)
+    .concat((attack.notes ?? []).map(note => `<span>${note}</span>`));
+  const applicable = pending ? 0 : results.filter(result => result.damage && result.uuid).length;
+  return renderRollCard({
+    img: item.img, title: escapeCard(item.name),
+    tags: escapeCard([attack.name, CONFIG.INCARNOS?.weaponModes?.[mode] ?? mode].filter(Boolean).join(" · ")),
+    chip: cardChip(`${statLabel} ${abilityValue}`, { tone: "info", title: `Attack stat (${statLabel})` }),
+    facts, rows, notes,
+    action: (applicable > 1 ? applyAllButton() : "") + (!pending && hasCriticalFailure(results) ? criticalFailureButton(criticalFailureLabel) : ""),
+    details: { summary: "Traits", html: weaponTraitsHtml(item.system) }
+  });
+}
+
+/** Trait list (name bold, description) plus the weapon's description, for the card's folded text. */
+function weaponTraitsHtml(system = {}) {
+  const traits = parseWeaponTraits(system.traits);
+  const list = traits.length
+    ? `<ul class="isc-traits">${traits.map(trait => `<li><b>${escapeCard([trait.name, trait.value].filter(Boolean).join(" "))}</b>${trait.text ? `: ${escapeCard(trait.text)}` : ""}</li>`).join("")}</ul>`
+    : "";
+  return list + (system.description ?? "");
 }
 
 /**
@@ -259,8 +341,18 @@ async function promptWeaponAttack(item, rollData) {
   const attackOptions = attacks.map(attack => `<option value="${attack.id}">${attack.name}</option>`).join("");
   const modeOptions = weaponModes.map(mode => `<option value="${mode}">${CONFIG.INCARNOS.weaponModes[mode] ?? mode}</option>`).join("");
   const hasOnlyOneMode = weaponModes.length === 1;
-  const advantageOptions = ["Normal", "Advantage", "Disadvantage"].map(type => `<option value="${type}">${type}</option>`).join("");
+  // Conditions preselect advantage: Hidden gives advantage, Hindered disadvantage.
+  const conditionAdv = conditionAdvantage(item.actor?.statuses ?? new Set(), "attack");
+  const defaultAdvantage = conditionAdv.delta > 0 ? "Advantage" : conditionAdv.delta < 0 ? "Disadvantage" : "Normal";
+  const advantageOptions = ["Normal", "Advantage", "Disadvantage"].map(type => `<option value="${type}"${type === defaultAdvantage ? " selected" : ""}>${type}</option>`).join("");
   const modifier = Number(item.system?.modifier ?? 0);
+  const twoHand = getWeaponRules(item.system).twoHand;
+  const twoHandField = twoHand ? `
+        <div class="form-group">
+          <label>Two-handed</label>
+          <input name="twoHanded" type="checkbox"/>
+          <p class="hint">−2 hitrate, damage die d${twoHand}</p>
+        </div>` : "";
 
   const form = await foundry.applications.api.DialogV2.prompt({
     window: { title: "Choose your attack" },
@@ -278,9 +370,9 @@ async function promptWeaponAttack(item, rollData) {
           </select>
         </div>
         <div class="form-group">
-          <label>Weapon</label>
+          <label>${isPlayerSide(item.actor) ? "Weapon" : "Weapon (for heroes)"}</label>
           <input type="text" value="${formatSignedNumber(modifier)}" readonly />
-        </div>
+        </div>${twoHandField}
         <div class="form-group">
           <label>Attack Modifier</label>
           <input name="enemyParryModifiers" type="text" value="0" placeholder="e.g. -6"/>
@@ -288,7 +380,8 @@ async function promptWeaponAttack(item, rollData) {
         <div class="form-group">
           <label>Advantage</label>
           <select name="advantageType">${advantageOptions}</select>
-          <input name="advantageCount" type="number" value="0" min="0" step="1"/>
+          <input name="advantageCount" type="number" value="${Math.abs(conditionAdv.delta)}" min="0" step="1"/>
+          ${conditionAdv.sources.length ? `<p class="hint">From conditions: ${conditionAdv.sources.join(", ")}</p>` : ""}
         </div>
       </fieldset>
       <output name="rollPreview" aria-label="Final roll" aria-live="polite" style="display: inline-block; flex: 0 1 auto; align-self: center; padding: 3px 8px; border-radius: 4px; background: var(--color-bg-option); font-size: 0.85em; font-weight: bold; white-space: pre-line;"></output>`,
@@ -300,7 +393,8 @@ async function promptWeaponAttack(item, rollData) {
         mode: button.form.elements.mode.value,
         enemyParryModifiers: parseNumberList(button.form.elements.enemyParryModifiers.value),
         advantageType: button.form.elements.advantageType.value,
-        advantageCount: Number(button.form.elements.advantageCount.value || 0)
+        advantageCount: Number(button.form.elements.advantageCount.value || 0),
+        twoHanded: Boolean(button.form.elements.twoHanded?.checked)
       })
     },
 
@@ -349,7 +443,8 @@ async function promptWeaponAttack(item, rollData) {
           mode: element.querySelector('[name="mode"]').value,
           enemyParryModifiers: parseNumberList(element.querySelector('[name="enemyParryModifiers"]').value),
           advantageType: select.value,
-          advantageCount: Number(input.value || 0)
+          advantageCount: Number(input.value || 0),
+          twoHanded: Boolean(element.querySelector('[name="twoHanded"]')?.checked)
         });
       };
 
@@ -368,15 +463,15 @@ async function promptWeaponAttack(item, rollData) {
 }
 
 /** Describe the pending roll without rolling dice or changing actor/item data. */
-function getWeaponAttackPreview(item, rollData, { attackId, mode, enemyParryModifiers, advantageType, advantageCount }) {
+function getWeaponAttackPreview(item, rollData, { attackId, mode, enemyParryModifiers, advantageType, advantageCount, twoHanded = false }) {
   const attack = CONFIG.INCARNOS.attackActions[attackId];
   if (!attack || !attack.modes.includes(mode)) return "This attack cannot be used in the selected weapon mode.";
 
-  const stat = resolveAttackStat(attack, mode, rollData);
+  const stat = resolveAttackStat(attack, mode, rollData, getWeaponRules(item.system));
   if (!stat) return "This attack needs a valid attack stat.";
 
   const ability = getAbilityValue(rollData, stat);
-  const weaponModifier = Number(item.system?.modifier ?? 0);
+  const weaponModifier = modifierForRoller(item.system?.modifier, item.actor) - (twoHanded && getWeaponRules(item.system).twoHand ? 2 : 0);
   const formula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
   const modifiers = attack.multiTarget ? enemyParryModifiers : [enemyParryModifiers[0] ?? 0];
   const lines = modifiers.map(modifier => {
@@ -386,14 +481,16 @@ function getWeaponAttackPreview(item, rollData, { attackId, mode, enemyParryModi
   });
   return lines.join("\n");
 }
-function resolveAttackStat(attack, mode, rollData) {
-  const int = getAbilityValue(rollData, "int");  
+function resolveAttackStat(attack, mode, rollData, rules = {}) {
+  const int = getAbilityValue(rollData, "int");
   const cha = getAbilityValue(rollData, "cha");
   if (attack.id === "weave") {
     return int > cha ? "int" : "cha";
   }
-  
-  return attack.statByMode?.[mode] ?? null;
+  const stat = attack.statByMode?.[mode] ?? null;
+  // Finesse: melee attacks may use Dexterity instead of Strength; take the better one.
+  if (rules.finesse && mode === "melee" && stat === "str" && getAbilityValue(rollData, "dex") > getAbilityValue(rollData, "str")) return "dex";
+  return stat;
 }
 
 function getAbilityValue(rollData, stat) {
@@ -404,13 +501,14 @@ function getWeaponDamageFormula(item) {
   return item.system?.damage || item.system?.formula || null;
 }
 
-function getAttackDamageFormula(item, attack) {
+function getAttackDamageFormula(item, attack, rules = {}) {
   if (attack.damage?.formula) return attack.damage.formula;
 
   const baseDamage = getWeaponDamageFormula(item);
   if (!baseDamage) return null;
 
-  const multiplier = Number(attack.damage?.multiplier ?? 1);
+  // Sweep: Attack: Cleave deals full damage.
+  const multiplier = attack.id === "cleave" && rules.sweep ? 1 : Number(attack.damage?.multiplier ?? 1);
   if (multiplier === 1) return baseDamage;
   return `(${baseDamage}) * ${multiplier}`;
 }
@@ -438,12 +536,6 @@ function getKeptD20Result(roll) {
   return Number(result?.result ?? roll.total ?? 0);
 }
 
-function hasKeptD20Result(roll, value) {
-  const die = roll.dice.find(d => d.faces === 20);
-  const results = die?.results ?? [];
-  const active = results.filter(result => result.active !== false && result.discarded !== true);
-  return active.some(result => Number(result.result) === value);
-}
 
 function parseNumberList(value) {
   const parsed = String(value ?? "0")

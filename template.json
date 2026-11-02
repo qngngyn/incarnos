@@ -34,7 +34,7 @@
             "value": 1
           },
           "parry": {
-            "value": 5,
+            "value": 10,
             "bonus": 0
           },
           "movement": {
@@ -96,6 +96,7 @@
       "item",
       "weapon",
       "feature",
+      "race",
       "spell"
     ],
     "templates": {
@@ -121,18 +122,39 @@
       "damage": "d6",
       "attackMode": "melee",
       "versatile": false,
-      "modifier": 0
+      "modifier": 0,
+      "hands": 1,
+      "range": "",
+      "traits": ""
     },
     "feature": {
       "templates": [
         "base"
-      ]
+      ],
+      "bonus": ""
+    },
+    "race": {
+      "templates": [
+        "base"
+      ],
+      "bonus": ""
     },
     "spell": {
       "templates": [
         "base"
       ],
-      "spellLevel": 1
+      "spellLevel": 1,
+      "element": "",
+      "category": "",
+      "cost": "",
+      "actions": 0,
+      "actionType": "action",
+      "mp": 0,
+      "range": "",
+      "target": "",
+      "check": "",
+      "duration": "",
+      "effect": ""
     }
   }
 }

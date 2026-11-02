@@ -1,4 +1,5 @@
 import { getItemPassiveModifiers, applyItemPassiveModifiers } from "../helpers/passives.mjs";
+import { applyTalentRules, getTalentRules } from "../helpers/talents.mjs";
 
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
@@ -25,7 +26,11 @@ export class IncarnosActor extends Actor {
     }
     this._prepareCharacterData(this);
     this._prepareNpcData(this);
+    // Race and talent rules: save bonuses (Dwarf), movement multipliers (Centaur), IP → HP (Abomination).
+    const talentRules = getTalentRules(this.items);
+    applyTalentRules(this.system, talentRules, "saves");
     applyItemPassiveModifiers(this.system, modifiers, false);
+    applyTalentRules(this.system, talentRules, "resources");
   }
 
   /**
@@ -39,9 +44,10 @@ export class IncarnosActor extends Actor {
     const abilityScore = systemData.abilities;
     const attributeScore = systemData.attributes;
 
-    // Set Max HP and power 
+    // Set Max HP and Incarna 
     const healthbonus = systemData.health.bonus 
     systemData.health.max = 2*abilityScore.con.value + abilityScore.str.value + healthbonus
+    // system.power holds Incarna (IP); keep this legacy data path for existing worlds.
     const powerbonus = systemData.power.bonus
     systemData.power.max = 2*abilityScore.wis.value + abilityScore.int.value + powerbonus
 

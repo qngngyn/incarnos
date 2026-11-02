@@ -1,8 +1,12 @@
 import { changeActions, actorParticipatesInCombat } from "../helpers/action-tracker.mjs";
-import { getContestDefender, requestDefenderContest, formatContestMatchup, getContestDie, showContestDialog } from "../helpers/contest-requests.mjs";
-import { getTalentSummary } from "../helpers/talents.mjs";
+import { CONTEST_STATS, getContestDefender, requestDefenderContest, getContestDie, renderNewContestBoard, rollBoardSide, showContestDialog, waitForContestAnimations } from "../helpers/contest-requests.mjs";
+import { renderCheckCard } from "../helpers/roll-card.mjs";
+import { getTalentRules, getTalentSummary } from "../helpers/talents.mjs";
+import { getParryModifier, getSpellSummary, groupSpellsByElement } from "../helpers/spells.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
+import { itemSyncStatus } from "../helpers/item-sync.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
+import { advantageFormula, conditionAdvantage, proneParry } from "../helpers/conditions.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -124,6 +128,8 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     if (actor.type === "npc") {
       this._prepareItems(context);
       this._prepareNpcData(context);
+      // Players apply this to attacks against the NPC (10 − Parry).
+      context.parryModifier = formatSignedNumber(getParryModifier(actor.system.attributes?.parry?.value));
     }
 
     await Promise.all((context.talents ?? []).map(async talent => {
@@ -201,20 +207,10 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   _prepareItems(context) {
     const gear = [];
     const talents = [];
-    const spells = {
-      0: [],
-      1: [],
-      2: [],
-      3: [],
-      4: [],
-      5: [],
-      6: [],
-      7: [],
-      8: [],
-      9: []
-    };
+    const spells = [];
 
     for (const item of context.items) {
+      item.syncCustomized = itemSyncStatus(item)?.customized ?? false;
       item.img = item.img || CONST.DEFAULT_TOKEN;
 
       if (item.type === "weapon") {
@@ -224,20 +220,20 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       if ((item.type === "item") || (item.type === "weapon")) {
         gear.push(item);
       }
-      else if (item.type === "feature") {
+      else if (item.type === "feature" || item.type === "race") {
         item.talentSummary = getTalentSummary(item.system);
+        item.isRace = item.type === "race";
         talents.push(item);
       }
       else if (item.type === "spell") {
-        const spellLevel = item.system.spellLevel ?? 0;
-        if (!spells[spellLevel]) spells[spellLevel] = [];
-        spells[spellLevel].push(item);
+        item.spellSummary = getSpellSummary(item.system);
+        spells.push(item);
       }
     }
 
     context.gear = gear;
-    context.talents = talents;
-    context.spells = spells;
+    context.talents = talents.sort((a, b) => Number(b.isRace) - Number(a.isRace));
+    context.spells = groupSpellsByElement(spells);
   }
 
   /**
@@ -323,13 +319,47 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }
 
     if (dataset.roll) {
-      const label = dataset.label ? `${dataset.label}` : "";
-      const roll = new Roll(dataset.roll, this.actor.getRollData());
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-        flavor: label,
-        rollMode: game.settings.get("core", "rollMode")
+      const speaker = ChatMessage.getSpeaker({ actor: this.actor });
+      const rollMode = game.settings.get("core", "rollMode");
+      // Talents such as Cold-Hearted give advantage on some saves: roll 2d20, keep the lower.
+      const talentRules = getTalentRules(this.actor.items);
+      const advantageSource = dataset.check === "save" ? talentRules.saveAdvantage[dataset.stat] : null;
+      // Race save bonuses (Dwarf) are already in ability.save; the card names them.
+      const saveBonus = dataset.check === "save" ? talentRules.saveBonus[dataset.stat] ?? null : null;
+      // Conditions on Parry: Hidden gives advantage. Prone (disadvantage against melee, advantage against ranged)
+      // rolls enough dice to show both cases instead of asking.
+      const statuses = this.actor.statuses ?? new Set();
+      const proneParryRoll = dataset.check === "parry" && statuses.has("prone");
+      const conditionAdv = dataset.check === "parry" && !proneParryRoll ? conditionAdvantage(statuses, "parry") : { delta: 0, sources: [] };
+      const advantageDelta = (advantageSource ? 1 : 0) + conditionAdv.delta;
+      const advantageSources = [advantageSource, ...conditionAdv.sources].filter(Boolean).join(", ");
+      const formula = proneParryRoll ? `${statuses.has("hidden") ? 3 : 2}d20` : advantageDelta ? advantageFormula(advantageDelta) : dataset.roll;
+      const roll = await new Roll(formula, this.actor.getRollData()).evaluate();
+      const parryCases = proneParryRoll ? proneParry(roll.dice[0].results.map(result => result.result), statuses.has("hidden")) : null;
+      const ability = this.actor.system.abilities?.[dataset.stat];
+      const value = dataset.check === "parry" ? Number(this.actor.system.attributes?.parry?.value)
+        : dataset.check === "save" ? Number(ability?.save) : Number(ability?.value);
+      // Roll-under checks get the shared card; anything else keeps Foundry's plain roll message.
+      if (!dataset.check || !Number.isFinite(value)) {
+        await roll.toMessage({ speaker, flavor: dataset.label ?? "", rollMode });
+        return roll;
+      }
+      const card = pending => renderCheckCard({
+        roller: { name: this.actor.name, img: this.actor.img }, kind: dataset.check,
+        statLabel: game.i18n.localize(CONFIG.INCARNOS.abilities[dataset.stat] ?? dataset.stat ?? ""),
+        value: Math.round(value), d20: parryCases ? parryCases.melee : roll.total, pending,
+        advantage: advantageDelta ? { source: advantageSources, dice: roll.dice[0]?.results.map(result => result.result) ?? [], low: advantageDelta > 0 } : null,
+        bonus: saveBonus,
+        cases: parryCases ? [{ label: "vs melee", d20: parryCases.melee }, { label: "vs ranged", d20: parryCases.ranged }] : null,
+        casesTag: parryCases ? `Prone${statuses.has("hidden") ? ", Hidden" : ""}` : ""
       });
+      const chatData = { speaker, content: card(true), rolls: [roll.toJSON()], sound: CONFIG.sounds.dice };
+      ChatMessage.applyMode(chatData, rollMode);
+      const message = await ChatMessage.create(chatData);
+      if (message) {
+        await waitForContestAnimations([message.id]);
+        await message.update({ content: card(false) });
+      }
       return roll;
     }
   }
@@ -361,7 +391,6 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       if (!rollAnyway) return;
     }
     const defender = contestType === "Attack" && !noTarget ? getContestDefender(this.actor) : null;
-    const matchup = defender?.actor ? ` - ${formatContestMatchup(this.actor.name, defender.actor.name)}` : "";
 
     const result = await showContestDialog("prompt", {
       window: { title: `Choose your ${contestType.toLowerCase()} contest stat` },
@@ -387,64 +416,34 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
     if (!result) return;
 
-    let content;
-    let value;
-    let contestMessage;
-    if (result.type === "Attack") {
-      switch (result.stat) {
-        case "Strength": value = abilities.str.value; break;
-        case "Dexterity": value = abilities.dex.value; break;
-        case "Constitution": value = abilities.con.value; break;
-        case "Willpower": value = abilities.wis.value; break;
-        case "Perception": value = abilities.prc.value; break;
-        case "Speed": value = abilities.spd.value; break;
-        case "Intelligence": value = abilities.int.value; break;
-        case "Charisma": value = abilities.cha.value; break;
-      }
-      contestMessage = await ChatMessage.create({ speaker, flavor: `Attacker ${result.stat} Contest: ${value}${matchup}`, content: "<p>Waiting for the contest roll.</p>" });
-      content = "Go get 'em!"
-    } else {
-      switch (result.stat) {
-        case "Strength": value = abilities.str.save; break;
-        case "Dexterity": value = abilities.dex.save; break;
-        case "Constitution": value = abilities.con.save; break;
-        case "Willpower": value = abilities.wis.save; break;
-        case "Perception": value = abilities.prc.save; break;
-        case "Speed": value = abilities.spd.save; break;
-        case "Intelligence": value = abilities.int.save; break;
-        case "Charisma": value = abilities.cha.save; break;
-      }
-      contestMessage = await ChatMessage.create({ speaker, flavor: `Defendant ${result.stat} Contest: ${value}`, content: "<p>Waiting for the contest roll.</p>" });
-      content = "Defend yourself!"
-    }
-
-
+    // One board shows both sides of the contest and is updated as each side rolls.
+    const role = result.type === "Attack" ? "attack" : "save";
+    const value = Number(abilities[CONTEST_STATS[result.stat]]?.[role === "attack" ? "value" : "save"]);
     const die = getContestDie(value);
-    const rollHitText = `d${die}`;
-    if (!Number.isInteger(die)) {
-      await contestMessage.update({ content: "<p>Cannot roll this contest: the selected stat must be a finite integer.</p>" });
+    const attacker = { uuid: this.actor.uuid, name: this.actor.name, img: this.actor.img, stat: result.stat, value, die, role };
+    const opponent = role === "attack" && defender?.actor ? { uuid: defender.actor.uuid, name: defender.actor.name, img: defender.actor.img } : null;
+    const invalid = Number.isInteger(die) ? "" : "Cannot roll this contest: the selected stat must be a finite integer.";
+    const board = await ChatMessage.create({
+      speaker,
+      content: renderNewContestBoard({ stat: result.stat, attacker, defender: opponent }),
+      flags: { incarnos: { contestBoard: { round: 1, stat: result.stat, attacker, defender: opponent } } }
+    });
+    if (invalid) {
+      await board.update({ content: renderNewContestBoard({ stat: result.stat, attacker, note: invalid }), "flags.incarnos.contestBoard.cancelled": true });
       return;
     }
-    if (contestType === "Attack" && !noTarget) await requestDefenderContest({ attacker: this.actor, defender, attackMessage: contestMessage, stat: result.stat });
+    if (role === "attack" && !noTarget) await requestDefenderContest({ attacker: this.actor, defender, attackMessage: board, stat: result.stat });
 
-    const proceed = contestType === "Attack" || await showContestDialog("prompt", {
+    const proceed = role === "attack" || await showContestDialog("prompt", {
       window: { title: "Ready to roll?" },
-      content: content,
+      content: "Defend yourself!",
       ok: { label: "Roll", callback: () => true },
       rejectClose: false,
       modal: true
     });
 
-    if (proceed) {
-      const rollHit = await new Roll(rollHitText).evaluate({ async: true });
-      await contestMessage.update({
-        content: await rollHit.render(),
-        rolls: [rollHit.toJSON()]
-      });
-    }
-    else {
-      await contestMessage.update({ content: "<p>Contest cancelled.</p>" });
-    }
+    if (proceed) await rollBoardSide(board, attacker);
+    else await board.update({ content: renderNewContestBoard({ stat: result.stat, attacker, note: "Contest cancelled." }), "flags.incarnos.contestBoard.cancelled": true });
   }
   
   static async #onEditImage(event, target) {

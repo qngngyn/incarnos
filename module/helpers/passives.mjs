@@ -9,7 +9,7 @@ export const PASSIVE_STATS = {
   "abilities.int.value": "Intelligence",
   "abilities.cha.value": "Charisma",
   "health.max": "Maximum Health",
-  "power.max": "Maximum Power",
+  "power.max": "Maximum Incarna",
   "actionpoints.max": "Maximum Action Points",
   "attributes.parry.value": "Parry",
   "attributes.movement.value": "Movement"

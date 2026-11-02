@@ -1,0 +1,193 @@
+[
+  {
+    "_id": "ViRCE2VVDpNqE3Yi",
+    "_key": "!folders!ViRCE2VVDpNqE3Yi",
+    "name": "Darkness",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 500000,
+    "color": null,
+    "description": "Water Affinity: You have resistance to water dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "rOWZTV8yIHLkmfj4",
+    "_key": "!items!rOWZTV8yIHLkmfj4",
+    "name": "Blind confusion",
+    "type": "spell",
+    "img": "icons/magic/perception/eye-tendrils-web-purple.webp",
+    "system": {
+      "description": "<p>The target's mind gets haunted by absolute darkness and is unable to perceive his allies as those. His attacks will target his next ally or himself, if no ally is near.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Darkness",
+      "category": "Attack",
+      "cost": "3 Actions, 5 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 5,
+      "range": "12m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha",
+      "duration": "1 turn",
+      "effect": "On hit: The target uses his next turn to attack his closest ally (or himself if noone is around)"
+    },
+    "effects": [],
+    "folder": "ViRCE2VVDpNqE3Yi",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "NZEYODqTYHXmShMn",
+    "_key": "!items!NZEYODqTYHXmShMn",
+    "name": "Darkness Manifestation",
+    "type": "spell",
+    "img": "icons/magic/unholy/projectile-spear-glow-pink.webp",
+    "system": {
+      "description": "<p>Darkness manifests into a highly compressed form, creating a material as hard as steel. This material can be shaped into three different forms of throwable weapons. Once the weapon is ready, it will be catapulted at the target, dealing damage depending on the shape.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Darkness",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m",
+      "target": "Single Target",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On cast:\nChoose between Spear, Cresecent, Spiked Ball:\n12m · Line from User\nSpear:\nDeals 2d6 + (lvl *1) water dmg\n9m (12m width) · Orthogonal Line\nCrescent:\nDeals 2d6 + (lvl *1) water dmg\n12m · Single Target\nSpiked Ball:\nDeals 4d6 + (lvl * 2) water dmg"
+    },
+    "effects": [],
+    "folder": "ViRCE2VVDpNqE3Yi",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "QbxhnBQMsTbCsCvJ",
+    "_key": "!items!QbxhnBQMsTbCsCvJ",
+    "name": "Embracing darkness",
+    "type": "spell",
+    "img": "icons/magic/air/fog-gas-smoke-purple.webp",
+    "system": {
+      "description": "<p>Covers the target in darkness and sticks to anything.\nGreatly reduces the precision of any attack targeting anything inside the darkness.\nOnly nightvision can bypass it.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Darkness",
+      "category": "Utility",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m (2m radius)",
+      "target": "Single Target",
+      "check": "No Check",
+      "duration": "5 turns",
+      "effect": "On cast:\nEngulfs the target in complete darkness that follows the target"
+    },
+    "effects": [],
+    "folder": "ViRCE2VVDpNqE3Yi",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "wZkgAjGedWgYTibL",
+    "_key": "!items!wZkgAjGedWgYTibL",
+    "name": "Rift walk",
+    "type": "spell",
+    "img": "icons/skills/movement/portal-silhouette-pink.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Darkness",
+      "category": "Utility",
+      "cost": "1 Reaction, 5 IP",
+      "actions": 1,
+      "actionType": "reaction",
+      "mp": 5,
+      "range": "9m",
+      "target": "Single Ally",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: Target moves in any direction up to 9m"
+    },
+    "effects": [],
+    "folder": "ViRCE2VVDpNqE3Yi",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

@@ -1,0 +1,277 @@
+[
+  {
+    "_id": "uOonDH2PJQuZFdzC",
+    "_key": "!folders!uOonDH2PJQuZFdzC",
+    "name": "Fire",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1000000,
+    "color": null,
+    "description": "Fire Affinity: You have resistance to fire dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "930XHW3BJQMhIo2l",
+    "_key": "!items!930XHW3BJQMhIo2l",
+    "name": "Boots of Fire",
+    "type": "spell",
+    "img": "icons/skills/movement/feet-bladed-boots-fire.webp",
+    "system": {
+      "description": "<p>Explosive flames emit out of the user's boots. With those, it is possible to be able to fly at high speed for a short duration.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fire",
+      "category": "Utility",
+      "cost": "1 Action, 4 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 4,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nGives additional 9m movement this turn\nAlso turns movement into flight speed this turn"
+    },
+    "effects": [],
+    "folder": "uOonDH2PJQuZFdzC",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "FGw7bv61GCGkyy7w",
+    "_key": "!items!FGw7bv61GCGkyy7w",
+    "name": "Burning Grounds",
+    "type": "spell",
+    "img": "icons/magic/fire/flame-burning-earth-orange.webp",
+    "system": {
+      "description": "<p>The user envelops an entire area in flames (circle with a diameter of 6m). The center of the area must be within 6m. The fire erupts multiple times, burning everyone inside.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fire",
+      "category": "Attack",
+      "cost": "2 Actions, 14 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 14,
+      "range": "6m (3m radius)",
+      "target": "Ground Circle",
+      "check": "Target Save Dex",
+      "duration": "3 turns",
+      "effect": "On cast:\nDeals 3d6 + (lvl * 2) fire dmg (none when Save succeeded)\nOn begin of target's turn inside the circle:\nDeals 1d6 + (lvl * 1) fire dmg"
+    },
+    "effects": [],
+    "folder": "uOonDH2PJQuZFdzC",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "nsuf1mnOBWBzlyHT",
+    "_key": "!items!nsuf1mnOBWBzlyHT",
+    "name": "Firelance",
+    "type": "spell",
+    "img": "icons/magic/fire/beam-jet-stream-trails-orange.webp",
+    "system": {
+      "description": "<p>The user throws a lance of fire much like a spear and pierces its target with burning flames.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fire",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit: Deals 6d6 + (lvl * 2) fire dmg"
+    },
+    "effects": [],
+    "folder": "uOonDH2PJQuZFdzC",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "gAKPDlcBAVOJAcpl",
+    "_key": "!items!gAKPDlcBAVOJAcpl",
+    "name": "Fireslash",
+    "type": "spell",
+    "img": "icons/magic/fire/dagger-rune-enchant-flame-orange.webp",
+    "system": {
+      "description": "<p>The user fires a lightning fast fire projectile into a direction of his choice. The speed of the projectile depends on the expertise of the caster. Everyone too slow to react fast enough gets caught in its destruction.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fire",
+      "category": "Attack",
+      "cost": "2 Actions, 12 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 12,
+      "range": "9m (4,5m width)",
+      "target": "Line From User",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit: Deals 3d6 + (lvl * 2) fire damage"
+    },
+    "effects": [],
+    "folder": "uOonDH2PJQuZFdzC",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "xlyoBfrhRcGmeJzJ",
+    "_key": "!items!xlyoBfrhRcGmeJzJ",
+    "name": "Heataura",
+    "type": "spell",
+    "img": "icons/magic/fire/barrier-wall-flame-ring-yellow.webp",
+    "system": {
+      "description": "<p>The user envelops the target in a coat of hot energy. Every attacker must break through the aura before reaching the target, taking damage in advance. Additionally projectiles are more easily misdirected due to the radiating heat.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fire",
+      "category": "Buff",
+      "cost": "2 Reactions, 10 IP",
+      "actions": 2,
+      "actionType": "reaction",
+      "mp": 10,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "2 turns",
+      "effect": "On enemy attack:\nMelee: Attacker takes additional 1d6 + (lvl * 2) fire dmg\nRanged: Attacks are easier dodged (-3 Parry)"
+    },
+    "effects": [],
+    "folder": "uOonDH2PJQuZFdzC",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "3FhcqjSIhPS0w53Z",
+    "_key": "!items!3FhcqjSIhPS0w53Z",
+    "name": "Phoenix Ash",
+    "type": "spell",
+    "img": "icons/magic/life/heart-cross-strong-flame-purple-orange.webp",
+    "system": {
+      "description": "<p>The user turns soil into hot ashes that are applied on wounds. The first few seconds, the wounds hurt even more than before. Soon enough the ashes heal even the most dire of injuries when the target is strong enough to sustain the initial pain.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fire",
+      "category": "Attack / Heal",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Ally",
+      "check": "Target Save Con",
+      "duration": "3 turns",
+      "effect": "On cast: \nDeals 10 fire dmg (halved when Save succeeded)\nConscious target heals 4d4 HP at the beginning of its turn"
+    },
+    "effects": [],
+    "folder": "uOonDH2PJQuZFdzC",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

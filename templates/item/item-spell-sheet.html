@@ -3,21 +3,85 @@
     <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
     <div class="header-fields">
       <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      {{> "systems/incarnos/templates/item/item-sync-status.html"}}
     </div>
   </header>
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
-    <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
+    <a class="item {{tabs.spell.cssClass}}" data-action="tab" data-group="{{tabs.spell.group}}" data-tab="{{tabs.spell.id}}">{{localize "INCARNOS.Spell"}}</a>
+    <a class="item {{tabs.flavour.cssClass}}" data-action="tab" data-group="{{tabs.flavour.group}}" data-tab="{{tabs.flavour.id}}">{{localize "INCARNOS.Flavour"}}</a>
     <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
   </nav>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
 
-    {{!-- Description Tab --}}
-    <div class="tab {{tabs.description.cssClass}}" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">
+    {{!-- Spell Tab --}}
+    <div class="tab spell {{tabs.spell.cssClass}}" data-group="{{tabs.spell.group}}" data-tab="{{tabs.spell.id}}">
+      <label class="resource spell-effect-field">
+        <span class="resource-label">{{localize "INCARNOS.Effect"}}</span>
+        <textarea name="system.effect" rows="8" placeholder="On hit: Deals 3d6 + (lvl * 2) fire dmg">{{system.effect}}</textarea>
+      </label>
+      <div class="spell-fields">
+        <div class="resource">
+          <label class="resource-label">Element</label>
+          <input type="text" name="system.element" value="{{system.element}}" placeholder="Fire"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Category</label>
+          <input type="text" name="system.category" value="{{system.category}}" placeholder="Attack / Control"/>
+        </div>
+        <div class="resource spell-field-wide">
+          <label class="resource-label">Cost</label>
+          <input type="text" name="system.cost" value="{{system.cost}}" placeholder="2 Actions, 10 IP"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Actions</label>
+          <input type="number" name="system.actions" value="{{system.actions}}" data-dtype="Number" min="0"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Action Type</label>
+          <select name="system.actionType" data-dtype="String">
+            {{selectOptions spellActionTypes selected=system.actionType localize=false}}
+          </select>
+        </div>
+        <div class="resource">
+          <label class="resource-label">{{localize "INCARNOS.IncarnaAbbr"}}</label>
+          <input type="number" name="system.mp" value="{{system.mp}}" data-dtype="Number" min="0"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Range</label>
+          <input type="text" name="system.range" value="{{system.range}}" placeholder="12m"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Target</label>
+          <input type="text" name="system.target" value="{{system.target}}" placeholder="Single Enemy"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Check</label>
+          <input type="text" name="system.check" value="{{system.check}}" placeholder="Attack Int / Cha"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Duration</label>
+          <input type="text" name="system.duration" value="{{system.duration}}" placeholder="Instant"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Spell Level</label>
+          <input type="number" name="system.spellLevel" value="{{system.spellLevel}}" data-dtype="Number" min="0"/>
+        </div>
+      </div>
+
+      <div class="spell-automation-summary">
+        <strong>When cast:</strong>
+        {{#if spellAutomationText}}{{spellAutomationText}}{{else}}posts its card only (nothing to roll found in the text){{/if}}
+        <em>(read from Check, Range, Target and Effect)</em>
+      </div>
+
+    </div>
+
+    {{!-- Flavour Tab --}}
+    <div class="tab {{tabs.flavour.cssClass}}" data-group="{{tabs.flavour.group}}" data-tab="{{tabs.flavour.id}}">
       {{#if editable}}
         <prose-mirror name="system.description" button="true" editable="{{editable}}" toggled="false" value="{{system.description}}">
           {{{descriptionHTML}}}
@@ -25,15 +89,6 @@
       {{else}}
         {{{descriptionHTML}}}
       {{/if}}
-    </div>
-
-    {{!-- Attributes Tab --}}
-    <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
-      {{!-- As you add new fields, add them in here! --}}
-      <div class="resource">
-        <label class="resource-label">Spell Level</label>
-        <input type="text" name="system.spellLevel" value="{{system.spellLevel}}" data-dtype="Number"/>
-      </div>
     </div>
     {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>

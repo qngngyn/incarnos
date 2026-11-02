@@ -1,0 +1,17 @@
+[
+  {
+    "_id": "i2SbhC6jYcIxvsWZ",
+    "_key": "!macros!i2SbhC6jYcIxvsWZ",
+    "name": "Critical Failure",
+    "type": "script",
+    "img": "icons/magic/control/silhouette-fall-slip-prone.webp",
+    "scope": "global",
+    "command": "await game.incarnos.criticalFailure();",
+    "folder": null,
+    "sort": 0,
+    "ownership": {
+      "default": 2
+    },
+    "flags": {}
+  }
+]

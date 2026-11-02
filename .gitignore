@@ -13,3 +13,9 @@ foundry
 .codex/config.toml
 .codex
 .gitignore
+# Compiled compendium packs (rebuild with npm run pack:spells)
+packs/*
+!packs/_source/
+
+# Local catalogue of Foundry core icons
+.foundry-icons.txt

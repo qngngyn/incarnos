@@ -23,7 +23,7 @@
         </div>
 
         <div class="resource flex-group-center">
-          <label for="system.power.value" class="resource-label">Power</label>
+          <label for="system.power.value" class="resource-label">{{localize "INCARNOS.Incarna"}}</label>
           <div class="resource-content flexrow flex-center flex-between">
           <input type="text" name="system.power.value" value="{{system.power.value}}" data-dtype="Number"/>
           <span> / </span>
@@ -32,7 +32,7 @@
         </div>
         
         <div class="resource flex-group-center">
-          <label for="system.attributes.parry.value" class="resource-label rollable" data-action="roll" data-roll="d20" data-label="Parry: {{system.attributes.parry.value}}">Parry</label>
+          <label for="system.attributes.parry.value" class="resource-label rollable" data-action="roll" data-roll="d20" data-check="parry" data-label="Parry: {{system.attributes.parry.value}}">Parry</label>
           <div class="resource-content flexrow flex-center flex-between">
           <input type="text" disabled name="system.attributes.parry.value" value="{{numberFormat system.attributes.parry.value decimals=0 sign=false}}" data-dtype="Number"/>
           </div>
@@ -60,6 +60,7 @@
     <a class="item {{tabs.features.cssClass}}" data-action="tab" data-group="{{tabs.features.group}}" data-tab="{{tabs.features.id}}">Profile</a>
     <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Notes</a>
     <a class="item {{tabs.items.cssClass}}" data-action="tab" data-group="{{tabs.items.group}}" data-tab="{{tabs.items.id}}">Items</a>
+    <a class="item {{tabs.spells.cssClass}}" data-action="tab" data-group="{{tabs.spells.group}}" data-tab="{{tabs.spells.id}}">Spells</a>
     <a class="item {{tabs.effects.cssClass}}" data-action="tab" data-group="{{tabs.effects.group}}" data-tab="{{tabs.effects.id}}">Effects</a>
   </nav>
 
@@ -77,10 +78,10 @@
           <div class="abilities flexcol">
             {{#each system.abilities as |ability key|}}
             <div class="ability flexrow flex-group-center">
-              <label for="system.abilities.{{key}}.value" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-label="{{ability.label}} Ability Check">{{ability.label}}</label>
+              <label for="system.abilities.{{key}}.value" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-check="ability" data-stat="{{key}}" data-label="{{ability.label}} Ability Check">{{ability.label}}</label>
               <input type="text" name="system.abilities.{{key}}.value" value="{{ability.value}}" data-dtype="Number"  />
               <span></span>
-              <label for="system.abilities.{{key}}.save" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-label="{{ability.label}} Saving Throw: {{ability.save}}">Save: {{ability.label}}</label>
+              <label for="system.abilities.{{key}}.save" class="resource-label rollable flexlarge align-left" data-action="roll" data-roll="d20" data-check="save" data-stat="{{key}}" data-label="{{ability.label}} Saving Throw: {{ability.save}}">Save: {{ability.label}}</label>
               <span class="ability-mod">{{numberFormat ability.save decimals=0 sign=false}}</span>
             </div>
             {{/each}}
@@ -128,6 +129,11 @@
     {{!-- Owned Items Tab --}}
     <div class="tab items {{tabs.items.cssClass}}" data-group="{{tabs.items.group}}" data-tab="{{tabs.items.id}}">
        {{> "systems/incarnos/templates/actor/parts/actor-items.html"}}
+    </div>
+
+    {{!-- Spells Tab --}}
+    <div class="tab spells {{tabs.spells.cssClass}}" data-group="{{tabs.spells.group}}" data-tab="{{tabs.spells.id}}">
+      {{> "systems/incarnos/templates/actor/parts/actor-spells.html"}}
     </div>
 
     {{!-- Active Effects Tab --}}

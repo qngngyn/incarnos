@@ -3,6 +3,7 @@
     <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
     <div class="header-fields">
       <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      {{> "systems/incarnos/templates/item/item-sync-status.html"}}
       <div class="grid grid-2col">
         <div class="resource">
           <label class="resource-label">Quantity</label>
@@ -21,7 +22,7 @@
           </select>
         </div>
         <div class="resource">
-          <label class="resource-label">Attack Modifier</label>
+          <label class="resource-label" {{#if enemyWeapon}}title="Written for the heroes: negative is bad for them (Melee -2 = heroes parry at -2)"{{/if}}>{{#if enemyWeapon}}Modifier (for heroes){{else}}Hitrate{{/if}}</label>
           <input type="number" name="system.modifier" value="{{system.modifier}}" data-dtype="Number"   step="1"/>
         </div>
       </div>
@@ -61,6 +62,26 @@
         <label class="resource-label">Damage Formula</label>
         <input type="text" name="system.damage" value="{{system.damage}}" data-dtype="String"/>
         <p class="hint">Old weapons that still use system.formula will keep working; this field replaces formula for new weapons.</p>
+      </div>
+      <div class="grid grid-2col">
+        <div class="resource">
+          <label class="resource-label">Hands</label>
+          <input type="number" name="system.hands" value="{{system.hands}}" data-dtype="Number" min="1" max="2" step="1"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Range</label>
+          <input type="text" name="system.range" value="{{system.range}}" placeholder="12m"/>
+        </div>
+      </div>
+      <div class="resource">
+        <label class="resource-label">Traits</label>
+        <textarea name="system.traits" rows="6" placeholder="Finesse: You can use your Dexterity instead of your Strength…&#10;Deadly D6: When you crit, add the named dice…">{{system.traits}}</textarea>
+        <p class="hint">One trait per line, "Name value: description", as in the Weapons sheet.</p>
+      </div>
+      <div class="spell-automation-summary">
+        <strong>In attacks:</strong>
+        {{#if weaponRulesText}}{{weaponRulesText}}{{else}}no automated traits{{/if}}
+        <em>(read from Traits; the rest show on the attack card)</em>
       </div>
     </div>
     {{> "systems/incarnos/templates/item/item-passives.html"}}

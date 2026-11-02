@@ -1,0 +1,284 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { test } from "node:test";
+import * as CONDITION_HELPERS from "../module/helpers/conditions.mjs";
+const { advantageFormula, asleepAfterActions, asleepAfterDamage, conditionAdvantage, proneParry, tickDamageTokens } = CONDITION_HELPERS;
+import { CONDITIONS } from "../module/data/conditions.mjs";
+import { conditionsModule, parseConditionNote } from "../tools/condition-notes.mjs";
+
+test("damage tokens deal 1 damage per token, then one token goes", () => {
+  assert.deepEqual(tickDamageTokens(3), { damage: 3, remaining: 2 });
+  assert.deepEqual(tickDamageTokens(1), { damage: 1, remaining: 0 });
+  // 3 tokens deal 3 + 2 + 1 = 6 in total.
+  let tokens = 3, total = 0;
+  while (tokens) { const tick = tickDamageTokens(tokens); total += tick.damage; tokens = tick.remaining; }
+  assert.equal(total, 6);
+});
+
+test("asleep: every action point spent removes a token; damage halves them, not below 2", () => {
+  assert.equal(asleepAfterActions(5, 1), 4);
+  assert.equal(asleepAfterActions(2, 3), 0);
+  assert.equal(asleepAfterActions(4, 0), 4);
+  assert.equal(asleepAfterDamage(9), 4);
+  assert.equal(asleepAfterDamage(3), 2);
+  assert.equal(asleepAfterDamage(1), 1);
+});
+
+test("Hidden gives advantage, Hindered disadvantage on attacks, Prone depends on the attack parried", () => {
+  assert.deepEqual(conditionAdvantage(new Set(["hidden"]), "attack"), { delta: 1, sources: ["Hidden"] });
+  assert.deepEqual(conditionAdvantage(new Set(["hindered"]), "attack"), { delta: -1, sources: ["Hindered"] });
+  assert.equal(conditionAdvantage(new Set(["hidden", "hindered"]), "attack").delta, 0);
+  assert.equal(conditionAdvantage(new Set(["prone"]), "parry", "melee").delta, -1);
+  assert.equal(conditionAdvantage(new Set(["prone"]), "parry", "ranged").delta, 1);
+  assert.equal(conditionAdvantage(new Set(["hindered"]), "parry").delta, 0, "Hindered only affects attacks");
+  // Prone Parry without a popup: both cases from one roll.
+  assert.deepEqual(proneParry([4, 15]), { melee: 15, ranged: 4 });
+  assert.deepEqual(proneParry([9, 15, 3], true), { melee: 9, ranged: 3 }, "Hidden cancels the melee disadvantage and doubles the ranged advantage");
+  assert.equal(advantageFormula(1), "2d20kl");
+  assert.equal(advantageFormula(-1), "2d20kh");
+  assert.equal(advantageFormula(0), "1d20");
+});
+
+test("vault condition notes give id, name, icon, text and whether they count tokens", () => {
+  const { condition, warnings } = parseConditionNote("Burn (dice, e.g. D4): You get that many Burn tokens.", "Burn");
+  assert.deepEqual(warnings, []);
+  assert.deepEqual(condition, { id: "burn", name: "Burn", img: "icons/svg/fire.svg", description: "You get that many Burn tokens.", tokens: true });
+  assert.equal(parseConditionNote("Prone: Melee Parry at disadvantage.\nIcon: icons/svg/down.svg", "Prone").condition.img, "icons/svg/down.svg");
+  assert.match(parseConditionNote("Dazed: Stuff.", "Dazed").warnings[0], /no icon/);
+  assert.match(conditionsModule([]), /export const CONDITIONS = \[\]/);
+});
+
+test("the generated list holds every vault condition with an icon", () => {
+  assert.deepEqual(CONDITIONS.map(c => c.id).sort(),
+    ["asleep", "bleed", "burn", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "poisoned", "prone", "regenerating", "taunted"]);
+  assert.ok(CONDITIONS.every(c => c.img.startsWith("icons/")));
+  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "bleed", "burn", "immobilized", "poisoned", "regenerating"]);
+});
+
+test("attack conditions: only trait lines that are just a condition count, token conditions keep their dice", () => {
+  const { parseAttackConditions } = CONDITION_HELPERS;
+  assert.deepEqual(parseAttackConditions("Burn D4\nProne"), [{ id: "burn", name: "Burn", dice: "d4" }, { id: "prone", name: "Prone", dice: null }]);
+  assert.deepEqual(parseAttackConditions("Poisoned d4"), [{ id: "poisoned", name: "Poisoned", dice: "d4" }]);
+  assert.deepEqual(parseAttackConditions("Bleed"), [{ id: "bleed", name: "Bleed", dice: "1" }], "token condition without dice: 1 token");
+  assert.deepEqual(parseAttackConditions("Trip: on a crit the target falls Prone.\nReach: 3m"), [], "descriptions never apply a condition");
+  assert.deepEqual(parseAttackConditions(""), []);
+});
+
+test("HUD order: Incarnos conditions first, then Defeated and three spare statuses", () => {
+  const list = CONDITION_HELPERS.statusEffectList();
+  const sorted = [...list].sort((a, b) => a.order - b.order).map(status => status.id);
+  assert.deepEqual(sorted.slice(0, CONDITIONS.length), CONDITIONS.map(c => c.id));
+  assert.deepEqual(sorted.slice(CONDITIONS.length), ["dead", "custom-1", "custom-2", "custom-3"]);
+  assert.equal(list.find(status => status.id === "immobilized").img, "icons/svg/net.svg", "Immobilized shares Grappled's net icon from the vault");
+  assert.equal(new Set(list.map(status => status.img)).size, list.length - 1, "other statuses have their own icons");
+});
+
+test("only status effects made entirely of unknown statuses count as old", () => {
+  const known = new Set(CONDITION_HELPERS.statusEffectList().map(status => status.id));
+  const { unknownStatusEffect } = CONDITION_HELPERS;
+  assert.equal(unknownStatusEffect({ statuses: new Set(["stun"]) }, known), true);
+  assert.equal(unknownStatusEffect({ statuses: new Set(["prone"]) }, known), false);
+  assert.equal(unknownStatusEffect({ statuses: new Set() }, known), false, "plain active effects (passives, items) stay");
+});
+
+test("spell texts: clear prone and token effects count, conditional or optional ones don't", async () => {
+  const { parseSpellConditions } = await import("../module/helpers/spells.mjs");
+  assert.deepEqual(parseSpellConditions(["On hit: Deals 4d6 + (lvl * 2) earth dmg", "Target is knocked prone (none when save succeeded)"], true),
+    [{ id: "prone", name: "Prone", formula: null, saveNegates: true }]);
+  assert.deepEqual(parseSpellConditions(["On hit:", "Deals 1d6 + (lvl * 2) water dmg", "Apply 4d4 + (lvl * 2) sleep tokens, the target falls asleep", "", "Asleep: You cannot act. When you take damage, you half your sleep tokens."], false),
+    [{ id: "asleep", name: "Asleep", formula: "4d4 + (@lvl * 2)", saveNegates: false }]);
+  assert.deepEqual(parseSpellConditions(["On cast: Targets are pushed. If the target hits objects, the target falls prone and both take 1d4 air dmg"], true), [], "Gale Force: only if it hits something");
+  assert.deepEqual(parseSpellConditions(["Up to 3 projectiles gain one of the effects of your choice:", "Prone targets (none when Save succeeded)"], true), [], "choices stay manual");
+  assert.deepEqual(parseSpellConditions(["Slash: Burn D4 on the target"], false).map(c => c.id), [], "lines starting with a label are reminders");
+  assert.deepEqual(parseSpellConditions(["On hit: 2d6 fire dmg and Burn D6"], false), [{ id: "burn", name: "Burn", formula: "d6", saveNegates: false }]);
+});
+
+test("Leaf wind: Regenerating with turns as tokens and the healing per turn", async () => {
+  const { parseSpellAutomation } = await import("../module/helpers/spells.mjs");
+  const auto = parseSpellAutomation({ check: "No Check", target: "Single Ally", category: "Heal",
+    effect: "On cast:\nHeals the target by 2d6 + (lvl * 1)\nTarget gains Regenerating 2: heals 1d6 + (lvl * 1) at the beginning of the target's turn" });
+  assert.equal(auto.heal, "2d6 + (@lvl * 1)", "the instant heal stays the cast's heal");
+  assert.deepEqual(auto.conditions, [{ id: "regenerating", name: "Regenerating", formula: "2", saveNegates: false, heal: "1d6 + (@lvl * 1)" }]);
+});
+
+test("Regenerating uses the actor's effect when activation reports an already active status", async () => {
+  const { applyAttackConditions, conditionTokens } = CONDITION_HELPERS;
+  const actor = { effects: [], statuses: new Set() };
+  const flags = { statuscounter: { value: 1, visible: false } };
+  let updatingCounter = false;
+  const effect = {
+    statuses: new Set(["regenerating"]),
+    getFlag: (scope, key) => flags[scope]?.[key],
+    async setFlag(scope, key, value) {
+      assert.equal(updatingCounter, false, "the counter update must finish before writing the heal flag");
+      (flags[scope] ??= {})[key] = value;
+    },
+    get statusCounter() {
+      return this._statusCounter ??= {
+        get displayValue() { return flags.statuscounter.value; },
+        async setValue(value) {
+          updatingCounter = true;
+          await new Promise(resolve => setImmediate(resolve));
+          flags.statuscounter = { value, visible: value > 1 };
+          updatingCounter = false;
+        }
+      };
+    }
+  };
+  actor.toggleStatusEffect = async (id, options) => {
+    assert.equal(id, "regenerating");
+    assert.deepEqual(options, { active: true });
+    // Cover Foundry's boolean success result as well as the document result.
+    actor.effects.push(effect);
+    actor.statuses.add(id);
+    return true;
+  };
+  await applyAttackConditions(actor, [{ id: "regenerating", tokens: 2, heal: "1d6 + (3 * 1)" }]);
+  assert.equal(conditionTokens(actor, "regenerating"), 2);
+  assert.equal(flags.statuscounter.visible, true);
+  assert.equal(flags.incarnos.heal, "1d6 + (3 * 1)");
+});
+
+test("Immobilized notes declare optional turns and keep their explicit icon", () => {
+  const { condition, warnings } = parseConditionNote("Immobilized (turns, optional): You cannot use movement actions.\nIcon: icons/svg/net.svg", "Immobilized");
+  assert.deepEqual(warnings, []);
+  assert.deepEqual(condition, { id: "immobilized", name: "Immobilized", img: "icons/svg/net.svg",
+    description: "You cannot use movement actions.", tokens: true });
+});
+
+test("attacks can apply indefinite Immobilized or an explicit timed token count", () => {
+  assert.deepEqual(CONDITION_HELPERS.parseAttackConditions("Immobilized"),
+    [{ id: "immobilized", name: "Immobilized", dice: null, timed: false }]);
+  assert.deepEqual(CONDITION_HELPERS.parseAttackConditions("Prone, Immobilized 2"),
+    [{ id: "prone", name: "Prone", dice: null }, { id: "immobilized", name: "Immobilized", dice: "2", timed: true }]);
+});
+
+/** In-memory effect documents, including statuscounter's implicit one; never reads or writes a world. */
+function immobilizedActor({ timed, tokens } = {}) {
+  const actor = { name: "Held", uuid: "Actor.held", effects: [], statuses: new Set(), system: {}, testUserPermission: user => user.id === "owner" };
+  actor.toggleStatusEffect = async id => {
+    const flags = { incarnos: {}, statuscounter: {} };
+    const effect = { statuses: new Set([id]), getFlag: (scope, key) => flags[scope]?.[key],
+      async setFlag(scope, key, value) { (flags[scope] ??= {})[key] = value; },
+      async update(changes) { for (const [path, value] of Object.entries(changes)) {
+        const [, scope, key] = path.split("."); (flags[scope] ??= {})[key] = value;
+      } },
+      async delete() { actor.effects = actor.effects.filter(entry => entry !== effect); actor.statuses.delete(id); } };
+    actor.effects.push(effect);
+    actor.statuses.add(id);
+    return true;
+  };
+  if (timed !== undefined || tokens !== undefined) {
+    actor.toggleStatusEffect("immobilized");
+    const effect = actor.effects[0];
+    if (timed !== undefined) effect.setFlag("incarnos", "timed", timed);
+    if (tokens !== undefined) effect.setFlag("statuscounter", "value", tokens);
+  }
+  return actor;
+}
+
+test("Immobilized counts down only with timed === true; hand counters and implicit one persist", async () => {
+  const { conditionTokens, endOfTurn, startOfTurn } = CONDITION_HELPERS;
+  for (const settings of [{ tokens: 1 }, { tokens: 4 }, { tokens: 2, timed: false }, { timed: "true" }]) {
+    const actor = immobilizedActor(settings);
+    const before = conditionTokens(actor, "immobilized");
+    await endOfTurn(actor);
+    assert.equal(conditionTokens(actor, "immobilized"), before);
+  }
+  const actor = immobilizedActor({ timed: true, tokens: 2 });
+  const gm = { id: "gm", active: true, isGM: true };
+  globalThis.game = { user: gm, users: [gm] };
+  const prompts = [];
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async data => prompts.push(data) };
+  await startOfTurn(actor);
+  assert.equal(conditionTokens(actor, "immobilized"), 2, "starting the turn never consumes Immobilized");
+  assert.match(prompts[0].content, /Immobilized/);
+  assert.match(prompts[0].content, /2 tokens/);
+  await endOfTurn(actor);
+  assert.equal(conditionTokens(actor, "immobilized"), 1);
+  await endOfTurn(actor);
+  assert.equal(actor.statuses.has("immobilized"), false, "the last token removes the effect");
+  await startOfTurn(immobilizedActor({ tokens: 1 }));
+  assert.match(prompts[1].content, /Immobilized/);
+  assert.doesNotMatch(prompts[1].content, /isc-detail">1 token/, "an untimed HUD counter is not presented as a duration");
+});
+
+test("Immobilized sources flag durations, add timed tokens and preserve indefinite effects", async () => {
+  const { applyAttackConditions, conditionTokens, endOfTurn, statusEffect } = CONDITION_HELPERS;
+  const actor = immobilizedActor();
+  await applyAttackConditions(actor, [{ id: "immobilized", tokens: 2, timed: true }]);
+  assert.equal(conditionTokens(actor, "immobilized"), 2);
+  assert.equal(statusEffect(actor, "immobilized").getFlag("incarnos", "timed"), true);
+  await applyAttackConditions(actor, [{ id: "immobilized", tokens: 2, timed: true }]);
+  assert.equal(conditionTokens(actor, "immobilized"), 4, "two timed sources add their tokens");
+  await applyAttackConditions(actor, [{ id: "immobilized", timed: false }]);
+  await endOfTurn(actor);
+  assert.equal(conditionTokens(actor, "immobilized"), 4, "an indefinite source stops the countdown");
+  const manual = immobilizedActor({ tokens: 1 });
+  await applyAttackConditions(manual, [{ id: "immobilized", tokens: 2, timed: true }]);
+  assert.equal(statusEffect(manual, "immobilized").getFlag("incarnos", "timed"), false, "a timed hit cannot expire a hand-applied effect");
+  const untimed = immobilizedActor();
+  await applyAttackConditions(untimed, [{ id: "immobilized", timed: false }]);
+  await endOfTurn(untimed);
+  assert.equal(conditionTokens(untimed, "immobilized"), 1, "the default counter isn't a duration");
+});
+
+function conditionHooks() {
+  const hooks = {};
+  globalThis.Hooks = { once: () => {}, on: (name, callback) => { hooks[name] = callback; } };
+  CONDITION_HELPERS.registerConditionHooks();
+  return hooks;
+}
+
+test("turn transitions tick the previous combatant once, forward only, using the single writer", async () => {
+  const { conditionTokens } = CONDITION_HELPERS;
+  const gm = { id: "a-gm", active: true, isGM: true };
+  const secondGM = { id: "z-gm", active: true, isGM: true };
+  const owner = { id: "owner", active: true, isGM: false };
+  const previous = immobilizedActor({ timed: true, tokens: 4 });
+  const currentActor = immobilizedActor({ timed: true, tokens: 3 });
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async () => {} };
+  const combat = () => ({ combatants: new Map([["previous", { actor: previous }], ["current", { actor: currentActor }]]) });
+  const prior = { round: 1, turn: 0, combatantId: "previous" };
+  const current = { round: 1, turn: 1, combatantId: "current" };
+  const transition = async (user, users, encounter = combat(), before = prior, after = current) => {
+    globalThis.game = { user, users };
+    const hooks = conditionHooks();
+    hooks.combatTurnChange(encounter, before, after);
+    hooks.combatTurnChange(encounter, before, after);
+    await new Promise(resolve => setImmediate(resolve));
+  };
+  await transition(secondGM, [secondGM, owner, gm]);
+  await transition(owner, [owner, gm]);
+  assert.equal(conditionTokens(previous, "immobilized"), 4, "neither another GM nor an owner writes while the elected GM is active");
+  await transition(gm, [secondGM, owner, gm]);
+  assert.equal(conditionTokens(previous, "immobilized"), 3, "only the previous actor ticks, once despite duplicate hooks");
+  assert.equal(conditionTokens(currentActor, "immobilized"), 3);
+  await transition(gm, [gm], combat(), current, prior);
+  assert.equal(conditionTokens(currentActor, "immobilized"), 3, "backward navigation doesn't consume duration");
+  await transition(gm, [gm], combat(), { round: 0, turn: null }, prior);
+  assert.equal(conditionTokens(previous, "immobilized"), 3, "starting combat doesn't end a turn");
+  await transition(owner, [owner, { ...gm, active: false }]);
+  assert.equal(conditionTokens(previous, "immobilized"), 2, "an active owner writes if no GM is active");
+  await transition(gm, [gm], combat(), { round: 1, turn: 1, combatantId: "previous" }, { round: 2, turn: 0, combatantId: "previous" });
+  assert.equal(conditionTokens(previous, "immobilized"), 1, "a solo combatant ticks across rounds too");
+});
+
+test("Immobilized and Grappled stop player movement with the existing warning style; GMs can move", () => {
+  const hook = conditionHooks().preUpdateToken;
+  const warnings = [];
+  globalThis.ui = { notifications: { warn: text => warnings.push(text) } };
+  const language = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url), "utf8"));
+  globalThis.game = { user: { isGM: false }, i18n: { format: (key, data) => language[key].replace(/\{(\w+)\}/g, (_, field) => data[field]) } };
+  for (const id of ["immobilized", "grappled"]) {
+    const token = { name: "Held", actor: { hasPlayerOwner: true, statuses: new Set([id]) } };
+    assert.equal(hook(token, { x: 100 }), false);
+    assert.equal(hook(token, { y: 100 }), false);
+    assert.equal(warnings.at(-1), `Held is ${id} and cannot move.`);
+    assert.equal(hook(token, { rotation: 90 }), undefined);
+    game.user.isGM = true;
+    assert.equal(hook(token, { x: 100 }), undefined);
+    game.user.isGM = false;
+  }
+  assert.equal(hook({ actor: { statuses: new Set() } }, { x: 100 }), undefined);
+});

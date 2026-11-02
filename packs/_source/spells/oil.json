@@ -1,0 +1,151 @@
+[
+  {
+    "_id": "7wFOEKAGhlGPs0DY",
+    "_key": "!folders!7wFOEKAGhlGPs0DY",
+    "name": "Oil",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1600000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "3HX6W3RE6TWLgN7J",
+    "_key": "!items!3HX6W3RE6TWLgN7J",
+    "name": "Boil Off",
+    "type": "spell",
+    "img": "icons/consumables/food/pot-soup-white.webp",
+    "system": {
+      "description": "<p>Heat radiates from the user's body, causing all nearby oil to superheat and burn all creatures directly touching it.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Oil",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m radius from user",
+      "target": "Oils",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nEverything oiled gains the fried status for 2 turns.\nFried: Targets must make a Con Save at the beginning of their turn:\n- Failed: Take 3d6 earth dmg\n- Success: Take half dmg from failed"
+    },
+    "effects": [],
+    "folder": "7wFOEKAGhlGPs0DY",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "siU2ublmXwfsOjmP",
+    "_key": "!items!siU2ublmXwfsOjmP",
+    "name": "Solidify",
+    "type": "spell",
+    "img": "icons/magic/acid/orb-bubble-smoke-drip.webp",
+    "system": {
+      "description": "<p>Chosen oil puddles react to the air around it, expands and solidifies into a jiggly mass. The resulting mass can be shaped by the user, but is not very strong.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Oil",
+      "category": "Utility",
+      "cost": "1 Action, 6 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 6,
+      "range": "12m radius from user",
+      "target": "Oils",
+      "check": "No Check",
+      "duration": "3 turns",
+      "effect": "On cast:\nThe user may choose every oil in range and give it the \"jiggly\" effect:\nJiggly: Expands the oil up to a 3m wall. This wall negates all projectiles and has 2 HP. While jiggly, the user may shape its form as he likes."
+    },
+    "effects": [],
+    "folder": "7wFOEKAGhlGPs0DY",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "iHk99QrhTgtH46Da",
+    "_key": "!items!iHk99QrhTgtH46Da",
+    "name": "Teflon Spray",
+    "type": "spell",
+    "img": "icons/magic/acid/pouring-gas-smoke-liquid.webp",
+    "system": {
+      "description": "<p>A magical non-stick coating is apoplied to the target, making it impossible for any oil to stick to it. Existing sticking oil is also repelled.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Oil",
+      "category": "Buff",
+      "cost": "1 Action, 2 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 2,
+      "range": "Melee",
+      "target": "Single Target",
+      "check": "No Check",
+      "duration": "4 turns",
+      "effect": "On cast:\nApplies the \"seasoned\" effect:\nSeasoned: Loses all oil-based conditions and prevents them from applying"
+    },
+    "effects": [],
+    "folder": "7wFOEKAGhlGPs0DY",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

@@ -1,0 +1,109 @@
+[
+  {
+    "_id": "acH6dXv4CvT7qfpX",
+    "_key": "!folders!acH6dXv4CvT7qfpX",
+    "name": "Physical",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1700000,
+    "color": null,
+    "description": "No Affinity",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "OQCtA4iMCemmA6W8",
+    "_key": "!items!OQCtA4iMCemmA6W8",
+    "name": "Smash n' Dash",
+    "type": "spell",
+    "img": "icons/skills/melee/hand-grip-hammer-spiked-blue.webp",
+    "system": {
+      "description": "<p>A physicist was bored and started chugging pebbles around and accidentally hit not just one fly, but a second and a third as well. He teamed up with a martial artist to develop the fighting style “Smash n' Dash.”</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Physical",
+      "category": "Attack / Utility",
+      "cost": "X Actions, X * 8 IP",
+      "actions": 0,
+      "actionType": "action",
+      "mp": 0,
+      "range": "X * Movementspeed",
+      "target": "Single Target",
+      "check": "Attack Str",
+      "duration": "Instant",
+      "effect": "On cast:\nMove up to X × your Movement Speed.\nGain 1 Momentum for every 3m moved.\n\nOn hit:\nDeal Momentum × d6 damage.\n\nIf the target dies, keep your Momentum and continue moving with your remaining movement. You may attack again. This repeats until a target survives or your movement ends."
+    },
+    "effects": [],
+    "folder": "acH6dXv4CvT7qfpX",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1kSaCRC8cbaLlPOH",
+    "_key": "!items!1kSaCRC8cbaLlPOH",
+    "name": "Whirlwind",
+    "type": "spell",
+    "img": "icons/skills/melee/sword-twirl-orange.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Physical",
+      "category": "Attack",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "3m radius from user",
+      "target": "Ground Circle",
+      "check": "Attack Weapon-4",
+      "duration": "Instant",
+      "effect": "On cast:\nGain 1 Momentum for every 5m moved in this turn.\n\nOn hit:\nDeal Momentum × Weapon's damage."
+    },
+    "effects": [],
+    "folder": "acH6dXv4CvT7qfpX",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

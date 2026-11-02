@@ -1,0 +1,67 @@
+[
+  {
+    "_id": "rcJQ9heBJtlrBkBD",
+    "_key": "!folders!rcJQ9heBJtlrBkBD",
+    "name": "Fabric",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 900000,
+    "color": null,
+    "description": "Air Affinity: You have resistance to air dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "OFtV0cIZEWTBWFcY",
+    "_key": "!items!OFtV0cIZEWTBWFcY",
+    "name": "Whip it real good",
+    "type": "spell",
+    "img": "icons/weapons/misc/whip-leather.webp",
+    "system": {
+      "description": "<p>Tentative</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Fabric",
+      "category": "Attack / Control",
+      "cost": "1 Action, 10 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Fabric",
+      "check": "No Check",
+      "duration": "2 Turns",
+      "effect": "You unlock the offensive ability on the fabric of your choice\nAttacks have the following formula (rounded down):\nAttack = (Int or Cha / 2) + (attribute of fabric / 2)"
+    },
+    "effects": [],
+    "folder": "rcJQ9heBJtlrBkBD",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

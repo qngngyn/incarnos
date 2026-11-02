@@ -8,6 +8,7 @@
   <div class="passive-entry flexcol">
   <div class="form-group flexrow" style="gap: 8px; margin-bottom: 8px;">
     <select name="system.passives.{{id}}.stat" aria-label="Passive stat" {{#unless ../editable}}disabled{{/unless}}>
+      {{#unless passive.stat}}<option value="" selected>Choose a stat</option>{{/unless}}
       {{selectOptions ../passiveStats selected=passive.stat localize=false}}
     </select>
     <input type="number" name="system.passives.{{id}}.value" value="{{passive.value}}" step="any" data-dtype="Number" aria-label="Passive modifier" {{#unless ../editable}}disabled{{/unless}}/>

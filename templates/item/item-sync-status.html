@@ -1,0 +1,8 @@
+{{#if itemSync}}
+  <div class="item-sync-status {{#if itemSync.customized}}customized{{/if}}">
+    <span>{{#if itemSync.customized}}{{localize "INCARNOS.ItemSync.customized"}}{{else}}{{localize "INCARNOS.ItemSync.synced"}}{{/if}}</span>
+    {{#if canResetCompendium}}
+      <button type="button" data-action="resetCompendium"><i class="fas fa-rotate-left" aria-hidden="true"></i> {{localize "INCARNOS.ItemSync.reset"}}</button>
+    {{/if}}
+  </div>
+{{/if}}

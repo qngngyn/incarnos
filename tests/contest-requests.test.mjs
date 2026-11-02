@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { showContestDialog, waitForContestAnimations, resolveContestTie, promptDefenderContest, registerContestRequestHooks, getContestDie, getContestDefender, requestDefenderContest, rollDefenderContest, processContestResponse, completeDefenderContest } from "../module/helpers/contest-requests.mjs";
+import { showContestDialog, waitForContestAnimations, resolveContestTie, promptDefenderContest, registerContestRequestHooks, getContestDie, getContestDefender, requestDefenderContest, rollDefenderContest, processContestResponse, completeDefenderContest, refreshBoard, rollBoardSide, cancelContest } from "../module/helpers/contest-requests.mjs";
 
 let nextMessageId = 0;
 
@@ -41,10 +41,12 @@ function setup() {
         async update(change) {
           this.updates.push(change);
           for (const [key, value] of Object.entries(change)) {
-            if (key.startsWith("flags.incarnos.contestRequest.")) this.flags.incarnos.contestRequest[key.split(".").pop()] = value;
-            else if (key === "author") this.author = game.users.get(value);
-            else if (key === "flags.incarnos.contestOutcome") this.flags = { ...this.flags, incarnos: { ...this.flags?.incarnos, contestOutcome: value } };
-            else this[key] = value;
+            if (key === "author") { this.author = game.users.get(value); continue; }
+            // Dotted keys update nested data, like Foundry's document updates.
+            const path = key.split(".");
+            let target = this;
+            for (const part of path.slice(0, -1)) target = target[part] ??= {};
+            target[path.at(-1)] = value;
           }
         },
         async delete() { this.deleted = true; messages.delete(this.id); }
@@ -113,11 +115,13 @@ test("player response is authenticated and updates the existing card once via th
   assert.equal(card.updates.length, 1);
   assert.deepEqual(card.whisper, []);
   assert.equal(card.blind, false);
-  assert.match(card.flavor.replace(/<[^>]*>/g, ""), /Attacker vs\. Defender/);
+  assert.equal(card.flavor, "");
   assert.equal(card.rolls[0].formula, "d15");
   assert.equal(card.author.id, env.defendUser.id);
   assert.equal(card.flags.incarnos.contestRequest.requestAuthorId, env.attackUser.id);
-  assert.match(card.content, /d15: 7/);
+  assert.equal(card.content, "<p>Defender: Strength 5, d15 → 7</p>");
+  assert.equal(card.flags.incarnos.contestRequest.responseValue, 5);
+  assert.equal(card.flags.incarnos.contestRequest.responseDie, 15);
   assert(response.deleted);
   await rollDefenderContest(card);
   assert.equal(env.rollCount(), 1);
@@ -214,7 +218,8 @@ test("a changed saving throw determines the defender die, GM validation and publ
   await processContestResponse(packet, env.defendUser.id);
   assert.equal(card.flags.incarnos.contestRequest.stat, "Strength");
   assert.equal(card.flags.incarnos.contestRequest.responseStat, "Dexterity");
-  assert.match(card.flavor, /Save: Dexterity Contest: 11/);
+  assert.equal(card.content, "<p>Defender: Dexterity 11, d9 → 7</p>");
+  assert.equal(card.flags.incarnos.contestRequest.responseDie, 9);
   assert.deepEqual(card.whisper, []);
   assert.equal(card.updates.length, 1);
 });
@@ -288,7 +293,7 @@ test("popup requests open only for the assigned defender and do not reopen on du
   assert.equal(env.rollCount(), 1);
 });
 
-test("NPC popup goes to the elected GM and pending cards are hidden until completed", async () => {
+test("NPC popup goes to the elected GM and request cards stay hidden; results show on the board", async () => {
   const env = setup();
   const npc = env.actor("NPC", "gm");
   const card = await requestDefenderContest({ attacker: env.attacker, defender: { actor: npc }, attackMessage: { id: "attack" }, stat: "Strength" });
@@ -306,14 +311,20 @@ test("NPC popup goes to the elected GM and pending cards are hidden until comple
   assert.equal(env.prompts.length, 1);
   assert.equal(card.flags.incarnos.contestRequest.status, "complete");
   assert.deepEqual(card.whisper, []);
-  const visible = { style: {}, querySelector: () => null };
-  hooks.renderChatMessageHTML(card, visible);
-  assert.equal(visible.style.display, undefined);
+  const completed = { style: {}, querySelector: () => null };
+  hooks.renderChatMessageHTML(card, completed);
+  assert.equal(completed.style.display, "none");
 });
 
 
+/** A round-1 contest board (the attacker's card, carrying the attack roll) plus its completed save request. */
 async function completedPair(env, attackTotal, saveTotal) {
-  const attack = await ChatMessage.create({ content: "attack result", flavor: "Attack Contest - Attacker vs. Defender", rolls: attackTotal === null ? [] : [{ total: attackTotal }] });
+  const attack = await ChatMessage.create({
+    content: "attack board", rolls: attackTotal === null ? [] : [{ total: attackTotal }],
+    flags: { incarnos: { contestBoard: { round: 1, stat: "Strength",
+      attacker: { uuid: env.attacker.uuid, name: "Attacker", stat: "Strength", value: 8, die: 12, role: "attack" },
+      defender: { uuid: env.defender.uuid, name: "Defender" } } } }
+  });
   const save = await requestDefenderContest({ attacker: env.attacker, defender: { actor: env.defender, playerId: env.defendUser.id }, attackMessage: attack, stat: "Strength" });
   save.flags.incarnos.contestRequest.status = "complete";
   save.flags.incarnos.contestRequest.responseStat = "Dexterity";
@@ -322,7 +333,7 @@ async function completedPair(env, attackTotal, saveTotal) {
   return { attack, save };
 }
 
-test("equal results announce TIE and create one new popup request per contestant", async () => {
+test("a tie shows on the board and starts a new board with one popup request per contestant", async () => {
   const env = setup();
   const { attack, save } = await completedPair(env, 4, 4);
   game.user = env.gm;
@@ -332,20 +343,25 @@ test("equal results announce TIE and create one new popup request per contestant
   game.dice3d = { waitFor3DAnimationByMessageID: id => { waitedIds.push(id); return animation; } };
   const resolution = Promise.all([resolveContestTie(save), resolveContestTie(attack)]);
   for (let i = 0; i < 8; i++) await Promise.resolve();
-  assert(!attack.content.includes("TIE!"));
-  assert(!save.content.includes("TIE!"));
+  assert(!attack.content.includes("Tie!"), "nothing is revealed before the dice land");
   assert.equal(env.created.length, 2);
   assert.deepEqual(waitedIds.sort(), [attack.id, save.id].sort());
   finishAnimation();
   await resolution;
   await resolveContestTie(save);
-  assert(!attack.content.includes("TIE!"));
-  assert(!save.content.includes("TIE!"));
+  // The round-1 board shows the tie; round 2 gets its own board.
+  assert(attack.content.includes("Tie! Both roll again"));
+  assert.equal(attack.flags.incarnos.contestOutcome.tie, true);
+  assert.equal((attack.content.match(/>Tie</g) ?? []).length, 2);
   assert.equal(env.created.length, 5);
-  assert.match(env.created[2].content, /TIE!/);
-  assert.deepEqual(env.created[2].whisper, []);
-  assert.equal(env.created[2].flags.incarnos.contestOutcome.tie, true);
+  const nextBoard = env.created[2];
+  assert.equal(nextBoard.flags.incarnos.contestBoard.round, 2);
+  assert.deepEqual(nextBoard.whisper, []);
   const [nextAttack, nextSave] = env.created.slice(3);
+  assert.equal(nextAttack.flags.incarnos.contestRequest.boardId, nextBoard.id);
+  assert.equal(nextSave.flags.incarnos.contestRequest.boardId, nextBoard.id);
+  assert(nextBoard.content.includes("Round 2"));
+  assert.equal((nextBoard.content.match(/Waiting/g) ?? []).length, 2);
   assert.equal(nextAttack.flags.incarnos.contestRequest.role, "attack");
   assert.equal(nextAttack.flags.incarnos.contestRequest.defenderUuid, env.attacker.uuid);
   assert.equal(nextAttack.flags.incarnos.contestRequest.recipientUserId, env.attackUser.id);
@@ -369,7 +385,8 @@ test("equal results announce TIE and create one new popup request per contestant
   game.user = env.gm;
   await processContestResponse(response, env.attackUser.id);
   assert.equal(nextAttack.flags.incarnos.contestRequest.status, "complete");
-  assert.match(nextAttack.flavor, /Attack: Strength/);
+  await refreshBoard(nextBoard);
+  assert(nextBoard.content.includes("Attack <small>Strength 8</small>"), "the reroll's attack side shows on the round-2 board");
 });
 
 test("tie detection waits for both results and also works when the attacker finishes last", async () => {
@@ -388,10 +405,9 @@ test("unequal results, including two even numbers, do not trigger a reroll", asy
   const { attack, save } = await completedPair(env, 2, 4);
   game.user = env.gm;
   await resolveContestTie(save);
-  assert.equal(env.created.length, 3);
-  assert.equal(env.created[2].flags?.incarnos?.contestRequest, undefined);
-  assert(!attack.content.includes("TIE!"));
-  assert(!save.content.includes("TIE!"));
+  assert.equal(env.created.length, 2, "no new messages: the result shows on the board");
+  assert(attack.content.includes("Attacker wins!"));
+  assert(!attack.content.includes("Tie"));
 });
 
 test("another tied reroll starts another pair and only the active GM resolves ties", async () => {
@@ -409,8 +425,9 @@ test("another tied reroll starts another pair and only the active GM resolves ti
   }
   await resolveContestTie(nextSave);
   assert.equal(env.created.length, 8);
-  assert(!nextSave.content.includes("TIE!"));
-  assert.match(env.created[5].content, /TIE!/);
+  assert(env.created[2].content.includes("Tie! Both roll again"), "round 2 shows its tie");
+  assert.equal(env.created[5].flags.incarnos.contestBoard.round, 3);
+  assert(env.created[5].content.includes("Round 3"));
 });
 
 
@@ -453,35 +470,28 @@ test("animation waiting proceeds immediately when no dice animation provider is 
 });
 
 
-test("lower roll wins and one separate public message announces the winner", async () => {
-  for (const [attackTotal, saveTotal, winner, role, name, color] of [
-    [2, 4, "attack", "Attacker", "Attacker", "#c62828"],
-    [6, 1, "defender", "Defender", "Defender", "#2e7d32"]
+test("the lower total wins and the result appears on the same board, no extra messages", async () => {
+  for (const [attackTotal, saveTotal, winner, name] of [
+    [2, 4, "attack", "Attacker"],
+    [6, 1, "defender", "Defender"]
   ]) {
     const env = setup();
     const { attack, save } = await completedPair(env, attackTotal, saveTotal);
     game.user = env.gm;
     await Promise.all([resolveContestTie(attack), resolveContestTie(save)]);
     await resolveContestTie(save);
-    assert.equal(env.created.length, 3);
-    const announcement = env.created[2];
-    assert.deepEqual(announcement.whisper, []);
-    assert(announcement.content.includes('style="color: ' + color + '"'));
-    assert.equal(announcement.flavor, "");
-    assert.equal(announcement.content.replace(/<[^>]*>/g, ""), name + " wins!");
-    assert.equal(announcement.content, '<p><span style="color: ' + color + '">' + name + '</span> wins!</p>');
-    assert.equal(announcement.flags.incarnos.contestOutcome.winner, winner);
-    for (const card of [attack, save]) {
-      assert.equal(card.flags.incarnos.contestOutcome.winner, winner);
-      assert.equal(card.updates.length, 1);
-      assert(!card.content.includes("Winner:"));
-      assert(card.flavor.includes('<span style="color: #c62828">Attacker</span>'));
-      assert(card.flavor.includes('<span style="color: #2e7d32">Defender</span>'));
-    }
+    assert.equal(env.created.length, 2);
+    assert(attack.content.includes('class="isc-name">' + name + " wins!</span>"));
+    assert(attack.content.includes('isc-chip isc-good" title="Lower total wins">Winner'));
+    assert(attack.content.includes('isc-chip isc-bad" title="Lower total wins">Lost'));
+    assert(!attack.content.includes("Lower total wins</span>"), "the rule is a tooltip, not text");
+    assert(!attack.content.includes("Cancel contest"), "a resolved contest has no Cancel button");
+    for (const card of [attack, save]) assert.equal(card.flags.incarnos.contestOutcome.winner, winner);
+    assert(save.flags.incarnos.contestRequest.outcomeProcessed);
   }
 });
 
-test("winner announcements wait for animation completion too", async () => {
+test("the board shows the result only after the dice animation", async () => {
   const env = setup();
   const { attack, save } = await completedPair(env, 1, 3);
   game.user = env.gm;
@@ -490,35 +500,124 @@ test("winner announcements wait for animation completion too", async () => {
   game.dice3d = { waitFor3DAnimationByMessageID: () => animation };
   const resolution = resolveContestTie(save);
   for (let i = 0; i < 8; i++) await Promise.resolve();
-  assert(!attack.content.includes("Winner:"));
-  assert(!save.content.includes("Winner:"));
+  assert(!attack.content.includes("wins!"));
   finish();
   await resolution;
-  assert.equal(env.created.length, 3);
-  assert.equal(env.created[2].flavor, "");
-  assert.equal(env.created[2].content.replace(/<[^>]*>/g, ""), "Attacker wins!");
-  assert(!attack.content.includes("Winner:"));
-  assert(!save.content.includes("Winner:"));
+  assert.equal(env.created.length, 2);
+  assert(attack.content.includes("Attacker wins!"));
 });
 
-
-test("reload does not replay old pending requests or historical tied rolls", async () => {
+test("only one client writes the board: the active GM, or the author when no GM is online", async () => {
   const env = setup();
-  await request(env); // An abandoned pending request.
-  await completedPair(env, 3, 3); // A historical tie with no resolved marker.
+  const { attack } = await completedPair(env, 2, 5);
+  game.user = env.attackUser;
+  await refreshBoard(attack);
+  assert.equal(attack.updates.length, 0, "a player does not write while a GM is online");
+  env.gm.active = false;
+  attack.author = env.attackUser;
+  await refreshBoard(attack);
+  assert(attack.updates.length >= 1);
+  assert(attack.content.includes("Strength contest"));
+});
+
+test("a waiting side gets a Roll button for its owner only; the GM gets Cancel", async () => {
+  const env = setup();
+  const attack = await ChatMessage.create({ content: "", rolls: [], flags: { incarnos: { contestBoard: { round: 1, stat: "Strength",
+    attacker: { uuid: env.attacker.uuid, name: "Attacker", stat: "Strength", value: 8, die: 12, role: "attack" },
+    defender: { uuid: env.defender.uuid, name: "Defender" } } } } });
+  attack.author = env.attackUser;
+  await requestDefenderContest({ attacker: env.attacker, defender: { actor: env.defender, playerId: env.defendUser.id }, attackMessage: attack, stat: "Strength" });
+  game.user = env.gm;
+  await refreshBoard(attack);
+  assert.equal((attack.content.match(/data-incarnos-contest-roll=/g) ?? []).length, 2);
+  assert(attack.content.includes("data-incarnos-contest-cancel"));
+  const hooks = {};
+  globalThis.Hooks = { on: (name, callback) => { hooks[name] = callback; }, once: (name, callback) => { hooks[name] = callback; } };
+  registerContestRequestHooks();
+  const rendered = user => {
+    game.user = user;
+    const button = key => ({ dataset: { incarnosContestRoll: key }, style: {}, removed: false, remove() { this.removed = true; }, addEventListener() {} });
+    const buttons = [button("attack"), button("save")];
+    const cancel = { dataset: {}, removed: false, remove() { this.removed = true; }, addEventListener() {} };
+    hooks.renderChatMessageHTML(attack, { style: {}, querySelectorAll: selector => selector.includes("cancel") ? [cancel] : buttons });
+    return { buttons, cancel };
+  };
+  const forDefender = rendered(env.defendUser);
+  for (let i = 0; i < 20; i++) await Promise.resolve();
+  const forAttacker = rendered(env.attackUser);
+  for (let i = 0; i < 20; i++) await Promise.resolve();
+  assert.deepEqual(forDefender.buttons.map(button => button.removed), [true, false]);
+  assert.deepEqual(forAttacker.buttons.map(button => button.removed), [false, true]);
+  assert(forDefender.cancel.removed && forAttacker.cancel.removed, "players cannot cancel");
+});
+
+test("after a disconnect the attacker can still roll from the board", async () => {
+  const env = setup();
+  const attack = await ChatMessage.create({ content: "", rolls: [], flags: { incarnos: { contestBoard: { round: 1, stat: "Strength",
+    attacker: { uuid: env.attacker.uuid, name: "Attacker", stat: "Strength", value: 8, die: 12, role: "attack" }, defender: null } } } });
+  attack.author = env.attackUser;
+  game.user = env.defendUser;
+  assert.equal(await rollBoardSide(attack), false, "someone else cannot roll the attacker's side");
+  assert.equal(attack.rolls.length, 0);
+  game.user = env.attackUser;
+  assert.equal(await rollBoardSide(attack), true);
+  assert.equal(attack.rolls[0].formula, "d12");
+  assert.equal(await rollBoardSide(attack), false, "a side is rolled only once");
+});
+
+test("a cancelled contest closes its requests and rejects late responses", async () => {
+  const env = setup();
+  const attack = await ChatMessage.create({ content: "", rolls: [{ total: 2 }], flags: { incarnos: { contestBoard: { round: 1, stat: "Strength",
+    attacker: { uuid: env.attacker.uuid, name: "Attacker", stat: "Strength", value: 8, die: 12, role: "attack" },
+    defender: { uuid: env.defender.uuid, name: "Defender" } } } } });
+  const pending = await requestDefenderContest({ attacker: env.attacker, defender: { actor: env.defender, playerId: env.defendUser.id }, attackMessage: attack, stat: "Strength" });
+  game.user = env.defendUser;
+  await rollDefenderContest(pending);
+  const lateResponse = env.created.at(-1);
+  game.user = env.attackUser;
+  await cancelContest(attack);
+  assert.notEqual(attack.flags.incarnos.contestBoard.cancelled, true, "players cannot cancel");
+  game.user = env.gm;
+  await cancelContest(attack);
+  assert.equal(attack.flags.incarnos.contestBoard.cancelled, true);
+  assert.equal(pending.flags.incarnos.contestRequest.status, "cancelled");
+  assert(attack.content.includes("Contest cancelled"));
+  assert(!attack.content.includes("data-incarnos-contest-roll"));
+  await processContestResponse(lateResponse, env.defendUser.id);
+  assert.equal(pending.flags.incarnos.contestRequest.status, "cancelled");
+  assert(lateResponse.deleted);
+});
+
+test("on reload the GM finishes recent open contests from their boards without reopening popups", async () => {
+  const env = setup();
+  const { attack, save } = await completedPair(env, 2, 5); // Completed while the GM was away.
+  const other = await ChatMessage.create({ content: "", rolls: [{ total: 9 }], flags: { incarnos: { contestBoard: { round: 1, stat: "Strength",
+    attacker: { uuid: env.attacker.uuid, name: "Attacker", stat: "Strength", value: 8, die: 12, role: "attack" },
+    defender: { uuid: env.defender.uuid, name: "Defender" } } } } });
+  const pending = await requestDefenderContest({ attacker: env.attacker, defender: { actor: env.defender, playerId: env.defendUser.id }, attackMessage: other, stat: "Strength" });
+  game.user = env.defendUser;
+  await rollDefenderContest(pending);
+  const leftover = env.created.at(-1); // A response the GM never processed.
+  for (const message of env.created) message.timestamp = Date.now();
+  game.user = env.attackUser;
+  const old = await completedPair(env, 3, 3); // An old tie: left alone.
+  for (const message of [old.attack, old.save]) message.timestamp = Date.now() - 2 * 24 * 60 * 60 * 1000;
+  const before = env.created.length;
+  const promptsBefore = env.prompts.length;
   game.user = env.gm;
   const hooks = {};
-  globalThis.Hooks = {
-    on: (name, callback) => { hooks[name] = callback; },
-    once: (name, callback) => { hooks[name] = callback; }
-  };
+  globalThis.Hooks = { on: (name, callback) => { hooks[name] = callback; }, once: (name, callback) => { hooks[name] = callback; } };
   registerContestRequestHooks();
-  await hooks.ready?.();
-  for (let i = 0; i < 8; i++) await Promise.resolve();
-  assert.equal(env.prompts.length, 0);
-  assert.equal(env.created.length, 3);
-  assert.equal(hooks.ready, undefined);
-  assert.equal(typeof hooks.createChatMessage, "function");
+  await hooks.ready();
+  for (let i = 0; i < 30; i++) await Promise.resolve();
+  assert.equal(env.prompts.length, promptsBefore, "no popups reopen on reload");
+  assert.equal(pending.flags.incarnos.contestRequest.status, "complete");
+  assert(leftover.deleted);
+  assert(attack.content.includes("Attacker wins!"));
+  assert(save.flags.incarnos.contestRequest.outcomeProcessed);
+  assert(other.content.includes("Defender wins!"), "the leftover response was processed and resolved");
+  assert.equal(old.save.flags.incarnos.contestRequest.tieProcessed, undefined, "old contests stay untouched");
+  assert.equal(env.created.length, before, "no new messages");
 });
 
 test("new requests still open from live chat events after hooks are registered", async () => {

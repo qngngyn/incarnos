@@ -32,3 +32,13 @@
   .contest-buttons { grid-column: 3; margin-top: 0; }
   .contest-buttons button { width: 100%; flex-basis: 100%; }
 }
+
+.parry-modifier { margin-left: 4px; opacity: 0.75; white-space: nowrap; }
+
+// NPC header: Parry shows its value and the players' modifier "(−6)", so it gets a wider column and neither part shrinks.
+.npc .actor-resource-header {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1fr);
+  .parry-resource .resource-content { flex-wrap: nowrap; justify-content: center; gap: 4px; }
+  .parry-resource input { flex: 0 0 4.5ch; width: 4.5ch; min-width: 4.5ch; padding: 0 2px; text-align: center; }
+  .parry-resource .parry-modifier { flex: 0 0 auto; margin-left: 0; }
+}

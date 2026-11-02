@@ -7,6 +7,8 @@
   return loadTemplates([
 
     "systems/incarnos/templates/item/item-passives.html",
+    "systems/incarnos/templates/item/item-sync-status.html",
+    "systems/incarnos/templates/item/item-sync-marker.html",
 
     // Actor partials.
     "systems/incarnos/templates/actor/parts/actor-talents.html",

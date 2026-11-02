@@ -1,4 +1,9 @@
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
+import { SPELL_ACTION_TYPES, describeSpellAutomation, getSpellAutomation } from "../helpers/spells.mjs";
+import { describeWeaponRules, getWeaponRules } from "../helpers/weapons.mjs";
+import { describeTalent } from "../helpers/talents.mjs";
+import { isPlayerSide } from "../helpers/modifiers.mjs";
+import { itemSyncStatus, canResetItemSync, resetItemToCompendium } from "../helpers/item-sync.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -28,7 +33,8 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     actions: {
       editImage: IncarnosItemSheet.#onEditImage,
       passiveAdd: IncarnosItemSheet.#onPassiveAdd,
-      passiveDelete: IncarnosItemSheet.#onPassiveDelete
+      passiveDelete: IncarnosItemSheet.#onPassiveDelete,
+      resetCompendium: IncarnosItemSheet.#onResetCompendium
     }
   };
 
@@ -50,6 +56,28 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       template: "systems/incarnos/templates/item/item-sheet.html"
     }
   };
+
+  /** @inheritDoc */
+  _getTabsConfig(group) {
+    if (this.item.type === "spell" && group === "primary") return {
+      initial: "spell",
+      tabs: [
+        { id: "spell", group: "primary", label: "INCARNOS.Spell" },
+        { id: "flavour", group: "primary", label: "INCARNOS.Flavour" },
+        { id: "passives", group: "primary", label: "Passives" }
+      ]
+    };
+    return super._getTabsConfig(group);
+  }
+
+  /** @inheritDoc */
+  _prepareTabs(group) {
+    // ApplicationV2 initializes tabGroups from static TABS before the item-specific config is read.
+    if (this.item.type === "spell" && group === "primary" && !["spell", "flavour", "passives"].includes(this.tabGroups.primary)) {
+      this.tabGroups.primary = "spell";
+    }
+    return super._prepareTabs(group);
+  }
 
   /** @inheritDoc */
   _configureRenderParts(options) {
@@ -74,8 +102,11 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.passiveStats = PASSIVE_STATS;
     context.owner = item.isOwner;
     context.editable = this.isEditable;
+    // Compare stored content, before any display defaults or derived data can change the fingerprint.
+    context.itemSync = item.pack ? null : itemSyncStatus({ ...item.toObject(), type: item.type });
+    context.canResetCompendium = canResetItemSync(item);
     context.tabs = this._prepareTabs("primary");
-    if (item.type === "feature") delete context.tabs.attributes;
+    if (item.type === "feature" || item.type === "race") delete context.tabs.attributes;
     context.cssClass = this.options.classes.join(" ");
 
     context.rollData = {};
@@ -94,6 +125,23 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       context.system.modifier ??= 0;
       context.system.damage ??= context.system.formula ?? "d6";
       context.weaponModes = CONFIG.INCARNOS?.weaponModes ?? { melee: "Melee", ranged: "Ranged" };
+      context.system.hands ??= 1;
+      context.system.range ??= "";
+      context.system.traits ??= "";
+      context.weaponRulesText = describeWeaponRules(getWeaponRules(item.system));
+      // Monster weapons carry the modifier heroes apply (see helpers/modifiers.mjs).
+      context.enemyWeapon = Boolean(item.actor) && !isPlayerSide(item.actor);
+    }
+
+    if (item.type === "feature" || item.type === "race") {
+      context.system.bonus ??= "";
+      context.talentRulesText = describeTalent(item.system);
+    }
+
+    if (item.type === "spell") {
+      context.system.actionType ??= "action";
+      context.spellAutomationText = describeSpellAutomation(getSpellAutomation(item.system));
+      context.spellActionTypes = SPELL_ACTION_TYPES;
     }
 
     return context;
@@ -106,6 +154,11 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     for (const input of this.element.querySelectorAll(".auto-select")) {
       input.addEventListener("focus", event => event.currentTarget.select());
     }
+  }
+
+  static async #onResetCompendium(event) {
+    event.preventDefault();
+    return resetItemToCompendium(this.item);
   }
 
   static async #onPassiveAdd(event) {

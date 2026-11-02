@@ -19,7 +19,79 @@
     "css/incarnos.css"
   ],
   "scripts": [],
-  "packs": [],
+  "packs": [
+    {
+      "name": "critical-failures",
+      "label": "Incarnos Critical Failures",
+      "path": "packs/critical-failures",
+      "type": "RollTable",
+      "system": "incarnos",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "macros",
+      "label": "Incarnos Macros",
+      "path": "packs/macros",
+      "type": "Macro",
+      "system": "incarnos",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "spells",
+      "label": "Incarnos Spells",
+      "path": "packs/spells",
+      "type": "Item",
+      "system": "incarnos",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "weapons",
+      "label": "Incarnos Weapons",
+      "path": "packs/weapons",
+      "type": "Item",
+      "system": "incarnos",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "talents",
+      "label": "Incarnos Talents",
+      "path": "packs/talents",
+      "type": "Item",
+      "system": "incarnos",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "races",
+      "label": "Incarnos Races",
+      "path": "packs/races",
+      "type": "Item",
+      "system": "incarnos",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "monsters",
+      "label": "Incarnos Monsters",
+      "path": "packs/monsters",
+      "type": "Actor",
+      "system": "incarnos",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
   "languages": [
     {
       "lang": "en",

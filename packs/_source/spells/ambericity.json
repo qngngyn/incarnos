@@ -1,0 +1,193 @@
+[
+  {
+    "_id": "uFKQlStPwr8yp3o4",
+    "_key": "!folders!uFKQlStPwr8yp3o4",
+    "name": "Ambericity",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 200000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1ZZZFco10srGBLL1",
+    "_key": "!items!1ZZZFco10srGBLL1",
+    "name": "3 Werktage",
+    "type": "spell",
+    "img": "icons/magic/life/heart-cross-strong-purple-orange.webp",
+    "system": {
+      "description": "<p>Took longer than 3 Werktage.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ambericity",
+      "category": "Heal",
+      "cost": "1 Action, 8 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 8,
+      "range": "Touch",
+      "target": "Single Target",
+      "check": "Check Wil",
+      "duration": "Instant",
+      "effect": "Upcast: Your power requires +1 action to use\nOn cast:\nHeals 2d4 hp (3d4, if upcast)\n\nOn check success:\nHeals additional 2d4 + (lvl * 1) hp\n(3d4 + (lvl * 1), if upcast)"
+    },
+    "effects": [],
+    "folder": "uFKQlStPwr8yp3o4",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "e2ebEBBDt6SEbLlj",
+    "_key": "!items!e2ebEBBDt6SEbLlj",
+    "name": "Accumulation",
+    "type": "spell",
+    "img": "icons/magic/life/heart-red-blue.webp",
+    "system": {
+      "description": "<p>The user accumulates amber energy in his body and transforms them into a stream of regenerative current. This current only heals when kept at a specific level. If one fails in controlling the level of the current, it is easy to hurt yourself.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ambericity",
+      "category": "Heal",
+      "cost": "2 Actions, 7 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 7,
+      "range": "Self",
+      "target": "Self",
+      "check": "Self Save Wil",
+      "duration": "Instant",
+      "effect": "On save 0% - 30%: Deals 2d6\nOn save 30% - 100%: Heals 5d6"
+    },
+    "effects": [],
+    "folder": "uFKQlStPwr8yp3o4",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "TuXlDawlXk2bwBlF",
+    "_key": "!items!TuXlDawlXk2bwBlF",
+    "name": "Discharge",
+    "type": "spell",
+    "img": "icons/magic/lightning/bolt-strike-pink.webp",
+    "system": {
+      "description": "<p>The user collects surrounding amber energy and releases it at a target of his choice. This ambergy is hard to control and even harder to direct. Depending on how well the user fares in controlling his force, the ambergy releases in different forms: Either a weak flame, a zap or a thunderstrike.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ambericity",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit: \nIf attack hits 0% - 50%: Deals 3d6 + (lvl * 1) earth dmg\nIf attack hits 50% - 99%: Deals 5d6 + (lvl * 2) earth dmg\nIf attack crits: Deals 10d6 + (lvl * 2) earth dmg"
+    },
+    "effects": [],
+    "folder": "uFKQlStPwr8yp3o4",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "TmyeIn8hiAxu8fCi",
+    "_key": "!items!TmyeIn8hiAxu8fCi",
+    "name": "Transmuting Strike",
+    "type": "spell",
+    "img": "icons/magic/lightning/projectiles-tendril-salvo-pink.webp",
+    "system": {
+      "description": "<p>The user manipulates the electrons on the outer layer of the given object, thereby charging it. By shooting these objects, the user imparts an impulse to inflict one of the specified effects using their own electric field.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ambericity",
+      "category": "Buff / Control",
+      "cost": "1 Action, 10 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Projectiles",
+      "check": "No Check",
+      "duration": "3 turns",
+      "effect": "On cast:\nUp to 3 projectiles gain one of the effects of your choice:\n3m radius · Ground Circle\nTarget Save Con · Instant\nOn beginning of targets turn:\nParalyze targets for 1 turn (none when Save succeeded)\nParalyze removes 1 action of the enemy next turn. This does not stack.\n3m radius · Ground Circle\nTarget Save Wil · Instant\nOn beginning of targets turn:\nConfuse targets for 1 turn (none when Save succeeded)\nConfuse forces the target to roll a D8 and choose his next action into the direction of the D8 (beginning north clockwise)\n3m radius · Ground Circle\nTarget Save Con · Instant\nOn beginning of targets turn:\nProne targets (none when Save succeeded)"
+    },
+    "effects": [],
+    "folder": "uFKQlStPwr8yp3o4",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

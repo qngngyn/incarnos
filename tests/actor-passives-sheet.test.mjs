@@ -31,7 +31,9 @@ const base = JSON.parse(readFileSync(new URL("../template.json", import.meta.url
 async function setup(type = "character") {
   const source = structuredClone(base);
   const actor = new IncarnosActor();
-  Object.assign(actor, { type, effects: [], items: [], isOwner: true });
+  Object.assign(actor, { type, effects: [], items: [], isOwner: true, uuid: "Actor.sheet", testUserPermission: () => true });
+  // Contest boards check that the roller owns the actor before rolling its side.
+  globalThis.fromUuid = async () => actor;
   actor.toObject = (stored = true) => ({ system: structuredClone(stored ? source : actor.system), flags: {}, items: [] });
   const sheet = new IncarnosActorSheet();
   Object.assign(sheet, { actor, options: { classes: [] }, isEditable: true });
@@ -183,11 +185,11 @@ test("attack and save Contest buttons select their own stat values without a typ
   const { actor, sheet } = await setup();
   actor.system.abilities.str.value = 8;
   actor.system.abilities.str.save = 12;
-  for (const [contestType, expectedFormula, expectedFlavor] of [
-    ["attack", "d12", "Attacker Strength Contest: 8"],
-    ["save", "d8", "Defendant Strength Contest: 12"],
-    ["attack", "d2", "Attacker Strength Contest: 25"],
-    ["save", "d2", "Defendant Strength Contest: 25"]
+  for (const [contestType, expectedFormula, role, value] of [
+    ["attack", "d12", "Attack", 8],
+    ["save", "d8", "Save", 12],
+    ["attack", "d2", "Attack", 25],
+    ["save", "d2", "Save", 25]
   ]) {
     if (expectedFormula === "d2") { actor.system.abilities.str.value = 25; actor.system.abilities.str.save = 25; }
     const messages = [];
@@ -213,14 +215,18 @@ test("attack and save Contest buttons select their own stat values without a typ
       },
       confirm: async () => true
     };
+    game.user = { id: "sheet-user", isGM: true };
     await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType } });
     assert.deepEqual(formulas, [expectedFormula]);
-    assert.equal(messages[0].flavor.replace(/<[^>]*>/g, ""), expectedFlavor);
-    assert(!messages[0].flavor.includes("color:"));
+    // One board: it starts with the roller waiting, carries the stat and die, then receives the roll.
     assert.equal(messages.length, 1);
+    const board = messages[0].flags.incarnos.contestBoard;
+    assert.deepEqual([board.attacker.role, board.attacker.stat, board.attacker.value, `d${board.attacker.die}`], [role.toLowerCase(), "Strength", value, expectedFormula]);
+    assert.match(messages[0].content, /Strength contest/);
+    assert.match(messages[0].content, /Waiting/);
+    assert.match(messages[0].content, new RegExp(`title="${expectedFormula} = d\\(20 − ${value}\\)`));
     assert.equal(updates.length, 1);
     assert.deepEqual(updates[0].rolls, [{ formula: expectedFormula, evaluated: true }]);
-    assert.equal(updates[0].content, `<div class="dice-roll">${expectedFormula}</div>`);
     assert.equal(updates[0].flavor, undefined);
   }
 });
@@ -284,7 +290,8 @@ test("sheet attack requests the target player's assigned save; standalone saves 
   };
   await IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: "attack" } });
   assert.equal(messages.length, 2);
-  assert(messages[0].flavor.replace(/<[^>]*>/g, "").endsWith(`${actor.name} vs. Defender`));
+  assert.match(messages[0].content, new RegExp(`${actor.name} vs Defender`));
+  assert.equal(messages[0].flags.incarnos.contestBoard.defender.name, "Defender");
   assert(messages[1].flavor.replace(/<[^>]*>/g, "").endsWith(`${actor.name} vs. Defender`));
   assert.equal(messages[1].flags.incarnos.contestRequest.defenderUuid, defender.uuid);
   assert.equal(messages[1].flags.incarnos.contestRequest.attackMessageId, "attack-card");

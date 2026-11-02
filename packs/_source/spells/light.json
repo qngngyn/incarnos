@@ -1,0 +1,361 @@
+[
+  {
+    "_id": "XxILRERcjzhuYAI5",
+    "_key": "!folders!XxILRERcjzhuYAI5",
+    "name": "Light",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1300000,
+    "color": null,
+    "description": "Fire Affinity: You have resistance to fire dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "WGXh2pi0U73vBDmU",
+    "_key": "!items!WGXh2pi0U73vBDmU",
+    "name": "Amazing Descend",
+    "type": "spell",
+    "img": "icons/magic/light/beam-horizon-strike-yellow.webp",
+    "system": {
+      "description": "<p>With a vigorous beat of your wings ascend high into the air.  Plunging down enveloped in holy light you blind enemies upon your landing. It is said that no dark creatures stands tall after encountering this light.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Movement / Control",
+      "cost": "3 Actions, 15 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 15,
+      "range": "36m (6m radius)",
+      "target": "Ground circle",
+      "check": "Target Con Save",
+      "duration": "1 turn",
+      "effect": "On cast:\nRelocates to a chosen place in range.\nEveryone affected in the radius of the impact is blinded.\nAffected undead, fiends must make a save or suffer 3d6 + (lvl * 2) fire dmg (halfed, when saved)"
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "NusC2t3uHjh3uoqZ",
+    "_key": "!items!NusC2t3uHjh3uoqZ",
+    "name": "Blinding Smite",
+    "type": "spell",
+    "img": "icons/magic/light/swords-light-glowing-white.webp",
+    "system": {
+      "description": "<p>Imbuing your weapon with holy might causes it to flare up in bright radiance when striking your foe.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Control",
+      "cost": "1 Action, 3 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 3,
+      "range": "Melee",
+      "target": "Single Enemy",
+      "check": "Weapon Attack",
+      "duration": "2 turns",
+      "effect": "On hit: Blinds the target"
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "dSBuQ8AXjwqYPCMD",
+    "_key": "!items!dSBuQ8AXjwqYPCMD",
+    "name": "Gaze in awe!",
+    "type": "spell",
+    "img": "icons/magic/perception/eye-slit-orange.webp",
+    "system": {
+      "description": "<p>The willpower in your voice makes your enemies heed your word: They can't help themselves but to mind you.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Control",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "Self (6m radius)",
+      "target": "Enemies",
+      "check": "Targets Save Wil",
+      "duration": "Instant",
+      "effect": "On Hit: Targets are goaded to attack the user (none, when save succeeded)"
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "4iYlw1slG6L3VRhc",
+    "_key": "!items!4iYlw1slG6L3VRhc",
+    "name": "Lights illusion",
+    "type": "spell",
+    "img": "icons/magic/control/hypnosis-mesmerism-eye-tan.webp",
+    "system": {
+      "description": "<p>The user throws a scale in an area and enhancing it with  Illuminating Light creating a Scheme of the targets greatest fears.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Control",
+      "cost": "3 Actions, 16 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 16,
+      "range": "9m (3m radius)",
+      "target": "Ground Circle",
+      "check": "Attack Int / Cha, Target Wil Save",
+      "duration": "Instant",
+      "effect": "On Hit: \nTargets lose their will to fight (lose 1 attack action instead, when saved)\nTargets that lost their will to fight can regain their will by a 3 cost Help action"
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "BTCfFZsmuzs0yStO",
+    "_key": "!items!BTCfFZsmuzs0yStO",
+    "name": "Persist",
+    "type": "spell",
+    "img": "icons/magic/life/heart-hand-gold-green-light.webp",
+    "system": {
+      "description": "<p>You imbue a free and willing soul that is on the brink of departure with hope. They are heartened to remain in their bodies to face their ongoing challenges.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Heal",
+      "cost": "2 Actions, 5 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 5,
+      "range": "3m",
+      "target": "Single downed Target",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: Heals the target by 2d6 + (lvl * 2) hp"
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "L9ACEkFjvOVYesNZ",
+    "_key": "!items!L9ACEkFjvOVYesNZ",
+    "name": "Prayer",
+    "type": "spell",
+    "img": "icons/magic/light/orb-hands-humanoid-yellow.webp",
+    "system": {
+      "description": "<p>You offer your devotion to your deity and receive a blessing in return.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Buff",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "Self (1,5m radius)",
+      "target": "Friendly Targets",
+      "check": "No Check",
+      "duration": "2 turns",
+      "effect": "On cast: \nThe next saving throw is rolled with advantage"
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "VK1EOOwbS80kP9BO",
+    "_key": "!items!VK1EOOwbS80kP9BO",
+    "name": "Radiant Emanation",
+    "type": "spell",
+    "img": "icons/magic/light/beam-rays-yellow-blue-large.webp",
+    "system": {
+      "description": "<p>You become a conduit to the celestial realm allowing your deities light to flow through you into this world empowering your allies and vanquishing evil.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Buff / Debuff",
+      "cost": "3 Actions, 20 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 20,
+      "range": "18m radius from user",
+      "target": "Ground Circle",
+      "check": "Target Save Wil+4",
+      "duration": "2 turns",
+      "effect": "While channeling: \nThe user cannot use actions, and when hit: must succeed a Wil Save or be interrupted.\nAffected allies deal additional 6d6 fire dmg on their attacks.\nAll darkness and illusions within range are dispelled.\nAffected undead, fiends are frightened (none, if save succeeded)."
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "YBwLIDENw9XT4hcE",
+    "_key": "!items!YBwLIDENw9XT4hcE",
+    "name": "Ward of light",
+    "type": "spell",
+    "img": "icons/magic/defensive/shield-barrier-deflect-gold.webp",
+    "system": {
+      "description": "<p>Those who dare to raise their mana against you will quickly learn that you are not easily vanquished by such sorcerous foolishness. Your resolve manifests in form of a protective ward of light emanating from your shield surrounding you. If you would suffer from magic the effects are thwarted instead.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Light",
+      "category": "Buff",
+      "cost": "1 Reaction, 8 IP",
+      "actions": 1,
+      "actionType": "reaction",
+      "mp": 8,
+      "range": "Self",
+      "target": "After save",
+      "check": "Self Save Attribute",
+      "duration": "1 turn",
+      "effect": "On cast:\nYou negate all save effects."
+    },
+    "effects": [],
+    "folder": "XxILRERcjzhuYAI5",
+    "sort": 800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

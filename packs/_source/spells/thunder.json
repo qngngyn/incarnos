@@ -1,0 +1,277 @@
+[
+  {
+    "_id": "fi1AAGiL6RyN0iHS",
+    "_key": "!folders!fi1AAGiL6RyN0iHS",
+    "name": "Thunder",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 2100000,
+    "color": null,
+    "description": "Fire Affinity: You have resistance to fire dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Lucgg5M1gn5voVgv",
+    "_key": "!items!Lucgg5M1gn5voVgv",
+    "name": "Cloak of Lightning",
+    "type": "spell",
+    "img": "icons/magic/lightning/barrier-shield-crackling-orb-pink.webp",
+    "system": {
+      "description": "<p>The user wraps himself in a cloak of lightning (Boots + Arms) that does not affect him, but zaps and paralyzes opponents briefly when touched if they have no resistance.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Thunder",
+      "category": "Buff / Control",
+      "cost": "1 Reactions, 8 IP",
+      "actions": 1,
+      "actionType": "reaction",
+      "mp": 8,
+      "range": "Self",
+      "target": "Self",
+      "check": "Target Save Con+2",
+      "duration": "3 turns",
+      "effect": "When enemy touched: Deals 1d4 +  (lvl * 1) fire dmg \nOn hit: Paralyzed for 1 turn (none when Save succeeded)\nParalyze removes 1 action of the enemy next turn. This does not stack."
+    },
+    "effects": [],
+    "folder": "fi1AAGiL6RyN0iHS",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "BsJsCQ8MzPeBBcQG",
+    "_key": "!items!BsJsCQ8MzPeBBcQG",
+    "name": "Electric Enhancement",
+    "type": "spell",
+    "img": "icons/magic/lightning/fist-unarmed-strike-blue.webp",
+    "system": {
+      "description": "<p>The user imbues his weapon of choice with a current that unleashes on hit targets. The current is directly produced by the mana of the user.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Thunder",
+      "category": "Buff",
+      "cost": "1 Action, 6 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 6,
+      "range": "Touch",
+      "target": "Single Weapon",
+      "check": "No Check",
+      "duration": "1 turn",
+      "effect": "On cast: \nFor one turn, all attacks deal additional 1d8 + (lvl * 1) fire dmg"
+    },
+    "effects": [],
+    "folder": "fi1AAGiL6RyN0iHS",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "D1KGGUpe9nUjgeFM",
+    "_key": "!items!D1KGGUpe9nUjgeFM",
+    "name": "Inner Focus",
+    "type": "spell",
+    "img": "icons/magic/lightning/orb-ball-spiral-blue.webp",
+    "system": {
+      "description": "<p>The user enters a stage of absolute focus after calming his inner mind. Next turn the caster got the charging status.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Thunder",
+      "category": "Buff",
+      "cost": "1 Action, 6 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 6,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "1 turn",
+      "effect": "On cast:\nGive yourself the charging status 2x\nCharged creatures have an additional action when they have this status at the beginning of their turn"
+    },
+    "effects": [],
+    "folder": "fi1AAGiL6RyN0iHS",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "8IxFq5WWUbpdqsQd",
+    "_key": "!items!8IxFq5WWUbpdqsQd",
+    "name": "Light of the Vanguards",
+    "type": "spell",
+    "img": "icons/magic/lightning/bolt-strike-wide-white.webp",
+    "system": {
+      "description": "<p>Fires a beam of light through a catalyst that blinds all enemies staring at it.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Thunder",
+      "category": "Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "6m (3m radius)",
+      "target": "Ground Circle",
+      "check": "Target Save Prc",
+      "duration": "1 turn",
+      "effect": "On hit:\nBlinds all targets (none when Save succeeded)\nBlinded creatues have disadvantage at attacks, parries and saving throws"
+    },
+    "effects": [],
+    "folder": "fi1AAGiL6RyN0iHS",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1BluQNsOmWaWtfej",
+    "_key": "!items!1BluQNsOmWaWtfej",
+    "name": "Thunderbolt",
+    "type": "spell",
+    "img": "icons/magic/lightning/bolt-strike-forked-sparks-blue.webp",
+    "system": {
+      "description": "<p>The user throws a small lightning bolt at the opponent which causes light burns and a short paralysis.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Thunder",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha, Target Save Con-2",
+      "duration": "3 turns",
+      "effect": "On hit: Deals 2d6 + (lvl * 2) fire dmg\nOn beginning of turn: 1d4 fire dmg\nOn hit: Stunned for 1 turn (none when Save succeeded)\nStun removes all actions of the enemy next turn. This does not stack."
+    },
+    "effects": [],
+    "folder": "fi1AAGiL6RyN0iHS",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "EdWHMHl6Ec0OluPy",
+    "_key": "!items!EdWHMHl6Ec0OluPy",
+    "name": "Who let the apes out? Thunder Version",
+    "type": "spell",
+    "img": "icons/magic/lightning/bolt-strike-creature-pink.webp",
+    "system": {
+      "description": "<p>With the power of electrical music the user creates two small thunder monkey that run towards the nearest enemy attacking them and try to paralyze the target hit.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Thunder",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "6m",
+      "target": "2 Single Enemies",
+      "check": "Attack Int / Cha, Target Save Con",
+      "duration": "Instant",
+      "effect": "On hit: 2d4 + (lvl * 2) fire dmg\nLaunches targets into the air (none when Save succeeded), making them paralyzed and take additional 2d4 fire dmg when hit"
+    },
+    "effects": [],
+    "folder": "fi1AAGiL6RyN0iHS",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

@@ -1,0 +1,151 @@
+[
+  {
+    "_id": "PWrdAX5Hg39WUXYA",
+    "_key": "!folders!PWrdAX5Hg39WUXYA",
+    "name": "Mayo",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1500000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Uk2KfMKCLDI4tW3U",
+    "_key": "!items!Uk2KfMKCLDI4tW3U",
+    "name": "Mayo Punch",
+    "type": "spell",
+    "img": "icons/commodities/materials/bowl-liquid-white.webp",
+    "system": {
+      "description": "<p>Hit them hard with your mayo.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Mayo",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Enemy",
+      "check": "Attack Str, Target Save Str",
+      "duration": "3 turns",
+      "effect": "On hit: Deals 4d6 + (lvl * 2) earth dmg\nTarget is mayofied (none when Save succeeded)\n\"Mayofied\" removes 0 + (number of turns \"mayofied\") actions \n(1. turn: 0 action, 2. turn: 1 action, 3. turn: 2 actions\n, etc.)\n\"Mayofied\" can be removed with a successful Str Save \"Shake Mayo\"-action which costs 1 action"
+    },
+    "effects": [],
+    "folder": "PWrdAX5Hg39WUXYA",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Ih12squwvFhMTYnJ",
+    "_key": "!items!Ih12squwvFhMTYnJ",
+    "name": "Mayo Splash",
+    "type": "spell",
+    "img": "icons/creatures/slimes/slime-movement-splashing-yellow.webp",
+    "system": {
+      "description": "<p>Mayo puddle is placed which is liquid and makes it difficult for the opponent to run, after one round the splash becomes solid and if someone stands in it he is help me in the stuck stepbro.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Mayo",
+      "category": "Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "9m (4,5m radius)",
+      "target": "Ground Circle",
+      "check": "No Check",
+      "duration": "3 turns",
+      "effect": "On cast:\nLeaves difficult terrain (movementactions are half as effective in difficult terrain)\nAfter 1 turn, the terrain turns into normal terrain. If this terrain turns normal, every target in it is grappled and must beat a Str Save 12 to escape grapple"
+    },
+    "effects": [],
+    "folder": "PWrdAX5Hg39WUXYA",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "4EaDeSgy9tnC6rYV",
+    "_key": "!items!4EaDeSgy9tnC6rYV",
+    "name": "Mayofication",
+    "type": "spell",
+    "img": "icons/consumables/potions/potion-bottle-corked-white.webp",
+    "system": {
+      "description": "<p>The user infuses his weapon with mayo which either pastes the opponent and forces him to make a strength throw in the next turn or the mayo on the sword becomes solid and inflicts more damage on the next melee attack.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Mayo",
+      "category": "Attack / Control",
+      "cost": "0 Actions, 6 IP",
+      "actions": 0,
+      "actionType": "action",
+      "mp": 6,
+      "range": "Self",
+      "target": "Self",
+      "check": "Target Save Str",
+      "duration": "3 turns",
+      "effect": "On cast:\nYour next attack applies the following debuff:\nTarget is \"mayofied\" (none when Save succeeded)\nIf the first attack fails, your next attack that connects deals 1d6 extra earth damage instead.\n\"Mayofied\" can be removed with a successful Str Save \"Shake Mayo\"-action which costs 1 action"
+    },
+    "effects": [],
+    "folder": "PWrdAX5Hg39WUXYA",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

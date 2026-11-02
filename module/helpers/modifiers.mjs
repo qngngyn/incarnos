@@ -1,0 +1,22 @@
+/**
+ * Incarnos writes every modifier from the players' side: negative is always bad for players, positive always good
+ * (a monster's "Melee -2" makes heroes parry at −2; a spell's "Target Save Wil+4" makes the enemy's save 4 harder).
+ * A roll-under check adds the modifier to the value rolled under, so the roller's own modifier is the written one
+ * for player characters and its negative for monsters and NPCs.
+ */
+
+/** Monster-side actor types; everything else (player characters, unowned items) counts as the players' side. */
+const MONSTER_TYPES = ["npc", "monster"];
+
+/** Whether an actor is on the players' side. */
+export const isPlayerSide = actor => !MONSTER_TYPES.includes(actor?.type);
+
+/**
+ * The modifier as it applies to the value this actor rolls under.
+ * @param {number} modifier  As written (players' side).
+ * @param {Actor|object} roller  The actor making the roll.
+ */
+export function modifierForRoller(modifier, roller) {
+  const value = Number(modifier ?? 0) || 0;
+  return isPlayerSide(roller) || !value ? value : -value;
+}

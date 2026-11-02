@@ -1,6 +1,12 @@
 import { registerSceneScaleHooks } from "./helpers/scene-scale.mjs";
 import { registerActionTrackerHooks } from "./helpers/action-tracker.mjs";
 import { registerContestRequestHooks } from "./helpers/contest-requests.mjs";
+import { registerSpellCastHooks } from "./helpers/spell-cast.mjs";
+import { registerTalentHooks } from "./helpers/talents.mjs";
+import { registerConditionHooks } from "./helpers/conditions.mjs";
+import { registerItemSyncHooks } from "./helpers/item-sync.mjs";
+import { syncCompendiumsFromSource } from "./helpers/compendium-sync.mjs";
+import { criticalFailure, registerCriticalFailureHooks } from "./helpers/critical-failure.mjs";
 // Import document classes.
 import { IncarnosActor } from "./documents/actor.mjs";
 import { IncarnosItem } from "./documents/item.mjs";
@@ -16,6 +22,11 @@ import { INCARNOS } from "./helpers/config.mjs";
 /* -------------------------------------------- */
 
 registerContestRequestHooks();
+registerSpellCastHooks();
+registerCriticalFailureHooks();
+registerTalentHooks();
+registerConditionHooks();
+registerItemSyncHooks(syncCompendiumsFromSource);
 registerActionTrackerHooks();
 registerSceneScaleHooks();
 
@@ -26,7 +37,8 @@ Hooks.once('init', async function() {
   game.incarnos = {
     IncarnosActor,
     IncarnosItem,
-    rollItemMacro
+    rollItemMacro,
+    criticalFailure
   };
 
   // Add custom constants for configuration.
@@ -51,7 +63,7 @@ Hooks.once('init', async function() {
     makeDefault: true
   });
   Items.registerSheet("incarnos", IncarnosItemSheet, {
-    types: ["item", "weapon", "feature", "spell"],
+    types: ["item", "weapon", "feature", "race", "spell"],
     makeDefault: true
   });
 
@@ -87,7 +99,9 @@ Hooks.once("ready", async function() {
 
 // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
 Hooks.on("hotbarDrop", (bar, data, slot) => {
-  createItemMacro(data, slot)
+  // Only items become item macros; everything else (e.g. the Critical Failure macro) uses Foundry's own drop.
+  if (data.type !== "Item") return true;
+  createItemMacro(data, slot);
   return false;
 });
 
