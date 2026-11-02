@@ -1,6 +1,7 @@
 /**
  * Import races from the Obsidian vault (the rules source of truth) into compendium source files.
  * Reads `Races/*.md` under the vault's list folder (same layout as talent notes, "Typ: Race"); never writes there.
+ * Icon supplies the item image; missing/blank paths keep the default race image.
  *
  *   node tools/import-races.mjs [listFolder]
  *

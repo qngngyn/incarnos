@@ -1,6 +1,7 @@
 /**
  * Import talents from the Obsidian vault (the rules source of truth) into compendium source files.
  * Reads `Talents/*.md` under the vault's list folder; never writes there.
+ * Icon supplies the item image; missing/blank paths keep the default talent image.
  *
  *   node tools/import-talents.mjs [listFolder]
  *

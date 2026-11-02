@@ -43,6 +43,8 @@ Each talent has a **Bonus** field (its rules text, shown first on the Profile) a
 
 The **Incarnos Talents** compendium holds the talents from the Obsidian vault (`System Files/Listen/Talents`, template `TTalents`). Refresh it with the Obsidian **Update Foundry from vault** button, or `npm run import:talents` and `npm run pack:talents` with the world closed. Re-imports keep each talent's ID (it comes from the name). Talents already on characters are copies and don't change on re-import.
 
+Talent and race notes use an `Icon: icons/?` line immediately after `Typ:` in the `ad-check` block to set their Foundry picture. Use a distinct core icon for each talent and each race. Missing or blank icons keep the default talent/race picture; icon metadata stays out of Bonus, passives and description.
+
 ## Races
 
 A **Race** is its own item type with the same Bonus field, **In play:** line and Passives tab as a talent. It is listed first under **Race & Talents** on the Profile. An actor has one race: dropping a new race on it replaces the old one. Race Bonus texts use the talent rules above (stat lines become Passives, *Advantage on X Saving Throws* works), plus:

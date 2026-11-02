@@ -56,7 +56,7 @@ test("vault talent notes become feature documents with stat passives", () => {
   const note = "```ad-note\ntitle:### Tough Skin\n```\n```ad-check\ntitle: ### Stat Beschreibung:\nTyp: Talent\nBonus: +1 Parry\nSecond line\n```\n```ad-example\ntitle: ### Beschreibung:\nYour skin is tough.\n```\n";
   const { talent, warnings } = parseTalentNote(note, "file");
   assert.deepEqual(warnings, []);
-  assert.deepEqual(talent, { name: "Tough Skin", bonus: "+1 Parry\nSecond line", description: "Your skin is tough." });
+  assert.deepEqual(talent, { name: "Tough Skin", icon: "", bonus: "+1 Parry\nSecond line", description: "Your skin is tough." });
   const [doc] = talentsToDocuments([talent]);
   assert.equal(doc.type, "feature");
   assert.equal(doc.system.description, "<p>Your skin is tough.</p>");
