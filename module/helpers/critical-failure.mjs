@@ -3,10 +3,18 @@ import { escape, renderRollCard } from "./roll-card.mjs";
 import { criticalFailureSeverity, criticalFailureTableName } from "./critical-failure-rules.mjs";
 
 const dataOf = message => message?.flags?.incarnos?.criticalFailure;
+const promptOf = message => message?.flags?.incarnos?.criticalFailurePrompt;
 const activeGM = () => [...game.users].filter(user => user.active && user.isGM).sort((a, b) => a.id.localeCompare(b.id))[0];
 const busy = new Set();
-const t = key => game.i18n.localize(`INCARNOS.CriticalFailure.${key}`);
+const severityBusy = new Set();
+const t = (key, data) => data ? game.i18n.format(`INCARNOS.CriticalFailure.${key}`, data) : game.i18n.localize(`INCARNOS.CriticalFailure.${key}`);
 const kindLabel = kind => t(kind === "spell" ? "spell" : "weapon");
+const severityFor = promptId => [...game.messages.values()].find(message => dataOf(message)?.promptId === promptId);
+const canRollPrompt = (actor, user, data) => canRollCriticalFailure(actor, user, data) && (user.isGM || data.userId === user.id);
+
+export const criticalFailureOwner = actor => [...game.users].filter(user => user.active && !user.isGM
+  && actor.testUserPermission(user, "OWNER")).sort((a, b) => Number(b.character?.uuid === actor.uuid)
+    - Number(a.character?.uuid === actor.uuid) || a.id.localeCompare(b.id))[0];
 
 export const canRollCriticalFailure = (actor, user, data) => Boolean(actor && user && data?.state === "pending"
   && (user.isGM || actor.testUserPermission(user, "OWNER")));
@@ -25,6 +33,16 @@ export function renderCriticalFailure(data) {
     notes: data.result ? [`<span>${resultHTML(data.result)}</span>`] : [],
     action: `<button type="button" class="isc-critical-failure" data-incarnos-critical-draw${data.state !== "pending" ? " disabled" : ""}>`
       + `<i class="fas fa-dice"></i> ${escape(t(data.state === "done" ? "rolled" : data.state === "rolling" ? "rolling" : "draw"))}</button>`
+  });
+}
+
+export function renderCriticalFailurePrompt(data) {
+  const player = [...game.users].find(user => user.id === data.userId);
+  return renderRollCard({
+    icon: "fa-dice-d20", title: escape(t("title")),
+    notes: [escape(t("prompt", { actor: data.actorName, kind: kindLabel(data.kind), player: player?.name ?? data.userId }))],
+    action: `<button type="button" class="isc-critical-failure"${data.state === "pending" ? " data-incarnos-critical-prompt" : " disabled"}>`
+      + `<i class="fas fa-dice"></i> ${escape(t(data.state === "pending" ? "severity" : "rolled"))}</button>`
   });
 }
 
@@ -49,12 +67,63 @@ export async function criticalFailure({ kind = "weapon", actor } = {}) {
   actor = choice.actor;
   if (!canRollCriticalFailure(actor, game.user, { state: "pending" })) return ui.notifications.warn(t("notOwner"));
   criticalFailureTableName("small", choice.kind); // Validate the chosen kind before rolling.
-  const roll = await new Roll("1d10").evaluate();
-  const data = { actorUuid: actor.uuid, actorName: actor.name, kind: choice.kind, d10: roll.total, state: "pending" };
-  return ChatMessage.create({
-    speaker: ChatMessage.getSpeaker({ actor }), content: renderCriticalFailure(data), rolls: [roll.toJSON()],
-    sound: CONFIG.sounds.dice, flags: { incarnos: { criticalFailure: data } }
-  }, { messageMode: "public" });
+  const player = game.user.isGM ? criticalFailureOwner(actor) : null;
+  if (!player) return rollCriticalFailureSeverity(actor, choice.kind);
+  const data = { actorUuid: actor.uuid, actorName: actor.name, kind: choice.kind, userId: player.id, state: "pending" };
+  const message = await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }), content: renderCriticalFailurePrompt(data), whisper: [player.id, game.user.id],
+    flags: { incarnos: { criticalFailurePrompt: data } }
+  });
+  ui.notifications.info(t("asked", { player: player.name }));
+  return message;
+}
+
+/** The dialog and persisted button share a guard; closing the dialog leaves the whisper usable. */
+export async function rollCriticalFailureSeverity(actor, kind, promptId) {
+  criticalFailureTableName("small", kind);
+  if (!canRollCriticalFailure(actor, game.user, { state: "pending" })) return false;
+  const validPrompt = () => {
+    const data = promptOf(game.messages.get(promptId));
+    return canRollPrompt(actor, game.user, data) && data.actorUuid === actor.uuid && data.kind === kind && !severityFor(promptId);
+  };
+  if (promptId && (severityBusy.has(promptId) || !validPrompt())) return false;
+  if (promptId) severityBusy.add(promptId);
+  try {
+    const roll = await new Roll("1d10").evaluate();
+    if (promptId && !validPrompt()) return false;
+    const data = { actorUuid: actor.uuid, actorName: actor.name, kind, d10: roll.total, state: "pending", ...(promptId ? { promptId } : {}) };
+    return await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }), content: renderCriticalFailure(data), rolls: [roll.toJSON()],
+      sound: CONFIG.sounds.dice, flags: { incarnos: { criticalFailure: data } }
+    }, { messageMode: "public" });
+  } finally {
+    if (promptId) severityBusy.delete(promptId);
+  }
+}
+
+export async function promptCriticalFailureSeverity(message) {
+  const data = promptOf(message);
+  if (data?.state !== "pending" || data.userId !== game.user.id || severityFor(message.id)) return false;
+  const actor = await fromUuid(data.actorUuid);
+  if (!canRollPrompt(actor, game.user, data)) return false;
+  return foundry.applications.api.DialogV2.prompt({
+    window: { title: t("title") }, position: { width: 360 }, rejectClose: false,
+    content: `<p>${escape(t("promptDialog", { kind: kindLabel(data.kind) }))}</p>`,
+    ok: { label: t("severity"), callback: () => rollCriticalFailureSeverity(actor, data.kind, message.id) }
+  });
+}
+
+/** Players post their own severity card; only the elected GM updates the original whisper. */
+export async function settleCriticalFailurePrompt(message) {
+  if (activeGM()?.id !== game.user.id) return false;
+  const severity = dataOf(message);
+  const prompt = severity?.promptId ? game.messages.get(severity.promptId) : null;
+  const data = promptOf(prompt);
+  if (data?.state !== "pending" || data.actorUuid !== severity.actorUuid || data.kind !== severity.kind
+    || !criticalFailureSeverity(severity.d10) || !(message.author?.isGM || message.author?.id === data.userId)) return false;
+  const done = { ...data, state: "done" };
+  await prompt.update({ "flags.incarnos.criticalFailurePrompt": done, content: renderCriticalFailurePrompt(done) });
+  return true;
 }
 
 /** Only the elected writer may draw. The persisted reservation survives reloads and concurrent clicks. */
@@ -119,24 +188,28 @@ export async function requestCriticalFailureDraw(message) {
 /** Wire persisted table buttons and explicitly marked natural-20 attack buttons on every render. */
 export async function bindCriticalFailureButtons(message, html) {
   if (message.flags?.incarnos?.criticalFailureRequest) { html.style.display = "none"; return; }
-  for (const button of html.querySelectorAll("[data-incarnos-critical-draw], [data-incarnos-critical-start]")) {
+  for (const button of html.querySelectorAll("[data-incarnos-critical-draw], [data-incarnos-critical-start], [data-incarnos-critical-prompt]")) {
     button.disabled = true;
     const start = button.hasAttribute("data-incarnos-critical-start");
-    const data = start ? message.flags?.incarnos?.criticalFailureAttack : dataOf(message);
+    const prompt = button.hasAttribute("data-incarnos-critical-prompt");
+    const data = prompt ? promptOf(message) : start ? message.flags?.incarnos?.criticalFailureAttack : dataOf(message);
     const actor = data?.actorUuid ? await fromUuid(data.actorUuid) : null;
-    const allowed = canRollCriticalFailure(actor, game.user, start ? { state: "pending" } : data);
-    if (!allowed) { if (start || data?.state === "pending") button.remove(); continue; }
+    const allowed = prompt ? canRollPrompt(actor, game.user, data) && !severityFor(message.id)
+      : canRollCriticalFailure(actor, game.user, start ? { state: "pending" } : data);
+    if (!allowed) { if (prompt || start || data?.state === "pending") button.remove(); continue; }
     button.disabled = false;
     button.addEventListener("click", async () => {
       button.disabled = true;
       try {
-        if (start) await criticalFailure({ kind: data.kind, actor });
+        if (prompt) await rollCriticalFailureSeverity(actor, data.kind, message.id);
+        else if (start) await criticalFailure({ kind: data.kind, actor });
         else await requestCriticalFailureDraw(message);
       } catch (error) {
         console.error("Incarnos | critical failure", error);
         ui.notifications.error(error.message);
       } finally {
-        button.disabled = !start && dataOf(message)?.state !== "pending";
+        button.disabled = prompt ? promptOf(message)?.state !== "pending" || Boolean(severityFor(message.id))
+          : !start && dataOf(message)?.state !== "pending";
       }
     });
   }
@@ -145,8 +218,15 @@ export async function bindCriticalFailureButtons(message, html) {
 export function registerCriticalFailureHooks() {
   const report = error => { console.error("Incarnos | critical failure", error); ui.notifications.error(error.message); };
   Hooks.on("renderChatMessageHTML", (message, html) => { void bindCriticalFailureButtons(message, html).catch(report); });
-  Hooks.on("createChatMessage", message => { void processCriticalFailureRequest(message).catch(report); });
+  Hooks.on("createChatMessage", message => {
+    void promptCriticalFailureSeverity(message).catch(report);
+    void settleCriticalFailurePrompt(message).catch(report);
+    void processCriticalFailureRequest(message).catch(report);
+  });
   Hooks.once("ready", async () => {
-    for (const message of game.messages) await processCriticalFailureRequest(message).catch(report);
+    for (const message of game.messages.values()) {
+      await settleCriticalFailurePrompt(message).catch(report);
+      await processCriticalFailureRequest(message).catch(report);
+    }
   });
 }

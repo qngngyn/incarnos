@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { criticalFailureSeverity, criticalFailureTableName, hasCriticalFailure } from "../module/helpers/critical-failure-rules.mjs";
-import { bindCriticalFailureButtons, canRollCriticalFailure, criticalFailure, processCriticalFailureRequest, renderCriticalFailure,
-  requestCriticalFailureDraw, resolveCriticalFailure } from "../module/helpers/critical-failure.mjs";
+import { bindCriticalFailureButtons, canRollCriticalFailure, criticalFailure, criticalFailureOwner, processCriticalFailureRequest,
+  promptCriticalFailureSeverity, registerCriticalFailureHooks, renderCriticalFailure, renderCriticalFailurePrompt,
+  requestCriticalFailureDraw, resolveCriticalFailure, rollCriticalFailureSeverity, settleCriticalFailurePrompt } from "../module/helpers/critical-failure.mjs";
 import { renderSpellCard } from "../module/helpers/spell-card.mjs";
 
 test("severity is exactly 1–6 small, 7–9 hurts and 10 disaster, with six distinct table selections", () => {
@@ -22,14 +23,15 @@ test("severity is exactly 1–6 small, 7–9 hurts and 10 disaster, with six dis
 });
 
 function setup({ kind = "weapon", d10 = 7 } = {}) {
-  const gm = { id: "gm", isGM: true, active: true }, owner = { id: "owner", active: true }, stranger = { id: "stranger", active: true };
+  const gm = { id: "gm", name: "GM", isGM: true, active: true }, owner = { id: "owner", name: "Player", active: true }, stranger = { id: "stranger", active: true };
   const actor = { uuid: "Actor.test", name: "Test actor", type: "character", testUserPermission: user => user.id === owner.id };
   const translations = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url), "utf8"));
   const calls = [], creates = [], warnings = [];
   globalThis.game = { user: gm, users: [gm, owner, stranger], actors: [actor], messages: new Map(),
-    i18n: { localize: key => translations[key] ?? key }, packs: new Map() };
+    i18n: { localize: key => translations[key] ?? key,
+      format: (key, data) => (translations[key] ?? key).replace(/\{(\w+)\}/g, (_, name) => data[name]) }, packs: new Map() };
   globalThis.fromUuid = async uuid => uuid === actor.uuid ? actor : null;
-  globalThis.ui = { notifications: { warn: text => warnings.push(text), error: text => warnings.push(text) } };
+  globalThis.ui = { notifications: { warn: text => warnings.push(text), error: text => warnings.push(text), info: text => warnings.push(text) } };
   globalThis.CONFIG = { sounds: { dice: "dice.wav" } };
   const roll = total => ({ total, toJSON: () => ({ total }) });
   const tables = ["small", "hurts", "disaster"].flatMap(severity => ["weapon", "spell"].map(kind => ({
@@ -43,12 +45,19 @@ function setup({ kind = "weapon", d10 = 7 } = {}) {
     async update(change) {
       calls.push(["update", structuredClone(change)]);
       if (change["flags.incarnos.criticalFailure"]) this.flags.incarnos.criticalFailure = structuredClone(change["flags.incarnos.criticalFailure"]);
+      if (change["flags.incarnos.criticalFailurePrompt"]) this.flags.incarnos.criticalFailurePrompt = structuredClone(change["flags.incarnos.criticalFailurePrompt"]);
       if (change.rolls) this.rolls = change.rolls.map(value => roll(value.total));
       this.content = change.content;
     }
   };
   game.messages.set(message.id, message);
-  globalThis.ChatMessage = { getSpeaker: ({ actor }) => ({ actor: actor.uuid }), async create(data, options) { creates.push({ data, options }); return data; } };
+  globalThis.ChatMessage = { getSpeaker: ({ actor }) => ({ actor: actor.uuid }), async create(data, options) {
+    creates.push({ data, options });
+    const created = { ...data, id: `created-${creates.length}`, author: game.user, update: message.update,
+      rolls: (data.rolls ?? []).map(value => roll(value.total)) };
+    game.messages.set(created.id, created);
+    return created;
+  } };
   globalThis.Roll = class { constructor(formula) { calls.push(["roll", formula]); } async evaluate() { return roll(d10); } };
   globalThis.canvas = { tokens: { controlled: [] } };
   return { gm, owner, stranger, actor, calls, creates, warnings, tables, message, data: message.flags.incarnos.criticalFailure };
@@ -175,7 +184,8 @@ test("without a token the dialog offers owned player characters and the GM can c
 });
 
 function button(start = false) {
-  return { disabled: false, removed: false, listeners: [], hasAttribute: () => start,
+  return { disabled: false, removed: false, listeners: [], hasAttribute: name => start === "prompt"
+    ? name === "data-incarnos-critical-prompt" : start && name === "data-incarnos-critical-start",
     remove() { this.removed = true; }, addEventListener(type, listener) { this.listeners.push(listener); } };
 }
 
@@ -226,4 +236,192 @@ test("only natural 20 attack dice add the spell button (including multi-attack);
   assert.equal(hasCriticalFailure([{ attack: { d20: 5, discarded: 20 } }]), false);
   setup();
   assert.doesNotMatch(renderCriticalFailure({ actorName: "<script>", kind: "weapon", d10: 7, state: "done", result: "<img onerror=bad>" }), /<script>|<img onerror/);
+});
+
+function confirmSelection(actor, kind = "weapon") {
+  globalThis.foundry = { applications: { api: { DialogV2: { prompt: async options => options.ok.callback(null, { form: { elements: {
+    actor: { value: actor.uuid }, kind: { value: kind }
+  } } }) } } } };
+}
+
+test("online owner selection prefers the assigned character, otherwise sorts non-GM owners by id", () => {
+  const { actor, owner, stranger, gm } = setup();
+  const first = { id: "aaa", active: true }, offline = { id: "000", active: false, character: actor };
+  game.users = [owner, gm, stranger, offline, first];
+  actor.testUserPermission = (user, permission) => permission === "OWNER" && user !== stranger;
+  assert.equal(criticalFailureOwner(actor), first);
+  owner.character = { uuid: actor.uuid };
+  assert.equal(criticalFailureOwner(actor), owner);
+  owner.active = false;
+  assert.equal(criticalFailureOwner(actor), first);
+  first.active = false;
+  assert.equal(criticalFailureOwner(actor), undefined);
+});
+
+test("GM confirmation whispers an escaped roll card to the online owner and GM without rolling", async () => {
+  const { actor, gm, owner, calls, creates, warnings } = setup();
+  confirmSelection(actor, "spell");
+  const prompt = await criticalFailure({ actor, kind: "spell" });
+  assert.deepEqual(calls, []);
+  assert.deepEqual(prompt.whisper, [owner.id, gm.id]);
+  assert.deepEqual(prompt.flags.incarnos.criticalFailurePrompt, {
+    actorUuid: actor.uuid, actorName: actor.name, kind: "spell", userId: owner.id, state: "pending"
+  });
+  assert.match(prompt.content, /Test actor: critical failure \(Spell attack\). Player rolls for severity\./);
+  assert.match(prompt.content, /incarnos-spell-card/);
+  assert.match(prompt.content, /data-incarnos-critical-prompt/);
+  assert.equal(creates.length, 1);
+  assert.deepEqual(warnings, ["Asked Player to roll"]);
+  owner.name = "<img onerror=bad>";
+  const data = { ...prompt.flags.incarnos.criticalFailurePrompt, actorName: "<script>" };
+  assert.doesNotMatch(renderCriticalFailurePrompt(data), /<script>|<img onerror/);
+  assert.match(renderCriticalFailurePrompt({ ...data, state: "done" }), /disabled[^>]*>[\s\S]*Rolled/);
+});
+
+test("GM rolls directly when the player is offline or only a GM owns the actor", async () => {
+  for (const gmOnly of [false, true]) {
+    const { actor, gm, owner, calls, creates } = setup();
+    if (gmOnly) actor.testUserPermission = user => user.id === gm.id;
+    else owner.active = false;
+    confirmSelection(actor);
+    await criticalFailure({ actor });
+    assert.deepEqual(calls, [["roll", "1d10"]]);
+    assert.equal(creates[0].data.flags.incarnos.criticalFailure.d10, 7);
+    assert.equal(creates[0].data.flags.incarnos.criticalFailurePrompt, undefined);
+    assert.equal(creates[0].data.whisper, undefined);
+  }
+});
+
+test("only the chosen player gets the automatic dialog; closing it preserves the whisper button", async () => {
+  const { actor, owner, stranger, calls } = setup();
+  confirmSelection(actor, "spell");
+  const prompt = await criticalFailure({ actor });
+  let dialog;
+  foundry.applications.api.DialogV2.prompt = async options => { dialog = options; return null; };
+  assert.equal(await promptCriticalFailureSeverity(prompt), false); // GM does not open it.
+  game.user = stranger;
+  assert.equal(await promptCriticalFailureSeverity(prompt), false);
+  game.user = owner;
+  await promptCriticalFailureSeverity(prompt);
+  assert.match(dialog.content, /Your Spell attack critically failed! Roll how bad it is\./);
+  assert.equal(dialog.ok.label, "Roll severity");
+  assert.equal(dialog.rejectClose, false);
+  assert.deepEqual(calls, []);
+  assert.equal(prompt.flags.incarnos.criticalFailurePrompt.state, "pending");
+  const rollButton = button("prompt");
+  await bindCriticalFailureButtons(prompt, { querySelectorAll: () => [rollButton] });
+  assert.equal(rollButton.disabled, false);
+  await dialog.ok.callback();
+  assert.equal(game.messages.get("created-2").author, owner);
+  assert.equal(game.messages.get("created-2").flags.incarnos.criticalFailure.promptId, prompt.id);
+});
+
+test("prompt button permits only the chosen player or GM and disappears when no longer pending", async () => {
+  const { actor, owner, stranger, gm, calls } = setup();
+  confirmSelection(actor);
+  const prompt = await criticalFailure({ actor });
+  actor.testUserPermission = () => true; // Even another owner cannot take this player's prompt.
+  for (const user of [stranger, owner, gm]) {
+    game.user = user;
+    const rollButton = button("prompt");
+    await bindCriticalFailureButtons(prompt, { querySelectorAll: () => [rollButton] });
+    assert.equal(rollButton.removed, user === stranger);
+    assert.equal(rollButton.listeners.length, user === stranger ? 0 : 1);
+  }
+  game.user = stranger;
+  assert.equal(await rollCriticalFailureSeverity(actor, "weapon", prompt.id), false);
+  assert.deepEqual(calls, []);
+  prompt.flags.incarnos.criticalFailurePrompt.state = "done";
+  game.user = owner;
+  const doneButton = button("prompt");
+  await bindCriticalFailureButtons(prompt, { querySelectorAll: () => [doneButton] });
+  assert.equal(doneButton.removed, true);
+  assert.equal(await rollCriticalFailureSeverity(actor, "weapon", prompt.id), false);
+});
+
+test("dialog and whisper clicks roll once; an existing severity card blocks rerolls before GM settlement", async () => {
+  const { actor, owner, gm, calls, creates } = setup();
+  confirmSelection(actor);
+  const prompt = await criticalFailure({ actor });
+  game.user = owner;
+  const results = await Promise.all([rollCriticalFailureSeverity(actor, "weapon", prompt.id), rollCriticalFailureSeverity(actor, "weapon", prompt.id)]);
+  assert.equal(results[1], false);
+  assert.deepEqual(calls, [["roll", "1d10"]]);
+  assert.equal(creates.length, 2);
+  assert.equal(prompt.flags.incarnos.criticalFailurePrompt.state, "pending"); // Player never updates a GM's message.
+  const severity = results[0];
+  assert.equal(severity.author, owner);
+  assert.deepEqual(severity.rolls.map(roll => roll.toJSON()), [{ total: 7 }]);
+  assert.deepEqual(creates[1].options, { messageMode: "public" });
+  assert.equal(await rollCriticalFailureSeverity(actor, "weapon", prompt.id), false);
+  assert.equal(await promptCriticalFailureSeverity(prompt), false);
+  const staleButton = button("prompt");
+  await bindCriticalFailureButtons(prompt, { querySelectorAll: () => [staleButton] });
+  assert.equal(staleButton.removed, true);
+  assert.equal(await settleCriticalFailurePrompt(severity), false);
+  const secondGM = { id: "zGM", isGM: true, active: true };
+  game.users.push(secondGM);
+  game.user = secondGM;
+  assert.equal(await settleCriticalFailurePrompt(severity), false);
+  game.user = gm;
+  assert.equal(await settleCriticalFailurePrompt(severity), true);
+  assert.equal(prompt.flags.incarnos.criticalFailurePrompt.state, "done");
+  assert.match(prompt.content, /disabled[^>]*>[\s\S]*Rolled/);
+  assert.equal(await settleCriticalFailurePrompt(severity), false);
+  assert.equal(await resolveCriticalFailure(severity, owner), true); // Existing table flow still works.
+});
+
+test("GM settlement rejects unrelated or impersonated severity cards", async () => {
+  const { actor, stranger, owner, gm } = setup();
+  confirmSelection(actor);
+  const prompt = await criticalFailure({ actor });
+  const severity = { author: stranger, flags: { incarnos: { criticalFailure: {
+    actorUuid: actor.uuid, kind: "weapon", d10: 7, promptId: prompt.id
+  } } } };
+  assert.equal(await settleCriticalFailurePrompt(severity), false);
+  severity.author = owner;
+  severity.flags.incarnos.criticalFailure.actorUuid = "Actor.other";
+  assert.equal(await settleCriticalFailurePrompt(severity), false);
+  severity.flags.incarnos.criticalFailure.actorUuid = actor.uuid;
+  severity.author = gm;
+  assert.equal(await settleCriticalFailurePrompt(severity), true);
+});
+
+test("chat creation opens the player's dialog and GM ready settles missed severity cards without prompting again", async () => {
+  const { actor, owner, gm } = setup();
+  const hooks = new Map();
+  globalThis.Hooks = { on: (name, callback) => hooks.set(name, callback), once: (name, callback) => hooks.set(name, callback) };
+  registerCriticalFailureHooks();
+  confirmSelection(actor);
+  const prompt = await criticalFailure({ actor });
+  game.user = owner;
+  let dialog;
+  foundry.applications.api.DialogV2.prompt = async options => { dialog = options; return null; };
+  hooks.get("createChatMessage")(prompt);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.ok(dialog);
+  const severity = await dialog.ok.callback();
+  game.user = gm;
+  hooks.get("createChatMessage")(severity);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(prompt.flags.incarnos.criticalFailurePrompt.state, "done");
+  prompt.flags.incarnos.criticalFailurePrompt.state = "pending";
+  dialog = undefined;
+  await hooks.get("ready")();
+  assert.equal(prompt.flags.incarnos.criticalFailurePrompt.state, "done");
+  assert.equal(dialog, undefined);
+});
+
+test("GM natural-20 button uses the owner prompt; the player's natural-20 button rolls directly", async () => {
+  for (const player of [false, true]) {
+    const { actor, owner, calls, creates } = setup();
+    if (player) game.user = owner;
+    confirmSelection(actor, "spell");
+    const start = button(true);
+    const message = { flags: { incarnos: { criticalFailureAttack: { actorUuid: actor.uuid, kind: "spell" } } } };
+    await bindCriticalFailureButtons(message, { querySelectorAll: () => [start] });
+    await start.listeners[0]();
+    assert.deepEqual(calls, player ? [["roll", "1d10"]] : []);
+    assert.equal(Boolean(creates[0].data.flags.incarnos.criticalFailurePrompt), !player);
+  }
 });

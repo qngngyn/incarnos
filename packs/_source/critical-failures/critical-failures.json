@@ -260,7 +260,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.OyKJANUM6oW8pHBq",
     "type": "text",
     "name": "Off balance",
-    "description": "**Off balance:** You become *Hindered*: your next attack has disadvantage.",
+    "description": "**Off balance:** The spell throws you off balance: you become *Hindered*, so your next attack or spell attack has disadvantage.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -275,7 +275,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.FPI09m88TyhGI0yZ",
     "type": "text",
     "name": "Overextended",
-    "description": "**Overextended:** Your next Parry until your next turn has disadvantage.",
+    "description": "**Overextended:** You pour too much into the spell: your next Parry until your next turn has disadvantage.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -290,7 +290,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.8uM64WylP568kMHp",
     "type": "text",
     "name": "Wasted effort",
-    "description": "**Wasted effort:** You lose 1 AP on your next turn.",
+    "description": "**Wasted effort:** The spell's energy dissipates uselessly: you lose 1 AP on your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -305,7 +305,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.AnQLhNn2QsqUlH5X",
     "type": "text",
     "name": "Clumsy footwork",
-    "description": "**Clumsy footwork:** You can't use movement actions on your next turn.",
+    "description": "**Clumsy footwork:** Your casting stance locks up: you can't use movement actions on your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -320,7 +320,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.E1JbYilJmMqVBlHT",
     "type": "text",
     "name": "Loud miss",
-    "description": "**Loud miss:** If you are *Hidden*, you aren't any more. Otherwise you can't Hide until your next turn.",
+    "description": "**Loud miss:** The spell flashes and booms. If you are *Hidden*, you aren't any more. Otherwise you can't Hide until your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -335,7 +335,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.SBLnJz7DheAS2UJy",
     "type": "text",
     "name": "Provoked",
-    "description": "**Provoked:** You become *Taunted* by your target until your next turn.",
+    "description": "**Provoked:** Your target shrugs the spell off and goads you: you become *Taunted* by it until your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -350,7 +350,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.vTuRUXkDdDCQe2CR",
     "type": "text",
     "name": "Shaken",
-    "description": "**Shaken:** You become *Intimidated* by your target until your next turn.",
+    "description": "**Shaken:** The failed spell rattles you: you become *Intimidated* by your target until your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -380,7 +380,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.bh5MQ6Tef6N1UMPe",
     "type": "text",
     "name": "Embarrassing",
-    "description": "**Embarrassing:** Everyone saw it. −2 on your next Cha check this scene.",
+    "description": "**Embarrassing:** The spell sputters out in a sad little puff, and everyone saw it: −2 on your next Cha check this scene.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -395,7 +395,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.94ow6xcFTCrPwwm1",
     "type": "text",
     "name": "Dust in the eyes",
-    "description": "**Dust in the eyes:** A puff of elemental dust: same.",
+    "description": "**Dust in the eyes:** A puff of elemental dust blows into your face: −2 on your next Prc check or Parry, whichever comes first.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -410,7 +410,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.1eRLZ7urcCl6Bt4o",
     "type": "text",
     "name": "Turned around",
-    "description": "**Turned around:** You end up facing the wrong way: your next Opportunity Attack or Guard Ally this round fails.",
+    "description": "**Turned around:** The spell's recoil spins you around: your next Opportunity Attack or Guard Ally this round fails.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -425,7 +425,7 @@
     "_key": "!tables.results!IV0ALadzHxCxg6ka.mkXRDCPEClDDeBmk",
     "type": "text",
     "name": "Noisy gear",
-    "description": "**Noisy gear:** Sparks and light give you away: same.",
+    "description": "**Noisy gear:** Sparks and light give you away: enemies nearby know exactly where you are.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -673,7 +673,7 @@
     "_key": "!tables.results!aCvUWfCtH6mWgTTL.CcZw4ZmfCYUU7sts",
     "type": "text",
     "name": "Opening",
-    "description": "**Opening:** Your target may make one free *Attack: Normal* against you (no AP).",
+    "description": "**Opening:** You need a moment to recover from the failed spell: your target may make one free *Attack: Normal* against you (no AP).",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -703,7 +703,7 @@
     "_key": "!tables.results!aCvUWfCtH6mWgTTL.Eb2CK2H8vvi3kRL9",
     "type": "text",
     "name": "Wide open",
-    "description": "**Wide open:** Every Parry you roll until your next turn has disadvantage.",
+    "description": "**Wide open:** The spell leaves you exposed: every Parry you roll until your next turn has disadvantage.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -718,7 +718,7 @@
     "_key": "!tables.results!aCvUWfCtH6mWgTTL.bKeW22B4K7uqJBpe",
     "type": "text",
     "name": "Twisted ankle",
-    "description": "**Twisted ankle:** Your movement is halved until the end of the fight or until you are healed.",
+    "description": "**Twisted ankle:** The recoil twists your ankle: your movement is halved until the end of the fight or until you are healed.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -733,7 +733,7 @@
     "_key": "!tables.results!aCvUWfCtH6mWgTTL.9fFHbNedZCuKtb2F",
     "type": "text",
     "name": "Out of breath",
-    "description": "**Out of breath:** You lose 2 AP on your next turn.",
+    "description": "**Out of breath:** Casting drains you: you lose 2 AP on your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -885,7 +885,7 @@
     "_key": "!tables.results!3eCLeCYoV7E7HnZJ.DZP3WT1Z1VdxHZ8A",
     "type": "text",
     "name": "Friendly fire",
-    "description": "**Friendly fire:** Same, with the spell's full effect.",
+    "description": "**Friendly fire:** The spell hits the nearest ally within its range instead, with its full effect (roll damage as normal, the ally may Parry). No ally in range: it hits you.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -915,7 +915,7 @@
     "_key": "!tables.results!3eCLeCYoV7E7HnZJ.GBJ5gzVxyQOcgC7W",
     "type": "text",
     "name": "Knocked out cold",
-    "description": "**Knocked out cold:** The magic surges through you: same.",
+    "description": "**Knocked out cold:** The magic surges through you and you black out: you fall *Prone* and lose your next turn.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
@@ -945,7 +945,7 @@
     "_key": "!tables.results!3eCLeCYoV7E7HnZJ.RzQp4EXgVZautgzm",
     "type": "text",
     "name": "Double trouble",
-    "description": "**Double trouble:** Roll twice on *It hurts*; both happen.",
+    "description": "**Double trouble:** Roll twice on the *It hurts* spell table; both happen.",
     "img": "icons/svg/d20-black.svg",
     "weight": 1,
     "range": [
