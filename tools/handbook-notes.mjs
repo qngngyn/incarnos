@@ -91,6 +91,10 @@ export function convertHandbookNote(markdown, { path, notes = [], pages = HANDBO
       if (matches.length === 1) return uuid(`Compendium.incarnos.${pack}.Item.${matches[0]._id}`, label);
       warn(`${matches.length ? "ambiguous item" : "missing item"} "${name}" in ${pack}`);
     }
+    // Conditions, weapon traits and element affinities have no document of their own: link their section's overview page.
+    const section = key.match(/^Listen\/(Conditions|Weapon Traits|Spells)\//)?.[1];
+    const overview = section && pages.find(page => new RegExp(`^Listen/${section}/[^/]+ Overview(\\.md)?$`).test(notePath(page.path)));
+    if (overview) return uuid(`Compendium.incarnos.handbook.JournalEntry.${journalId}.JournalEntryPage.${handbookPageId(notePath(overview.path))}`, label);
     return escapeHtml(label);
   };
   const parser = new Marked();

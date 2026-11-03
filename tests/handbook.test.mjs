@@ -78,22 +78,24 @@ test("weapon, talent, race and nested spell links find item source IDs by name, 
   assert.deepEqual(result.warnings, []);
 });
 
-test("standalone condition and trait list links inline markdown rules without Icon lines; inline mentions remain labels", () => {
+test("standalone condition and trait list links inline markdown rules without Icon lines; inline mentions link the section page", () => {
   const notes = [note("Listen/Conditions/Asleep.md", "Asleep (tokens): You **cannot act**.\nIcon: icons/svg/sleep.svg"),
     note("Listen/Weapon Traits/Deadly.md", "Deadly (dice, e.g. D4): Extra *damage*.\nIcon: hidden.svg")];
   const result = convert("- [[Asleep]]\n- [[Deadly|A trait]]\n- Keep [[Asleep]] here\n- ![[Asleep]]", { notes });
   assert.match(result.html, /<li><strong>Asleep:<\/strong> You <strong>cannot act<\/strong>\.<\/li>/);
   assert.match(result.html, /<strong>Deadly \(dice, e.g. D4\):<\/strong> Extra <em>damage<\/em>/);
-  assert.match(result.html, /Keep Asleep here/);
-  assert.doesNotMatch(result.html, /Icon:|hidden.svg|sleep.svg|@UUID/);
+  // An inline mention links the Conditions page, which shows every condition.
+  assert.ok(result.html.includes(`Keep @UUID[${pageUuid("Listen/Conditions/Conditions Overview.md")}]{Asleep} here`));
+  assert.doesNotMatch(result.html, /Icon:|hidden.svg|sleep.svg/);
   assert.deepEqual(result.warnings, []);
 });
 
 test("known non-Foundry notes and embeds are plain text; unresolved, ambiguous and missing items warn", () => {
   const notes = [note("Monster Balancing.md"), note("a/Tie.md"), note("b/Tie.md"), note("Listen/Weapons/Lost.md"), note("Listen/Spells/Air/Air.md", "Typ: Element")];
   const result = convert("[[Monster Balancing|Plain]] [[No note|Missing]] [[Tie|Ambiguous]] [[Lost]] ![[No embed|Picture]] [[Air]]", { notes });
-  assert.match(result.html, /Plain Missing Ambiguous Lost Picture Air/);
-  assert.equal(result.links, 0);
+  // An element note links the Spells page.
+  assert.ok(result.html.includes(`Plain Missing Ambiguous Lost Picture @UUID[${pageUuid("Listen/Spells/Spells Overview.md")}]{Air}`));
+  assert.equal(result.links, 1);
   assert.equal(result.warnings.length, 3);
   assert.match(result.warnings.join("\n"), /unresolved link "No note"/);
   assert.match(result.warnings.join("\n"), /ambiguous link "Tie"/);
