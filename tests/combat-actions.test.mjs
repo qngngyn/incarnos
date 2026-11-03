@@ -26,9 +26,10 @@ function setup() {
   users.get = id => users.find(user => user.id === id);
   const actor = (name, owner, type = "character") => {
     const value = { name, id: name, uuid: "Actor." + name, type, documentName: "Actor", img: "", effects: [], statuses: new Set(),
-      system: { attributes: { level: { value: 1 }, parry: { value: 10 } },
+      system: { actionpoints: { value: 3, max: 3 }, attributes: { level: { value: 1 }, parry: { value: 10 } },
         abilities: Object.fromEntries(Object.values(CONTEST_STATS).map(key => [key, { value: 10, save: 12 }])) },
-      testUserPermission: user => user.id === owner, getRollData: () => ({}), effectWrites: 0
+      testUserPermission: user => user.id === owner, getRollData: () => ({}), effectWrites: 0,
+      async update(changes) { assign(this, changes); }
     };
     value.createEmbeddedDocuments = async (type, sources) => sources.map(source => {
       const effect = { ...structuredClone(source), id: "effect-" + nextId++, statuses: new Set(source.statuses ?? []),
@@ -52,7 +53,7 @@ function setup() {
   const attacker = actor("Attacker", player.id);
   const defender = actor("Defender", other.id, "npc");
   player.character = attacker; other.character = defender;
-  globalThis.game = { user: player, users, messages, settings: { get: () => "publicroll" },
+  globalThis.game = { user: player, users, messages, combats: [], settings: { get: () => "publicroll" },
     i18n: { localize: key => strings[key] ?? key,
       format: (key, data) => (strings[key] ?? key).replace(/\{(\w+)\}/g, (_, name) => String(data[name])) }
   };
@@ -101,12 +102,101 @@ test("all eleven action definitions carry cheat text, valid stats, save restrict
   assert.equal(new Set(ACTIONS.map(action => action.id)).size, 11);
   assert.deepEqual(ACTIONS.filter(action => action.saves).map(action => action.id), ["shove", "grapple", "escape", "find", "intimidate", "taunt", "scale"]);
   for (const action of ACTIONS) {
+    assert.equal(action.apCost, 1);
     assert(strings[action.tooltip]);
     assert(actionTooltip(action).startsWith("1 AP"));
     for (const stat of [...action.stats ?? [], ...action.saves ?? []]) assert(CONTEST_STATS[stat]);
   }
   assert.deepEqual(actionById("taunt").saves, ["Willpower"]);
   assert.equal(CONTEST_STATS.Willpower, "wis");
+});
+
+test("every named action spends 1 AP on the actor in combat and blocks without AP", async () => {
+  for (const action of ACTIONS) {
+    const env = setup(); env.target();
+    game.combats = [{ started: true, combatants: [{ actor: env.attacker }, { actor: env.defender }] }];
+    await useCombatAction(env.attacker, action.id);
+    assert.equal(env.attacker.system.actionpoints.value, 2, action.id);
+    assert.equal(env.defender.system.actionpoints.value, 3, "target pays nothing");
+    env.attacker.system.actionpoints.value = 0;
+    const previous = [env.created.length, env.formulas.length, env.attacker.effectWrites];
+    await useCombatAction(env.attacker, action.id);
+    assert.deepEqual([env.created.length, env.formulas.length, env.attacker.effectWrites], previous, action.id + " blocked before rolling/effects/requests");
+    assert.equal(env.warnings.at(-1), `Attacker has 0 AP left; ${action.name} needs 1.`);
+  }
+});
+
+test("outside combat actions are free; invalid targets and cancelled Scale never spend AP", async () => {
+  for (const action of ACTIONS) {
+    const env = setup(); env.target();
+    await useCombatAction(env.attacker, action.id);
+    assert.equal(env.attacker.system.actionpoints.value, 3, action.id);
+  }
+  const env = setup();
+  game.combats = [{ started: true, combatants: [{ actor: env.attacker }] }];
+  for (const id of ["grapple", "hinder", "insight"]) await useCombatAction(env.attacker, id);
+  assert.equal(env.attacker.system.actionpoints.value, 3);
+  env.target();
+  foundry.applications.api.DialogV2.prompt = async () => null;
+  await useCombatAction(env.attacker, "scale");
+  assert.equal(env.attacker.system.actionpoints.value, 3);
+  assert.equal(env.created.length, 0);
+});
+
+test("defender saves, tie rerolls and contest cancellation do not change AP after the initial payment", async () => {
+  const env = setup(); env.target(); env.totals.push(4, 4);
+  game.combats = [{ started: true, combatants: [{ actor: env.attacker }, { actor: env.defender }] }];
+  const board = await useCombatAction(env.attacker, "grapple");
+  assert.equal(env.attacker.system.actionpoints.value, 2);
+  env.defender.system.actionpoints.value = 0;
+  game.user = env.gm;
+  await rollDefenderContest(env.created[1]);
+  await resolveContestTie(env.created[1]);
+  const [, attack, save] = env.created.slice(2);
+  env.attacker.system.actionpoints.value = 0;
+  env.totals.push(2, 6);
+  await rollDefenderContest(attack); await rollDefenderContest(save); await resolveContestTie(save);
+  assert.equal(env.attacker.system.actionpoints.value, 0);
+  assert.equal(env.defender.system.actionpoints.value, 0);
+  assert.equal(env.warnings.length, 0);
+  const { cancelContest } = await import("../module/helpers/contest-requests.mjs");
+  await cancelContest(board);
+  assert.equal(env.attacker.system.actionpoints.value, 0, "no cancellation refund");
+});
+
+test("actions read their AP cost from the definition", async () => {
+  const env = setup();
+  const index = ACTIONS.findIndex(action => action.id === "dodge");
+  const original = ACTIONS[index];
+  ACTIONS[index] = { ...original, apCost: 2 };
+  try {
+    assert.match(actionTooltip(ACTIONS[index]), /^2 AP/);
+    game.combats = [{ started: true, combatants: [{ actor: env.attacker }] }];
+    await useCombatAction(env.attacker, "dodge");
+    assert.equal(env.attacker.system.actionpoints.value, 1);
+  } finally { ACTIONS[index] = original; }
+});
+
+test("GM can confirm a zero-AP NPC action; declining makes no effect or card", async () => {
+  const env = setup();
+  env.defender.system.actionpoints.value = 0;
+  game.user = env.gm;
+  game.combats = [{ started: true, combatants: [{ actor: env.defender }] }];
+  foundry.utils = { escapeHTML: value => value };
+  const dialogs = [];
+  let override = false;
+  foundry.applications.api.DialogV2.confirm = async options => { dialogs.push(options); return override; };
+  await useCombatAction(env.defender, "dodge");
+  assert.equal(env.defender.effectWrites, 0);
+  assert.equal(env.created.length, 0);
+  override = true;
+  await useCombatAction(env.defender, "dodge");
+  assert.equal(env.defender.effectWrites, 1);
+  assert.equal(env.created.length, 1);
+  assert.equal(env.defender.system.actionpoints.value, 0);
+  assert.equal(dialogs.length, 2);
+  assert.equal(dialogs[0].window.title, "Use anyway?");
+  assert.deepEqual(env.warnings, []);
 });
 
 test("action contests require exactly one target, roll presets without a dialog and restrict the save chooser", async () => {

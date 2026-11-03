@@ -28,6 +28,48 @@ export function getActionState(actor) {
   return { max, value: Number.isFinite(current) ? Math.min(max, Math.max(0, Math.floor(current))) : max };
 }
 
+/** Any started encounter counts, even when game.combat points at an empty one. */
+export function inCombat(actor) {
+  return Boolean(actor?.uuid && game.combats?.some(combat => combat.started
+    && combat.combatants.some(combatant => combatant.actor?.uuid === actor.uuid)));
+}
+
+/** Share the tracker write queue with automatic payments and turn replenishment. */
+function queueActions(actor, task) {
+  if (!canEdit(actor)) return Promise.resolve(false);
+  const next = (writes.get(actor) ?? Promise.resolve()).catch(() => {}).then(() => canEdit(actor) ? task() : false);
+  writes.set(actor, next);
+  return next;
+}
+
+/**
+ * Pay only in a started combat this actor participates in. Strict false blocks the action;
+ * 0 is a successful free action. A GM override spends the remaining AP, stopping at zero.
+ */
+export function payActions(actor, count, label) {
+  if (!inCombat(actor) || count === 0) return Promise.resolve(0);
+  if (!Number.isInteger(count) || count < 0) return Promise.resolve(false);
+  return queueActions(actor, async () => {
+    if (!inCombat(actor)) return 0;
+    const { value } = getActionState(actor);
+    if (count > value) {
+      const warning = game.i18n.format("INCARNOS.Actions.insufficient", { actor: actor.name, left: value, label, cost: count });
+      if (!game.user.isGM) { ui.notifications.warn(warning); return false; }
+      const useAnyway = await foundry.applications.api.DialogV2.confirm({
+        window: { title: game.i18n.localize("INCARNOS.Actions.useAnyway") },
+        content: `<p>${foundry.utils.escapeHTML(warning)}</p>`,
+        yes: { label: game.i18n.localize("INCARNOS.Actions.useAnyway") },
+        rejectClose: false, modal: true
+      });
+      if (!useAnyway) return false;
+      if (!inCombat(actor)) return 0;
+    }
+    const paid = Math.min(count, getActionState(actor).value);
+    if (paid) await actor.update({ "system.actionpoints.value": getActionState(actor).value - paid });
+    return paid;
+  });
+}
+
 /** Use token identity so another token of the same actor is not a participant. */
 export function tokenParticipatesInCombat(token) {
   const combat = game.combat;
@@ -68,9 +110,7 @@ export function actionTrackerVisible(token, user = game.user) {
 
 /** Serialize quick clicks so two spends cannot overwrite each other. */
 export function changeActions(actor, action) {
-  if (!canEdit(actor)) return Promise.resolve(false);
-  const next = (writes.get(actor) ?? Promise.resolve()).catch(() => {}).then(async () => {
-    if (!canEdit(actor)) return false;
+  return queueActions(actor, async () => {
     const { value, max } = getActionState(actor);
     const updated = action === "reset" ? max : action === "spend" ? Math.max(0, value - 1)
       : action === "restore" ? Math.min(max, value + 1) : value;
@@ -79,8 +119,6 @@ export function changeActions(actor, action) {
     }
     return true;
   });
-  writes.set(actor, next);
-  return next;
 }
 
 export function drawActionTracker(token) {

@@ -16,7 +16,8 @@ class ActorSheet {
 globalThis.Actor = class { getRollData() { return structuredClone(this.system); } };
 globalThis.Item = class {};
 globalThis.CONFIG = { INCARNOS: { abilities: {} } };
-globalThis.game = { i18n: { localize: key => key } };
+const strings = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url)));
+globalThis.game = { i18n: { localize: key => strings[key] ?? key, format: (key, data) => (strings[key] ?? key).replace(/\{(\w+)\}/g, (_, field) => data[field]) } };
 globalThis.foundry = {
   utils: { getProperty, setProperty, deepClone: structuredClone },
   applications: {
@@ -355,4 +356,51 @@ test("editing maximum actions preserves item passive bonuses as reversible modif
   actor.items = [];
   await prepare();
   assert.equal(actor.system.actionpoints.max, 6);
+});
+
+test("generic acting Contest pays 1 AP; standalone contest saves, checks, saves and Parry are free", async () => {
+  const { actor, sheet } = await setup();
+  actor.name = "Roller";
+  actor.system.abilities.str.value = 8;
+  actor.system.abilities.str.save = 12;
+  actor.system.actionpoints = { value: 3, max: 3 };
+  const payments = [], warnings = [], messages = [], rolls = [];
+  actor.update = async data => { payments.push(data); actor.system.actionpoints.value = data["system.actionpoints.value"]; };
+  game.user = { id: "owner", targets: new Set() };
+  game.combats = [{ started: true, combatants: [{ actor }] }];
+  game.settings = { get: () => "publicroll" };
+  CONFIG.sounds = { dice: "" };
+  globalThis.ui = { notifications: { warn: message => warnings.push(message) } };
+  globalThis.ChatMessage = { getSpeaker: () => ({}), applyMode() {}, create: async data => {
+    const board = { ...data, id: "board-" + messages.length, update: async changes => Object.assign(board, changes) };
+    messages.push(board); return board;
+  } };
+  globalThis.Roll = class {
+    constructor(formula) { this.formula = formula; rolls.push(formula); }
+    async evaluate() { this.total = 5; this.dice = [{ results: [{ result: 5 }] }]; return this; }
+    toJSON() { return { formula: this.formula, total: this.total }; }
+  };
+  foundry.applications.api.DialogV2 = { confirm: async () => true, prompt: async options =>
+    options.window.title === "Ready to roll?" ? true : { type: "Attack", stat: "Strength" } };
+  const contest = type => IncarnosActorSheet.DEFAULT_OPTIONS.actions.contestRoll.call(sheet, { preventDefault() {} }, { dataset: { contestType: type } });
+  await contest("attack");
+  assert.deepEqual(payments, [{ "system.actionpoints.value": 2 }]);
+  actor.system.actionpoints.value = 0;
+  foundry.applications.api.DialogV2.prompt = async options =>
+    options.window.title === "Ready to roll?" ? true : { type: "Save", stat: "Strength" };
+  await contest("save");
+  for (const check of ["ability", "save", "parry"]) {
+    await IncarnosActorSheet.DEFAULT_OPTIONS.actions.roll.call(sheet, { preventDefault() {} }, { dataset: { roll: "1d20", check, stat: "str" } });
+  }
+  assert.deepEqual(rolls, ["d12", "d8", "1d20", "1d20", "1d20"]);
+  assert.equal(payments.length, 1, "only the acting Contest paid");
+  assert.deepEqual(warnings, []);
+  foundry.applications.api.DialogV2.prompt = async () => ({ type: "Attack", stat: "Strength" });
+  await contest("attack");
+  assert.equal(messages.length, 5, "blocked before creating a board");
+  assert.deepEqual(warnings, ["Roller has 0 AP left; Contest needs 1."]);
+  game.combats = [];
+  await contest("attack");
+  assert.equal(messages.length, 6, "outside combat even an empty AP pool may act");
+  assert.equal(payments.length, 1);
 });

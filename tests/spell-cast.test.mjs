@@ -230,7 +230,7 @@ async function castAttackSpell({ system = leafToss, statuses = [], parries = [14
   };
   const message = await castSpell({ name: "Leaf toss", actor: caster, system });
   assert.equal(queue.length, 0, "all expected attacks and damage rolls must happen");
-  assert.deepEqual(casterWrites, cancel ? [] : [{ "system.power.value": 30 - system.mp, "system.actionpoints.value": 3 - system.actions }], "IP/AP paid once for the whole cast");
+  assert.deepEqual(casterWrites, cancel ? [] : [{ "system.actionpoints.value": 3 - system.actions }, { "system.power.value": 30 - system.mp }], "IP/AP paid once for the whole cast");
   return { message, targets, pending, calls, consumed, placements };
 }
 
@@ -364,18 +364,26 @@ test("single-attack spells keep their shared damage roll and existing card layou
 
 
 /** Minimal plain-spell casting fixture: resources and UI only, no live world. */
-async function castResourceSpell({ cost = "2 Actions, 12 IP", mp = 12, available = 30, hpMagic = false, input = null } = {}) {
+async function castResourceSpell({ cost = "2 Actions, 12 IP", mp = 12, available = 30, hpMagic = false, input = null, ap = null, gm = false, override = false } = {}) {
   const writes = [], warnings = [], dialogs = [];
-  const actor = { name: "Caster", items: hpMagic ? [{ type: "race", name: "Abomination",
+  const actor = { uuid: "Actor.caster", name: "Caster", testUserPermission: () => true, items: hpMagic ? [{ type: "race", name: "Abomination",
     system: { bonus: "You have no IP. Instead gain HP and all spells use HP." } }] : [],
-    system: { power: { value: hpMagic ? 0 : available }, health: { value: available } },
-    getRollData: () => ({}), async update(changes) { writes.push(changes); } };
-  globalThis.game = { user: { targets: new Set() }, combats: [], settings: { get: () => "publicroll" } };
+    system: { power: { value: hpMagic ? 0 : available }, health: { value: available }, actionpoints: { value: ap ?? 3, max: 3 } },
+    getRollData: () => ({}), async update(changes) {
+      writes.push(changes);
+      if ("system.actionpoints.value" in changes) this.system.actionpoints.value = changes["system.actionpoints.value"];
+    } };
+  const strings = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url)));
+  globalThis.game = { user: { isGM: gm, targets: new Set() }, combats: ap === null ? [] : [{ started: true, combatants: [{ actor }] }],
+    settings: { get: () => "publicroll" }, i18n: { localize: key => strings[key], format: (key, data) => strings[key].replace(/\{(\w+)\}/g, (_, field) => data[field]) } };
   globalThis.canvas = { tokens: { placeables: [] } };
   globalThis.CONFIG = { sounds: {} };
   globalThis.ui = { notifications: { warn: message => warnings.push(message) } };
-  globalThis.foundry = { utils: { isEmpty: object => !Object.keys(object).length },
-    applications: { api: { DialogV2: { async input(options) { dialogs.push(options); return input; } } } } };
+  globalThis.foundry = { utils: { isEmpty: object => !Object.keys(object).length, escapeHTML: value => value },
+    applications: { api: { DialogV2: {
+      async input(options) { dialogs.push(options); return input; },
+      async confirm(options) { dialogs.push(options); return override; }
+    } } } };
   globalThis.ChatMessage = { getSpeaker: () => ({}), applyMode: () => {}, async create(data) { return data; } };
   const message = await castSpell({ name: "Plain spell", actor, system: { cost, mp, actions: 2 } });
   return { message, writes, warnings, dialogs };
@@ -389,6 +397,20 @@ test("fixed IP costs spend the existing Incarna pool and chat uses IP for legacy
     assert.deepEqual(dialogs, []);
     assert.match(message.content, /12 IP/);
     assert.doesNotMatch(message.content, /\b(?:MP|PP)\b/);
+  }
+});
+
+test("spells use the shared AP check and GM override without paying IP on rejection", async () => {
+  const blocked = await castResourceSpell({ ap: 1 });
+  assert.equal(blocked.message, undefined);
+  assert.deepEqual(blocked.writes, []);
+  assert.deepEqual(blocked.warnings, ["Caster has 1 AP left; Plain spell needs 2."]);
+  for (const override of [false, true]) {
+    const result = await castResourceSpell({ ap: 1, gm: true, override });
+    assert.equal(result.dialogs[0].window.title, "Use anyway?");
+    assert.deepEqual(result.writes, override ? [{ "system.actionpoints.value": 0 }, { "system.power.value": 18 }] : []);
+    if (override) assert.match(result.message.content, /title="Paid">12 IP · 1 AP/);
+    else assert.equal(result.message, undefined);
   }
 });
 

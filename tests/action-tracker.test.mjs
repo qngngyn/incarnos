@@ -1,6 +1,93 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getActionState, drawPersistentActionHUD, updatePersistentActionHUDs, positionActionHUD, tokenParticipatesInCombat, actorParticipatesInCombat, migrateDefaultActions, actionTrackerVisible, changeActions, drawActionTracker, replenishCombatTurn, replenishEndedTurn, registerActionTrackerHooks } from "../module/helpers/action-tracker.mjs";
+import { inCombat, payActions, getActionState, drawPersistentActionHUD, updatePersistentActionHUDs, positionActionHUD, tokenParticipatesInCombat, actorParticipatesInCombat, migrateDefaultActions, actionTrackerVisible, changeActions, drawActionTracker, replenishCombatTurn, replenishEndedTurn, registerActionTrackerHooks } from "../module/helpers/action-tracker.mjs";
+import { readFileSync } from "node:fs";
+
+const strings = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url)));
+function paymentSetup(value = 3) {
+  const env = setup(value);
+  Object.assign(env.actor, { uuid: "Actor.payer", name: "Payer" });
+  const warnings = [], confirmations = [];
+  game.i18n = { localize: key => strings[key], format: (key, data) => strings[key].replace(/\{(\w+)\}/g, (_, field) => data[field]) };
+  // game.combat is deliberately empty: a different started encounter contains the actor.
+  game.combats = [{ started: false, combatants: [{ actor: env.actor }] }, { started: true, combatants: [{ actor: env.actor }] }];
+  globalThis.ui = { notifications: { warn: warning => warnings.push(warning) } };
+  globalThis.foundry = { utils: { escapeHTML: value => value.replaceAll("<", "&lt;").replaceAll(">", "&gt;") },
+    applications: { api: { DialogV2: { confirm: async options => { confirmations.push(options); return env.override; } } } } };
+  return Object.assign(env, { warnings, confirmations });
+}
+
+test("payments use any started encounter containing the exact actor and cost nothing outside combat", async () => {
+  const env = paymentSetup();
+  assert(inCombat(env.actor));
+  assert(!inCombat({ uuid: "Actor.other" }));
+  assert(!inCombat({}));
+  assert.equal(await payActions(env.actor, 2, "Action"), 2);
+  assert.equal(env.actor.system.actionpoints.value, 1);
+  assert.deepEqual(env.updates, [{ "system.actionpoints.value": 1 }]);
+  game.combats[1].started = false;
+  assert.equal(await payActions(env.actor, 2, "Action"), 0);
+  game.combats[1] = { started: true, combatants: [{ actor: { uuid: "Actor.other" } }] };
+  assert.equal(await payActions(env.actor, 2, "Action"), 0);
+  assert.equal(env.updates.length, 1);
+});
+
+test("insufficient AP blocks players with exact amounts; non-owners cannot spend", async () => {
+  const env = paymentSetup(1);
+  assert.equal(await payActions(env.actor, 2, "Grapple"), false);
+  assert.deepEqual(env.warnings, ["Payer has 1 AP left; Grapple needs 2."]);
+  assert.deepEqual(env.confirmations, []);
+  game.user = env.other;
+  assert.equal(await payActions(env.actor, 1, "Action"), false);
+  assert.equal(env.updates.length, 0);
+});
+
+test("GM can decline, close or accept Use anyway; override reports only the AP actually paid", async () => {
+  const env = paymentSetup(1);
+  game.user = env.gm;
+  for (const answer of [false, null, true]) {
+    env.override = answer;
+    assert.equal(await payActions(env.actor, 2, "<Grapple>"), answer ? 1 : false);
+    const dialog = env.confirmations.at(-1);
+    assert.equal(dialog.window.title, "Use anyway?");
+    assert.equal(dialog.rejectClose, false);
+    assert.match(dialog.content, /Payer has 1 AP left; &lt;Grapple&gt; needs 2\./);
+    assert.equal(env.actor.system.actionpoints.value, answer ? 0 : 1);
+  }
+  assert.equal(await payActions(env.actor, 1, "Action"), 0, "zero AP is an allowed override, distinct from false");
+  assert.deepEqual(env.warnings, []);
+  assert.deepEqual(env.updates, [{ "system.actionpoints.value": 0 }]);
+});
+
+test("automatic spends, manual corrections and reset share one queue with no lost updates", async () => {
+  const env = paymentSetup();
+  const results = await Promise.all([
+    payActions(env.actor, 2, "First"), payActions(env.actor, 2, "Second"),
+    changeActions(env.actor, "restore"), payActions(env.actor, 2, "Third"),
+    changeActions(env.actor, "reset"), payActions(env.actor, 1, "Fourth")
+  ]);
+  assert.deepEqual(results, [2, false, true, 2, true, 1]);
+  assert.deepEqual(env.updates.map(data => data["system.actionpoints.value"]), [1, 2, 0, 3, 2]);
+  assert.deepEqual(env.warnings, ["Payer has 1 AP left; Second needs 2."]);
+  assert.equal(env.actor.system.actionpoints.value, 2);
+});
+
+test("queued spends recheck combat and permission and recover after failed writes", async () => {
+  const env = paymentSetup();
+  const spend = payActions(env.actor, 1, "Action");
+  game.combats = [];
+  assert.equal(await spend, 0);
+  game.combats = [{ started: true, combatants: [{ actor: env.actor }] }];
+  const update = env.actor.update;
+  env.actor.update = async () => { throw new Error("write failed"); };
+  await assert.rejects(payActions(env.actor, 1, "Action"), /write failed/);
+  env.actor.update = update;
+  assert.equal(await payActions(env.actor, 1, "Action"), 1);
+  const unauthorized = payActions(env.actor, 1, "Action");
+  game.user = env.other;
+  assert.equal(await unauthorized, false);
+  assert.equal(env.actor.system.actionpoints.value, 2);
+});
 
 function mockActionDOM() {
   const createElement = () => ({ style: {}, children: [], events: {},

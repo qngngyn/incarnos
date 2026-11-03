@@ -1,6 +1,6 @@
-import { ACTIONS, actionLabel, actionTooltip } from "../data/actions.mjs";
+import { ACTIONS, CONTEST_AP_COST, actionLabel, actionTooltip } from "../data/actions.mjs";
 import { useCombatAction } from "../helpers/combat-actions.mjs";
-import { changeActions, actorParticipatesInCombat } from "../helpers/action-tracker.mjs";
+import { changeActions, payActions, actorParticipatesInCombat } from "../helpers/action-tracker.mjs";
 import { CONTEST_STATS, getContestDefender, requestDefenderContest, getContestDie, renderNewContestBoard, rollBoardSide, showContestDialog, waitForContestAnimations } from "../helpers/contest-requests.mjs";
 import { renderCheckCard } from "../helpers/roll-card.mjs";
 import { getTalentRules, getTalentSummary } from "../helpers/talents.mjs";
@@ -99,6 +99,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const actorData = actor.toObject(false);
 
     context.actor = actor;
+    context.contestTooltip = game.i18n.format("INCARNOS.Actions.contestTooltip", { cost: CONTEST_AP_COST });
     context.actionGroups = ["contest", "misc"].map(kind => ({
       label: game.i18n.localize(`INCARNOS.Actions.${kind}`),
       actions: ACTIONS.filter(action => action.kind === kind).map(action => ({ id: action.id, label: actionLabel(action), tooltip: actionTooltip(action) }))
@@ -432,6 +433,8 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const attacker = { uuid: this.actor.uuid, name: this.actor.name, img: this.actor.img, stat: result.stat, value, die, role };
     const opponent = role === "attack" && defender?.actor ? { uuid: defender.actor.uuid, name: defender.actor.name, img: defender.actor.img } : null;
     const invalid = Number.isInteger(die) ? "" : "Cannot roll this contest: the selected stat must be a finite integer.";
+    if (!invalid && role === "attack"
+      && await payActions(this.actor, CONTEST_AP_COST, game.i18n.localize("INCARNOS.Actions.contest")) === false) return;
     const board = await ChatMessage.create({
       speaker,
       content: renderNewContestBoard({ stat: result.stat, attacker, defender: opponent }),

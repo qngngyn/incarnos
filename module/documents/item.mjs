@@ -1,5 +1,6 @@
 import { waitForContestAnimations } from "../helpers/contest-requests.mjs";
 import { castSpell } from "../helpers/spell-cast.mjs";
+import { payActions } from "../helpers/action-tracker.mjs";
 import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
 import { getTalentRules, getTalentSummary, isSpectacle } from "../helpers/talents.mjs";
 import { isPlayerSide, modifierForRoller } from "../helpers/modifiers.mjs";
@@ -101,7 +102,7 @@ export class IncarnosItem extends Item {
       parryModifiers: form.enemyParryModifiers.map(modifier => -modifier)
     });
     // Hindered lasts for one attack.
-    await consumeHindered(item.actor);
+    if (attackRolls) await consumeHindered(item.actor);
     return attackRolls;
   }
 }
@@ -211,6 +212,10 @@ export async function rollWeaponAttackAction({
   const targets = [...(game.user?.targets ?? [])];
   const tokenFor = index => (targets.length === targetParryModifiers.length ? targets[index] : null);
 
+  if (!targetParryModifiers.length) return;
+  const paidActions = await payActions(item.actor, attack.cost ?? 1, attack.name);
+  if (paidActions === false) return;
+
   for (let i = 0; i < targetParryModifiers.length; i++) {
     const parryModifier = attack.parry?.apply === false ? 0 : Number(targetParryModifiers[i] ?? 0);
     const hitRoll = await new Roll(hitFormula, rollData).evaluate({ async: true });
@@ -252,7 +257,7 @@ export async function rollWeaponAttackAction({
   const statLabel = selectedStat.charAt(0).toUpperCase() + selectedStat.slice(1);
   const advantageDice = /^(\d+)d20k([lh])$/.exec(hitFormula);
   const card = pending => renderWeaponAttackCard({
-    item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending, rules, twoHanded: useTwoHands,
+    item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending, rules, twoHanded: useTwoHands, paidActions,
     criticalFailureLabel: game.i18n?.localize("INCARNOS.CriticalFailure.title")
   });
   const chatData = {
@@ -277,13 +282,14 @@ export async function rollWeaponAttackAction({
 }
 
 /** Weapon attack chat card on the shared roll card layout. */
-export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending = false, rules = getWeaponRules(item.system), twoHanded = false, criticalFailureLabel }) {
+export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending = false, rules = getWeaponRules(item.system), twoHanded = false, criticalFailureLabel, paidActions = 0 }) {
   const advantage = advantageDice
     ? `${advantageDice[2] === "l" ? "Advantage" : "Disadvantage"} ${formatSignedNumber((Number(advantageDice[1]) - 1) * (advantageDice[2] === "l" ? 1 : -1))}`
     : "";
   // A monster's weapon shows the modifier as written for the heroes next to what the monster rolls with.
   const forHeroes = item.actor && !isPlayerSide(item.actor) ? ` (${formatSignedNumber(Number(item.system?.modifier ?? 0))} for heroes)` : "";
-  const facts = [`Weapon ${formatSignedNumber(weaponModifier)}${forHeroes}`, twoHanded ? "Two-handed" : "", advantage,
+  const facts = [paidActions ? game.i18n.format("INCARNOS.Actions.paid", { cost: paidActions }) : "",
+    `Weapon ${formatSignedNumber(weaponModifier)}${forHeroes}`, twoHanded ? "Two-handed" : "", advantage,
     attack.parry?.apply === false ? "Ignores Parry" : "", rules.poorPrecision ? "Poor Precision" : ""]
     .filter(Boolean).map(escapeCard).join(" · ");
   const rows = results.map((result, index) => {
@@ -338,7 +344,7 @@ async function promptWeaponAttack(item, rollData) {
   }
 
   const weaponModes = getWeaponAttackModes(item);
-  const attackOptions = attacks.map(attack => `<option value="${attack.id}">${attack.name}</option>`).join("");
+  const attackOptions = attacks.map(attack => `<option value="${attack.id}">${attack.name} (${game.i18n.format("INCARNOS.Actions.paid", { cost: attack.cost ?? 1 })})</option>`).join("");
   const modeOptions = weaponModes.map(mode => `<option value="${mode}">${CONFIG.INCARNOS.weaponModes[mode] ?? mode}</option>`).join("");
   const hasOnlyOneMode = weaponModes.length === 1;
   // Conditions preselect advantage: Hidden gives advantage, Hindered disadvantage.
@@ -359,6 +365,7 @@ async function promptWeaponAttack(item, rollData) {
     content: `
       <fieldset>
         <legend>Attack action</legend>
+        <p class="hint">${game.i18n.localize("INCARNOS.Actions.attackCost")}</p>
         <div class="form-group">
           <label>Type of attack</label>
           <select name="attackId">${attackOptions}</select>

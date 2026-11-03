@@ -4,6 +4,7 @@ import { activeActionGM, ownsActionActor, requestCombatAction, actionChat } from
 import { applyDodge, applyActionCondition } from "./conditions.mjs";
 import { renderCheckCard, escape } from "./roll-card.mjs";
 import { rollUnderSucceeds } from "./spells.mjs";
+import { payActions } from "./action-tracker.mjs";
 
 /** Misc actions affect the actual targeted token actor, including unlinked NPC tokens. */
 export function getActionTarget(actor, { enemy = false } = {}) {
@@ -23,19 +24,21 @@ export async function useCombatAction(actor, actionId) {
   if (!action) return null;
   if (!ownsActionActor(actor, game.user)) return ui.notifications.warn(game.i18n.localize("INCARNOS.Actions.notOwner"));
   if (action.kind === "contest") return startActionContest(actor, action);
-  if (action.effect.dodge) {
-    await applyDodge(actor);
-    return actionChat(actor, action.id, game.i18n.format("INCARNOS.Actions.dodgeCard", { actor: actor.name }));
-  }
   let target = null;
   if (action.id === "hinder" || action.effect.insight) {
     target = getActionTarget(actor, { enemy: Boolean(action.effect.insight) });
     if (target.error) return ui.notifications.warn(target.error);
   }
-  if (action.id === "hinder") return requestCombatAction({ kind: "hinder", actorUuid: actor.uuid, targetUuid: target.actor.uuid });
-  const stat = action.stats[0];
+  const stat = action.stats?.[0];
   const base = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.value);
-  if (!Number.isFinite(base)) return ui.notifications.warn(game.i18n.localize("INCARNOS.Actions.invalidStat"));
+  if (stat && !Number.isFinite(base)) return ui.notifications.warn(game.i18n.localize("INCARNOS.Actions.invalidStat"));
+  if (action.id === "hinder" && !activeActionGM()) return ui.notifications.warn(game.i18n.localize("INCARNOS.Actions.needGM"));
+  if (await payActions(actor, action.apCost, actionName(action)) === false) return;
+  if (action.effect.dodge) {
+    await applyDodge(actor);
+    return actionChat(actor, action.id, game.i18n.format("INCARNOS.Actions.dodgeCard", { actor: actor.name }));
+  }
+  if (action.id === "hinder") return requestCombatAction({ kind: "hinder", actorUuid: actor.uuid, targetUuid: target.actor.uuid });
   const level = target ? target.actor.system.attributes?.level?.value ?? target.actor.system.level?.value ?? target.actor.system.level ?? 1 : 1;
   const modifier = action.effect.insight ? insightModifier(level) : 0;
   const value = base + modifier;
@@ -78,6 +81,7 @@ async function startActionContest(actor, action) {
   const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.value);
   const die = getContestDie(value);
   if (!Number.isInteger(die)) return ui.notifications.warn(game.i18n.localize("INCARNOS.Actions.invalidStat"));
+  if (await payActions(actor, action.apCost, actionName(action)) === false) return;
   const attacker = { uuid: actor.uuid, name: actor.name, img: actor.img, stat, value, die, role: "attack" };
   const opponent = { uuid: defender.actor.uuid, name: defender.actor.name, img: defender.actor.img };
   const board = await ChatMessage.create({

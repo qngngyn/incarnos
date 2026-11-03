@@ -1,8 +1,102 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { readFileSync } from "node:fs";
+import { INCARNOS } from "../module/helpers/config.mjs";
 
 globalThis.Item = class {};
-const { rollWeaponAttackAction } = await import("../module/documents/item.mjs");
+const { IncarnosItem, rollWeaponAttackAction } = await import("../module/documents/item.mjs");
+
+const strings = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url)));
+function attackPaymentSetup(value = 3, npc = false) {
+  const env = setup(Array(20).fill(20));
+  const writes = [], warnings = [];
+  const actor = { name: "Attacker", uuid: "Actor.attacker", type: npc ? "npc" : "character", items: [], statuses: new Set(),
+    system: { actionpoints: { value, max: 3 } }, testUserPermission: () => true,
+    async update(data) { await Promise.resolve(); writes.push(data); this.system.actionpoints.value = data["system.actionpoints.value"]; },
+    getRollData: () => ({ abilities: { str: { value: 10 }, dex: { value: 10 }, int: { value: 10 }, cha: { value: 10 } } }) };
+  game.user.isGM = npc;
+  game.i18n = { localize: key => strings[key], format: (key, data) => strings[key].replace(/\{(\w+)\}/g, (_, field) => data[field]) };
+  game.settings = { get: () => "publicroll" };
+  game.combats = [{ started: true, combatants: [{ actor }] }];
+  CONFIG.INCARNOS = INCARNOS;
+  globalThis.ui = { notifications: { warn: warning => warnings.push(warning) } };
+  foundry.utils.deepClone = structuredClone;
+  ChatMessage.getSpeaker = () => ({});
+  const item = Object.assign(new IncarnosItem(), { name: "Sword", type: "weapon", actor,
+    system: { attackMode: "melee", versatile: true, modifier: 0, damage: "1d6" } });
+  const roll = (attackId = "normal", mode = "melee") => rollWeaponAttackAction({
+    item, rollData: actor.getRollData(), speaker: {}, rollMode: "publicroll", attackId, mode, parryModifiers: [0, 0, 0]
+  });
+  return { ...env, actor, item, writes, warnings, roll };
+}
+
+test("all weapon actions and modes, including NPCs, Weave and multi-target Cleave, pay once before rolling", async () => {
+  for (const npc of [false, true]) for (const attack of Object.values(INCARNOS.attackActions)) for (const mode of attack.modes) {
+    const env = attackPaymentSetup(3, npc);
+    const OriginalRoll = Roll;
+    globalThis.Roll = class extends OriginalRoll {
+      async evaluate(options) {
+        assert.equal(env.actor.system.actionpoints.value, 2, "paid before the first and every subsequent roll");
+        return super.evaluate(options);
+      }
+    };
+    const rolls = await env.roll(attack.id, mode);
+    assert.equal(rolls.length, attack.multiTarget ? 3 : 1);
+    assert.deepEqual(env.writes, [{ "system.actionpoints.value": 2 }]);
+    assert.match(env.cards[0].content, /isc-facts">1 AP/);
+    assert.match(env.updates[0].content, /isc-facts">1 AP/);
+  }
+});
+
+test("attacks block before rolling at zero AP; nonparticipants and attacks outside combat are free", async () => {
+  const env = attackPaymentSetup(0);
+  assert.equal(await env.roll(), undefined);
+  assert.deepEqual(env.warnings, ["Attacker has 0 AP left; Attack: Normal needs 1."]);
+  assert.equal(env.cards.length, 0);
+  assert.equal(env.writes.length, 0);
+  game.combats[0].combatants = [];
+  assert.equal((await env.roll()).length, 1);
+  game.combats[0].combatants = [{ actor: env.actor }];
+  game.combats[0].started = false;
+  assert.equal((await env.roll()).length, 1);
+  assert.equal(env.writes.length, 0);
+  assert.doesNotMatch(env.updates[0].content, /\bAP\b/);
+});
+
+test("cancelled attack dialogs cost nothing; rejected attacks leave Hindered untouched", async () => {
+  const env = attackPaymentSetup(0);
+  env.actor.statuses.add("hindered");
+  env.actor.toggleStatusEffect = async () => assert.fail("a cancelled/blocked attack must not consume Hindered");
+  foundry.applications = { api: { DialogV2: { prompt: async () => null } } };
+  await env.item.roll();
+  assert.equal(env.writes.length, 0);
+  assert.equal(env.warnings.length, 0);
+  foundry.applications.api.DialogV2.prompt = async () => ({ attackId: "normal", mode: "melee", enemyParryModifiers: [0] });
+  await env.item.roll();
+  assert.equal(env.cards.length, 0);
+  assert.equal(env.warnings.length, 1);
+});
+
+test("quick attack clicks cannot overspend or overwrite AP", async () => {
+  const env = attackPaymentSetup(1);
+  const results = await Promise.all([env.roll(), env.roll()]);
+  assert.equal(results.filter(Boolean).length, 1);
+  assert.equal(env.cards.length, 1);
+  assert.deepEqual(env.writes, [{ "system.actionpoints.value": 0 }]);
+  assert.equal(env.warnings.length, 1);
+});
+
+test("GM can confirm a zero-AP NPC attack without reporting an unpaid AP on the card", async () => {
+  const env = attackPaymentSetup(0, true);
+  const dialogs = [];
+  foundry.utils.escapeHTML = value => value;
+  foundry.applications = { api: { DialogV2: { confirm: async options => { dialogs.push(options); return true; } } } };
+  assert.equal((await env.roll()).length, 1);
+  assert.equal(dialogs[0].window.title, "Use anyway?");
+  assert.deepEqual(env.writes, []);
+  assert.deepEqual(env.warnings, []);
+  assert.doesNotMatch(env.updates[0].content, /\bAP\b/);
+});
 
 function setup(results, multiTarget = false) {
   const updates = [];

@@ -1,5 +1,5 @@
 /** Spell casting: pay the cost, place the area, roll attacks/saves/damage, and let the GM apply the results. */
-import { getActionState } from "./action-tracker.mjs";
+import { inCombat, payActions } from "./action-tracker.mjs";
 import { waitForContestAnimations } from "./contest-requests.mjs";
 import {
   SPELL_STATS, getHealthAfter, getSpellAttackThreshold, getSpellAutomation, getSpellDamage, getVariableCost,
@@ -14,9 +14,6 @@ import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAd
 const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 const castData = message => message.flags?.incarnos?.spellCast;
 const applying = new Set();
-/** Any started combat counts, not just `game.combat`, which can point at another (empty) encounter on the scene. */
-const inCombat = actor => game.combats.some(combat => combat.started
-  && combat.combatants.some(combatant => combatant.actor && combatant.actor.uuid === actor?.uuid));
 
 /**
  * Cast a spell from an owned item. Spells without automation fields only pay their cost and post their card.
@@ -54,7 +51,8 @@ export async function castSpell(item) {
     if (!targets.length) return ui.notifications.warn(`Target the tokens ${item.name} affects first.`);
   }
 
-  const paid = await spendCastCost(actor, cost);
+  const paid = await spendCastCost(actor, cost, item.name);
+  if (paid === false) return;
 
   const rollData = actor.getRollData();
   rollData.lvl ??= Number(actor.system.attributes?.level?.value ?? 0);
@@ -178,7 +176,7 @@ function getCasterToken(actor) {
   return tokens.find(token => token.controlled) ?? tokens[0] ?? null;
 }
 
-/** Cost to pay: fixed values from the sheet, or asked for when the cost text is variable. Checks IP and AP. */
+/** Cost to pay: fixed values or a variable-cost prompt. Checks IP; AP is checked when paying. */
 async function getCastCost(item) {
   const { system, actor } = item;
   // system.mp holds the Incarna (IP) cost; keep this legacy data path for existing spell items.
@@ -205,22 +203,18 @@ async function getCastCost(item) {
     return null;
   }
   if (hpMagic) cost.hp = cost.mp;
-  if (cost.actions && inCombat(actor) && cost.actions > getActionState(actor).value) {
-    ui.notifications.warn(`${actor.name} has ${getActionState(actor).value} AP left; ${item.name} needs ${cost.actions}.`);
-    return null;
-  }
   return cost;
 }
 
 /** Deduct IP (HP for Abomination) always and AP only during combat, where the action tracker counts them. Returns what was paid. */
-async function spendCastCost(actor, { actions, mp, hp }) {
+async function spendCastCost(actor, { actions, mp, hp }, label) {
+  const paidActions = inCombat(actor) ? await payActions(actor, actions, label) : 0;
+  if (paidActions === false) return false;
   const update = {};
-  const fighting = inCombat(actor);
   if (hp) update["system.health.value"] = Number(actor.system.health?.value ?? 0) - hp;
   else if (mp) update["system.power.value"] = Number(actor.system.power?.value ?? 0) - mp;
-  if (actions && fighting) update["system.actionpoints.value"] = getActionState(actor).value - actions;
   if (!foundry.utils.isEmpty(update)) await actor.update(update);
-  return hp ? { mp: 0, hp, actions: fighting ? actions : 0 } : { mp, actions: fighting ? actions : 0 };
+  return hp ? { mp: 0, hp, actions: paidActions } : { mp, actions: paidActions };
 }
 
 /**
