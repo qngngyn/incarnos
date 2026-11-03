@@ -7,6 +7,7 @@
  * listFolder defaults to $INCARNOS_VAULT_LISTS or C:/Users/mfgan/IncarnosPnp/System Files/Listen.
  * Writes packs/_source/weapons/weapons.json. Build the compendium afterwards with `node tools/pack.mjs weapons`.
  */
+import { isItemNote } from "./vault-notes.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { parseWeaponRows, weaponsToDocuments } from "./weapon-sheet.mjs";
@@ -56,7 +57,7 @@ const icon = weapon => {
 function readNotes(folder) {
   const dir = join(LISTS, folder);
   if (!existsSync(dir)) throw new Error(`Vault folder not found: ${dir}`);
-  return readdirSync(dir).filter(file => file.endsWith(".md") && !file.startsWith("_Index_")).sort()
+  return readdirSync(dir).filter(isItemNote).sort()
     .map(file => ({ name: basename(file, ".md"), markdown: readFileSync(join(dir, file), "utf8") }));
 }
 

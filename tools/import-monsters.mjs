@@ -9,6 +9,7 @@
  * Writes packs/_source/monsters/monsters.json. Build the compendium afterwards with `node tools/pack.mjs monsters`.
  * A note's "Token:" is a path inside Foundry's data folder (e.g. tokens/monsters/lashtail-panther.webp).
  */
+import { isItemNote } from "./vault-notes.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve, sep } from "node:path";
 import { monstersToDocuments, parseMonsterNote } from "./monster-notes.mjs";
@@ -21,7 +22,7 @@ const systemVersion = JSON.parse(readFileSync(new URL("../system.json", import.m
 const dir = resolve(LISTS, "..", "..", "Welten", "Incarnos", "Custom Monsters");
 if (!existsSync(dir)) throw new Error(`Vault folder not found: ${dir}`);
 const traitDir = join(LISTS, "Weapon Traits");
-const traits = existsSync(traitDir) ? Object.fromEntries(readdirSync(traitDir).filter(file => file.endsWith(".md") && !file.startsWith("_Index_"))
+const traits = existsSync(traitDir) ? Object.fromEntries(readdirSync(traitDir).filter(isItemNote)
   .map(file => [basename(file, ".md"), parseTraitNote(readFileSync(join(traitDir, file), "utf8"))])) : {};
 
 const files = [];
@@ -30,7 +31,7 @@ const walk = folder => {
     const path = join(folder, name);
     if (statSync(path).isDirectory()) walk(path);
     // Zoottelkeeper's _Index_ files are not monsters.
-    else if (name.endsWith(".md") && !name.startsWith("_Index_")) files.push(path);
+    else if (isItemNote(name)) files.push(path);
   }
 };
 walk(dir);

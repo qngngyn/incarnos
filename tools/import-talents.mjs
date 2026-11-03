@@ -8,6 +8,7 @@
  * listFolder defaults to $INCARNOS_VAULT_LISTS or C:/Users/mfgan/IncarnosPnp/System Files/Listen.
  * Writes packs/_source/talents/talents.json. Build the compendium afterwards with `node tools/pack.mjs talents`.
  */
+import { isItemNote } from "./vault-notes.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { parseTalentNote, talentsToDocuments } from "./talent-notes.mjs";
@@ -21,7 +22,7 @@ if (!existsSync(dir)) throw new Error(`Vault folder not found: ${dir}`);
 const warnings = [];
 const talents = [];
 // Zoottelkeeper's _Index_ files are not talents.
-for (const file of readdirSync(dir).filter(file => file.endsWith(".md") && !file.startsWith("_Index_")).sort()) {
+for (const file of readdirSync(dir).filter(isItemNote).sort()) {
   const result = parseTalentNote(readFileSync(join(dir, file), "utf8"), basename(file, ".md"));
   warnings.push(...result.warnings);
   if (result.talent) talents.push(result.talent);

@@ -7,6 +7,7 @@
  * listFolder defaults to $INCARNOS_VAULT_LISTS or C:/Users/mfgan/IncarnosPnp/System Files/Listen.
  * Writes module/data/conditions.mjs (loaded at startup: Foundry clients reload with F5 to see changes).
  */
+import { isItemNote } from "./vault-notes.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { conditionsModule, parseConditionNote } from "./condition-notes.mjs";
@@ -19,7 +20,7 @@ if (!existsSync(dir)) throw new Error(`Vault folder not found: ${dir}`);
 const warnings = [];
 const conditions = [];
 // Zoottelkeeper's _Index_ files are not conditions.
-for (const file of readdirSync(dir).filter(file => file.endsWith(".md") && !file.startsWith("_Index_")).sort()) {
+for (const file of readdirSync(dir).filter(isItemNote).sort()) {
   const result = parseConditionNote(readFileSync(join(dir, file), "utf8"), basename(file, ".md"));
   warnings.push(...result.warnings);
   if (result.condition) conditions.push(result.condition);

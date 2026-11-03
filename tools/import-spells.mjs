@@ -9,6 +9,7 @@
  * Writes packs/_source/spells/<element>.json (one Folder + its spells per file).
  * Build the compendium afterwards with `node tools/pack.mjs spells`.
  */
+import { isItemNote } from "./vault-notes.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { elementToDocuments } from "./spell-sheet.mjs";
@@ -58,7 +59,7 @@ const byElement = new Map();
 const folders = ["", ...readdirSync(dir).filter(name => statSync(join(dir, name)).isDirectory())];
 for (const folder of folders) {
   // Zoottelkeeper's _Index_ files are not spells.
-  for (const file of readdirSync(join(dir, folder)).filter(file => file.endsWith(".md") && !file.startsWith("_Index_"))) {
+  for (const file of readdirSync(join(dir, folder)).filter(isItemNote)) {
     const markdown = readFileSync(join(dir, folder, file), "utf8");
     const elementNote = parseElementNote(markdown, basename(file, ".md"));
     if (elementNote) { affinities.set(elementNote.element, elementNote.affinity); continue; }

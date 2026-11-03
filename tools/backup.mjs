@@ -12,6 +12,7 @@
  * backupDir defaults to $INCARNOS_BACKUP_DIR or C:/Users/mfgan/IncarnosBackups (outside the vault and the
  * system repo, so backups never get pushed to GitHub). Old backups are thinned out by keepBackups().
  */
+import { isItemNote } from "./vault-notes.mjs";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, join, relative, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -103,7 +104,7 @@ export function listSheets(vault) {
   const attacks = actor => monsterDocs.filter(doc => doc._key?.startsWith(`!actors.items!${actor._id}.`) && doc.type === "weapon")
     .map(({ name, system: s }) => `${name}: ${s.attackMode} ${s.modifier >= 0 ? "+" : ""}${s.modifier} ${s.damage}`).join("\n");
   const traitDir = join(vault, "System Files", "Listen", "Weapon Traits");
-  const traits = existsSync(traitDir) ? readdirSync(traitDir).filter(file => file.endsWith(".md") && !file.startsWith("_Index_")).sort()
+  const traits = existsSync(traitDir) ? readdirSync(traitDir).filter(isItemNote).sort()
     .map(file => [basename(file, ".md"), parseTraitNote(readFileSync(join(traitDir, file), "utf8"))]) : [];
   return [
     { name: "Weapons", rows: [["Name", "Attack", "Versatile", "Hands", "Range", "Hitrate", "Damage", "Traits"],
