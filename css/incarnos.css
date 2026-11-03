@@ -645,3 +645,63 @@
 .incarnos .combat-action-label { flex: 0 0 48px; font-size: 11px; opacity: 0.75; }
 .incarnos .combat-action-buttons { display: flex; flex: 1; flex-wrap: wrap; gap: 3px; min-width: 0; }
 .incarnos .combat-action-buttons button { flex: 0 0 auto; width: auto; min-height: 24px; margin: 0; padding: 0 5px; font-size: 11px; line-height: 22px; }
+
+/* Only generated handbook content; inherit the journal's light/dark theme. */
+.isc-handbook {
+  max-width: 85ch;
+  min-width: 0;
+  margin-inline: auto;
+  line-height: 1.6;
+  color: var(--color-text-primary, inherit);
+  overflow-wrap: anywhere;
+}
+.isc-handbook .isc-callout {
+  --isc-callout-color: #4b91d1;
+  margin-block: 1em;
+  padding: 0.65em 1em;
+  -webkit-border-start: 4px solid var(--isc-callout-color);
+  border-inline-start: 4px solid var(--isc-callout-color);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--isc-callout-color) 12%, transparent);
+}
+.isc-handbook .isc-callout-check, .isc-handbook .isc-callout-success {
+  --isc-callout-color: #4b9b68;
+}
+.isc-handbook .isc-callout-example {
+  --isc-callout-color: #a478cc;
+}
+.isc-handbook .isc-callout-quote {
+  --isc-callout-color: #8b8b91;
+}
+.isc-handbook .isc-callout-warning {
+  --isc-callout-color: #c9952e;
+}
+.isc-handbook .isc-callout-title {
+  margin-block: 0 0.4em;
+  font-weight: bold;
+}
+.isc-handbook .isc-callout > :last-child {
+  margin-bottom: 0;
+}
+.isc-handbook .isc-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.isc-handbook table {
+  width: 100%;
+  margin-block: 1em;
+  border-collapse: collapse;
+}
+.isc-handbook th, .isc-handbook td {
+  padding: 0.4em 0.65em;
+  vertical-align: top;
+  overflow-wrap: normal;
+}
+.isc-handbook thead {
+  font-size: 0.9em;
+  color: var(--table-header-text-color, inherit);
+  background: var(--table-header-bg-color, rgba(128, 128, 128, 0.2));
+}
+.isc-handbook tbody tr:nth-child(even) {
+  background: var(--table-row-color-even, rgba(128, 128, 128, 0.1));
+}

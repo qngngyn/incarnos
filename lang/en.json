@@ -61,6 +61,8 @@
   "INCARNOS.CompendiumSync.critical-failures.many": "critical failure tables",
   "INCARNOS.CompendiumSync.macros.one": "macro",
   "INCARNOS.CompendiumSync.macros.many": "macros",
+  "INCARNOS.CompendiumSync.handbook.one": "handbook journal",
+  "INCARNOS.CompendiumSync.handbook.many": "handbook journals",
   "INCARNOS.CriticalFailure.title": "Critical failure",
   "INCARNOS.CriticalFailure.actor": "Actor",
   "INCARNOS.CriticalFailure.kind": "Attack",

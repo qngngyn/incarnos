@@ -8,9 +8,9 @@ export function compendiumData(value) {
     .map(key => [key, compendiumData(value[key])]));
 }
 
-/** Decode LevelDB records, including an Actor's items and a RollTable's results. */
+/** Decode LevelDB records, including embedded items, results and journal pages. */
 export function unpackCompendiumSource(records, documentName) {
-  const prefix = { Item: "items", Actor: "actors", RollTable: "tables", Macro: "macros" }[documentName];
+  const prefix = { Item: "items", Actor: "actors", RollTable: "tables", Macro: "macros", JournalEntry: "journal" }[documentName];
   if (!prefix) throw new Error(`Unsupported compendium type ${documentName}`);
   const keyed = new Map();
   const documents = [], folders = [];
@@ -22,7 +22,7 @@ export function unpackCompendiumSource(records, documentName) {
     else if (!/^![^!]+\.[^!]+!/.test(record._key)) throw new Error(`Invalid compendium source key ${record._key}`);
   }
   for (const doc of documents) {
-    const field = { Actor: "items", RollTable: "results" }[documentName];
+    const field = { Actor: "items", RollTable: "results", JournalEntry: "pages" }[documentName];
     if (!field) continue;
     doc[field] = (doc[field] ?? []).map(item => {
       if (typeof item !== "string") return compendiumData(item);

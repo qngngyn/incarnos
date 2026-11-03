@@ -4,7 +4,7 @@
  *   node tools/pack.mjs spells
  *
  * Reads every packs/_source/<name>/*.json (arrays of documents with `_key`) and rebuilds packs/<name>.
- * Keys support Items, Actors (!actors.items!), RollTables (!tables.results!) and Macros unchanged.
+ * Keys support Items, Actors (!actors.items!), RollTables (!tables.results!), Journals (!journal.pages!) and Macros unchanged.
  * Uses the LevelDB module bundled with Foundry; set FOUNDRY_APP if Foundry is installed elsewhere.
  * The pack is built next to the old one and only swapped in when the old one is not open in Foundry,
  * so a running world never ends up with a half-deleted pack.

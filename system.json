@@ -21,6 +21,14 @@
   "scripts": [],
   "packs": [
     {
+      "name": "handbook",
+      "label": "Incarnos Handbook",
+      "path": "packs/handbook",
+      "type": "JournalEntry",
+      "system": "incarnos",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
       "name": "critical-failures",
       "label": "Incarnos Critical Failures",
       "path": "packs/critical-failures",

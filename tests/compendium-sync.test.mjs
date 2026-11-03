@@ -134,6 +134,11 @@ function setup({ locked = true, failWrite = false, packs = ["spells"] } = {}) {
     if (url.includes("/macros/")) return { ok: true, json: async () => [
       { _id: "macro", _key: "!macros!macro", name: "Critical Failure", type: "script", command: "await game.incarnos.criticalFailure();" }
     ] };
+    if (url.includes("/handbook/")) return { ok: true, json: async () => [
+      { _id: "handbook", _key: "!journal!handbook", name: "Incarnos Handbook", pages: ["page", "new"], ownership: { default: 2 } },
+      { _id: "page", _key: "!journal.pages!handbook.page", name: "Rules", type: "text", title: { show: true, level: 1 }, text: { format: 1, content: "<p>New rules</p>" }, sort: 100000 },
+      { _id: "new", _key: "!journal.pages!handbook.new", name: "Lists", type: "text", title: { show: true, level: 2 }, text: { format: 1, content: "<p>New page</p>" }, sort: 200000 }
+    ] };
     return { ok: true, json: async () => [
       actor ? { _id: "a", _key: "!actors!a", name: "Monster", type: "npc", system: {}, items: [], prototypeToken: { texture: { src: "monster.webp" } } }
         : { ...spell("a"), _key: "!items!a" },
@@ -142,7 +147,7 @@ function setup({ locked = true, failWrite = false, packs = ["spells"] } = {}) {
   };
   const user = { id: "a", active: true, isGM: true };
   globalThis.game = {
-    user, users: [user], system: { packs: new Set(packs.map(name => ({ name, type: ({ monsters: "Actor", "critical-failures": "RollTable", macros: "Macro" })[name] ?? "Item" }))) },
+    user, users: [user], system: { packs: new Set(packs.map(name => ({ name, type: ({ monsters: "Actor", "critical-failures": "RollTable", macros: "Macro", handbook: "JournalEntry" })[name] ?? "Item" }))) },
     packs: new Map([...databases].map(([key, state]) => [key, state.pack])), actors: [], scenes: { contents: [] }, items: [],
     i18n: { localize: key => translations[key] ?? key, format: (key, data) => translations[key].replace("{summary}", data.summary) }
   };
@@ -227,6 +232,27 @@ test("players and other active GMs never read sources or write packs", async () 
   game.users.push({ id: "0", active: true, isGM: true });
   assert.equal(await syncCompendiumsFromSource(), 0);
   assert.deepEqual(calls, []);
+});
+
+test("GM ready sync decodes journal pages, applies text, order, nesting, additions and removals, then is idempotent", async () => {
+  const { state, calls, notifications } = setup({ packs: ["handbook"] });
+  state.documents.set("handbook", { _id: "handbook", name: "Incarnos Handbook", ownership: { default: 2 }, pages: [
+    { _id: "gone", name: "Obsolete", type: "text", text: { format: 1, content: "Removed" } },
+    { _id: "page", name: "Rules", type: "text", title: { show: false, level: 3 }, text: { format: 1, content: "Old rules" }, sort: 200000 }
+  ] });
+  assert.equal(await syncCompendiumsFromSource(), 1);
+  const pages = state.documents.get("handbook").pages;
+  assert.deepEqual(pages.map(page => page._id), ["page", "new"]);
+  assert.deepEqual(pages[0].text, { format: 1, content: "<p>New rules</p>" });
+  assert.deepEqual(pages[0].title, { show: true, level: 1 });
+  assert.equal(pages[0].sort, 100000);
+  assert.equal(pages[0]._key, undefined);
+  assert.equal(state.pack.locked, true);
+  assert.deepEqual(notifications, ["Incarnos: compendiums updated from vault: 1 handbook journal"]);
+  calls.length = 0;
+  assert.equal(await syncCompendiumsFromSource(), 0);
+  assert.ok(!calls.some(call => call[0] === "configure"));
+  assert.throws(() => unpackCompendiumSource([{ _id: "journal", _key: "!journal!journal", pages: ["missing"] }], "JournalEntry"), /Missing embedded pages/);
 });
 
 test("failed or empty source reads never delete compendium content", async () => {
