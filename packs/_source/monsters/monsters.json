@@ -211,7 +211,7 @@
     "_key": "!actors!tXKYAgC2KrL3yYBy",
     "name": "Ignition Frog",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/ignition-frog.webp",
     "system": {
       "health": {
         "value": 3,
@@ -277,7 +277,7 @@
     "prototypeToken": {
       "name": "Ignition Frog",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/ignition-frog.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -645,7 +645,7 @@
     "_key": "!actors!AH8e26BHjA8cv0M4",
     "name": "Snake",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/snake.webp",
     "system": {
       "health": {
         "value": 7,
@@ -711,7 +711,7 @@
     "prototypeToken": {
       "name": "Snake",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/snake.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -790,7 +790,7 @@
     "_key": "!actors!sEVLB2kkM9RTEkkh",
     "name": "Molem v1",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/molem-v1.webp",
     "system": {
       "health": {
         "value": 100,
@@ -856,7 +856,7 @@
     "prototypeToken": {
       "name": "Molem v1",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/molem-v1.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -967,7 +967,7 @@
     "_key": "!actors!fxu8E5jIA1nxZpJ3",
     "name": "Molem v2",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/molem-v2.webp",
     "system": {
       "health": {
         "value": 150,
@@ -1033,7 +1033,7 @@
     "prototypeToken": {
       "name": "Molem v2",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/molem-v2.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -1152,7 +1152,7 @@
     "_key": "!actors!R3XP4ch31XeCBjXl",
     "name": "Small Fire Golem",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/small-fire-golem.webp",
     "system": {
       "health": {
         "value": 22,
@@ -1218,7 +1218,7 @@
     "prototypeToken": {
       "name": "Small Fire Golem",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/small-fire-golem.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -1329,7 +1329,7 @@
     "_key": "!actors!jyEOC63sknYK3dhQ",
     "name": "Small Light Golem",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/small-light-golem.webp",
     "system": {
       "health": {
         "value": 22,
@@ -1395,7 +1395,7 @@
     "prototypeToken": {
       "name": "Small Light Golem",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/small-light-golem.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -1506,7 +1506,7 @@
     "_key": "!actors!7HmXsZxHLxAQK9nE",
     "name": "Small Shadow Golem",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/small-shadow-golem.webp",
     "system": {
       "health": {
         "value": 22,
@@ -1572,7 +1572,7 @@
     "prototypeToken": {
       "name": "Small Shadow Golem",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/small-shadow-golem.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -1683,7 +1683,7 @@
     "_key": "!actors!hGzHMyxxqpwDQqBT",
     "name": "Small Water Golem",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/small-water-golem.webp",
     "system": {
       "health": {
         "value": 22,
@@ -1749,7 +1749,7 @@
     "prototypeToken": {
       "name": "Small Water Golem",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/small-water-golem.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -1860,7 +1860,7 @@
     "_key": "!actors!8KmyET96MuNWIuqG",
     "name": "Daemobunny",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/daemobunny.webp",
     "system": {
       "health": {
         "value": 14,
@@ -1926,7 +1926,7 @@
     "prototypeToken": {
       "name": "Daemobunny",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/daemobunny.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -2109,7 +2109,7 @@
     "_key": "!actors!z0W805OWo9UXRCm0",
     "name": "Hellhound",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/hellhound.webp",
     "system": {
       "health": {
         "value": 16,
@@ -2175,7 +2175,7 @@
     "prototypeToken": {
       "name": "Hellhound",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/hellhound.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -2318,7 +2318,7 @@
     "_key": "!actors!PaH2p1A5LsFcZbNC",
     "name": "Jin Ho Yang, Okher's Vessel",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/jin-ho-yang-okher-s-vessel.webp",
     "system": {
       "health": {
         "value": 60,
@@ -2384,7 +2384,7 @@
     "prototypeToken": {
       "name": "Jin Ho Yang, Okher's Vessel",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/jin-ho-yang-okher-s-vessel.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -2519,7 +2519,7 @@
     "_key": "!actors!qrIgkJn9nBUntLu2",
     "name": "Mezzoloth",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/mezzoloth.webp",
     "system": {
       "health": {
         "value": 40,
@@ -2585,7 +2585,7 @@
     "prototypeToken": {
       "name": "Mezzoloth",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/mezzoloth.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -2760,7 +2760,7 @@
     "_key": "!actors!ucHTAV4JGvQcpkBJ",
     "name": "Salameleon",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/salameleon.webp",
     "system": {
       "health": {
         "value": 28,
@@ -2826,7 +2826,7 @@
     "prototypeToken": {
       "name": "Salameleon",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/salameleon.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -2977,7 +2977,7 @@
     "_key": "!actors!IOlWPlzg2P4RWU9b",
     "name": "Goblin King",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/goblin-king.webp",
     "system": {
       "health": {
         "value": 60,
@@ -3043,7 +3043,7 @@
     "prototypeToken": {
       "name": "Goblin King",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/goblin-king.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -3226,7 +3226,7 @@
     "_key": "!actors!1GSa0UQUWi2ENX63",
     "name": "Goblin",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/goblin.webp",
     "system": {
       "health": {
         "value": 6,
@@ -3292,7 +3292,7 @@
     "prototypeToken": {
       "name": "Goblin",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/goblin.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -3371,7 +3371,7 @@
     "_key": "!actors!lFihnUhoU9kmF3Eb",
     "name": "Goblinarcher",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/goblinarcher.webp",
     "system": {
       "health": {
         "value": 6,
@@ -3437,7 +3437,7 @@
     "prototypeToken": {
       "name": "Goblinarcher",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/goblinarcher.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -3516,7 +3516,7 @@
     "_key": "!actors!zWqD6m9MGoAJRvLL",
     "name": "Goblinboss",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/goblinboss.webp",
     "system": {
       "health": {
         "value": 55,
@@ -3582,7 +3582,7 @@
     "prototypeToken": {
       "name": "Goblinboss",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/goblinboss.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -3765,7 +3765,7 @@
     "_key": "!actors!chAa5SZTqpx1T0pa",
     "name": "Goblinshaman",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/goblinshaman.webp",
     "system": {
       "health": {
         "value": 22,
@@ -3831,7 +3831,7 @@
     "prototypeToken": {
       "name": "Goblinshaman",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/goblinshaman.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -3974,7 +3974,7 @@
     "_key": "!actors!KfelFyusCM1gr8nO",
     "name": "Goblinwarrior",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/goblinwarrior.webp",
     "system": {
       "health": {
         "value": 13,
@@ -4040,7 +4040,7 @@
     "prototypeToken": {
       "name": "Goblinwarrior",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/goblinwarrior.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -4159,7 +4159,7 @@
     "_key": "!actors!eAmP3KIOvEe7d0DZ",
     "name": "Hobgoblin",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/hobgoblin.webp",
     "system": {
       "health": {
         "value": 26,
@@ -4225,7 +4225,7 @@
     "prototypeToken": {
       "name": "Hobgoblin",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/hobgoblin.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -4376,7 +4376,7 @@
     "_key": "!actors!tOwnilyF8gu1lH77",
     "name": "Troll",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/troll.webp",
     "system": {
       "health": {
         "value": 60,
@@ -4442,7 +4442,7 @@
     "prototypeToken": {
       "name": "Troll",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/troll.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -4625,7 +4625,7 @@
     "_key": "!actors!FcdDAkXIIPQIQbmR",
     "name": "Bandit",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bandit.webp",
     "system": {
       "health": {
         "value": 15,
@@ -4691,7 +4691,7 @@
     "prototypeToken": {
       "name": "Bandit",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bandit.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -4810,7 +4810,7 @@
     "_key": "!actors!A36nZVIVCHfSFJZj",
     "name": "Aiden, the Rock",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/aiden-the-rock.webp",
     "system": {
       "health": {
         "value": 92,
@@ -4876,7 +4876,7 @@
     "prototypeToken": {
       "name": "Aiden, the Rock",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/aiden-the-rock.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -5019,7 +5019,7 @@
     "_key": "!actors!NR3bZASsYWTCwJes",
     "name": "Katrina, the Blue Dragon",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/katrina-the-blue-dragon.webp",
     "system": {
       "health": {
         "value": 80,
@@ -5085,7 +5085,7 @@
     "prototypeToken": {
       "name": "Katrina, the Blue Dragon",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/katrina-the-blue-dragon.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -5268,7 +5268,7 @@
     "_key": "!actors!CQLJSzkUfl8A2hPe",
     "name": "Nathen, the Phantom",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/nathen-the-phantom.webp",
     "system": {
       "health": {
         "value": 64,
@@ -5334,7 +5334,7 @@
     "prototypeToken": {
       "name": "Nathen, the Phantom",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/nathen-the-phantom.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -5477,7 +5477,7 @@
     "_key": "!actors!xVUSQtSqyYUZSnQM",
     "name": "Radella, the Hawk",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/radella-the-hawk.webp",
     "system": {
       "health": {
         "value": 58,
@@ -5543,7 +5543,7 @@
     "prototypeToken": {
       "name": "Radella, the Hawk",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/radella-the-hawk.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -5654,7 +5654,7 @@
     "_key": "!actors!etGTbuyiXdEd9u96",
     "name": "Bandit Captain 3",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bandit-captain-3.webp",
     "system": {
       "health": {
         "value": 40,
@@ -5720,7 +5720,7 @@
     "prototypeToken": {
       "name": "Bandit Captain 3",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bandit-captain-3.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -5895,7 +5895,7 @@
     "_key": "!actors!ydN6AvtVUq0ASEkp",
     "name": "Bandit Captain 4",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bandit-captain-4.webp",
     "system": {
       "health": {
         "value": 40,
@@ -5961,7 +5961,7 @@
     "prototypeToken": {
       "name": "Bandit Captain 4",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bandit-captain-4.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -6136,7 +6136,7 @@
     "_key": "!actors!w1PbHE2uxIsgNFMS",
     "name": "Bandit Captain",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bandit-captain.webp",
     "system": {
       "health": {
         "value": 40,
@@ -6202,7 +6202,7 @@
     "prototypeToken": {
       "name": "Bandit Captain",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bandit-captain.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -6377,7 +6377,7 @@
     "_key": "!actors!v1U1Y5bj6TMxzKUI",
     "name": "Rebeca the Fang",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/rebeca-the-fang.webp",
     "system": {
       "health": {
         "value": 40,
@@ -6443,7 +6443,7 @@
     "prototypeToken": {
       "name": "Rebeca the Fang",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/rebeca-the-fang.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -6618,7 +6618,7 @@
     "_key": "!actors!ZdRsGAyVrbedo2qS",
     "name": "Tamia the Spider",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/tamia-the-spider.webp",
     "system": {
       "health": {
         "value": 40,
@@ -6684,7 +6684,7 @@
     "prototypeToken": {
       "name": "Tamia the Spider",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/tamia-the-spider.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -6859,7 +6859,7 @@
     "_key": "!actors!7fngC2AhxrKHCAht",
     "name": "Thug",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/thug.webp",
     "system": {
       "health": {
         "value": 8,
@@ -6925,7 +6925,7 @@
     "prototypeToken": {
       "name": "Thug",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/thug.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -7004,7 +7004,7 @@
     "_key": "!actors!8h9TN16GtmIJVchi",
     "name": "Trained Thug",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/trained-thug.webp",
     "system": {
       "health": {
         "value": 16,
@@ -7070,7 +7070,7 @@
     "prototypeToken": {
       "name": "Trained Thug",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/trained-thug.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -7149,7 +7149,7 @@
     "_key": "!actors!JiqH9ue6XUUI9KSA",
     "name": "Akar Sangar",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/akar-sangar.webp",
     "system": {
       "health": {
         "value": 46,
@@ -7215,7 +7215,7 @@
     "prototypeToken": {
       "name": "Akar Sangar",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/akar-sangar.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -7358,7 +7358,7 @@
     "_key": "!actors!vfBbBIBZqp5lixF9",
     "name": "Baz Alan",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/baz-alan.webp",
     "system": {
       "health": {
         "value": 32,
@@ -7424,7 +7424,7 @@
     "prototypeToken": {
       "name": "Baz Alan",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/baz-alan.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -7535,7 +7535,7 @@
     "_key": "!actors!gEFMhZWbUviPGgbn",
     "name": "Hana Coban",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/hana-coban.webp",
     "system": {
       "health": {
         "value": 29,
@@ -7601,7 +7601,7 @@
     "prototypeToken": {
       "name": "Hana Coban",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/hana-coban.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -7712,7 +7712,7 @@
     "_key": "!actors!bTK3ucXLmM8j0C8S",
     "name": "Jêla Cîhan",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/j-la-c-han.webp",
     "system": {
       "health": {
         "value": 42,
@@ -7778,7 +7778,7 @@
     "prototypeToken": {
       "name": "Jêla Cîhan",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/j-la-c-han.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -7961,7 +7961,7 @@
     "_key": "!actors!6xXCrX3m2os5AI52",
     "name": "Faceless Monk",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/faceless-monk.webp",
     "system": {
       "health": {
         "value": 14,
@@ -8027,7 +8027,7 @@
     "prototypeToken": {
       "name": "Faceless Monk",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/faceless-monk.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -8106,7 +8106,7 @@
     "_key": "!actors!o6DyDy4T5F4GBu8q",
     "name": "Gotulli Bressi",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/gotulli-bressi.webp",
     "system": {
       "health": {
         "value": 16,
@@ -8172,7 +8172,7 @@
     "prototypeToken": {
       "name": "Gotulli Bressi",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/gotulli-bressi.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -8307,7 +8307,7 @@
     "_key": "!actors!y9LLvLi7KIjyg472",
     "name": "Durzol, Okher's Prodigy",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/durzol-okher-s-prodigy.webp",
     "system": {
       "health": {
         "value": 80,
@@ -8373,7 +8373,7 @@
     "prototypeToken": {
       "name": "Durzol, Okher's Prodigy",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/durzol-okher-s-prodigy.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -8588,7 +8588,7 @@
     "_key": "!actors!K044BVmUtJjriVTC",
     "name": "Okher Fanatic",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/okher-fanatic.webp",
     "system": {
       "health": {
         "value": 40,
@@ -8654,7 +8654,7 @@
     "prototypeToken": {
       "name": "Okher Fanatic",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/okher-fanatic.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -8837,7 +8837,7 @@
     "_key": "!actors!2TxJeGNA7j1R4Muw",
     "name": "Okher Hunter",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/okher-hunter.webp",
     "system": {
       "health": {
         "value": 25,
@@ -8903,7 +8903,7 @@
     "prototypeToken": {
       "name": "Okher Hunter",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/okher-hunter.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -9086,7 +9086,7 @@
     "_key": "!actors!7OQY1OZMwYCWR7uy",
     "name": "Okher Shaman",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/okher-shaman.webp",
     "system": {
       "health": {
         "value": 30,
@@ -9152,7 +9152,7 @@
     "prototypeToken": {
       "name": "Okher Shaman",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/okher-shaman.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -9327,7 +9327,7 @@
     "_key": "!actors!CctWoBtOa8WDTuk2",
     "name": "Orc Barkeeper (Clothed)",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/orc-barkeeper-clothed.webp",
     "system": {
       "health": {
         "value": 12,
@@ -9393,7 +9393,7 @@
     "prototypeToken": {
       "name": "Orc Barkeeper (Clothed)",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/orc-barkeeper-clothed.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -9512,7 +9512,7 @@
     "_key": "!actors!E0uDeAXXATPDJ9C6",
     "name": "Orc Barkeeper (Extra Naked)",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/orc-barkeeper-extra-naked.webp",
     "system": {
       "health": {
         "value": 6,
@@ -9578,7 +9578,7 @@
     "prototypeToken": {
       "name": "Orc Barkeeper (Extra Naked)",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/orc-barkeeper-extra-naked.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -9657,7 +9657,7 @@
     "_key": "!actors!blqy3k5rU4tuOQZT",
     "name": "Orc Captain",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/orc-captain.webp",
     "system": {
       "health": {
         "value": 42,
@@ -9723,7 +9723,7 @@
     "prototypeToken": {
       "name": "Orc Captain",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/orc-captain.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -9874,7 +9874,7 @@
     "_key": "!actors!nGbkCI1QSpFbcfKl",
     "name": "Orc Warrior",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/orc-warrior.webp",
     "system": {
       "health": {
         "value": 15,
@@ -9940,7 +9940,7 @@
     "prototypeToken": {
       "name": "Orc Warrior",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/orc-warrior.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -10091,7 +10091,7 @@
     "_key": "!actors!OCUEt467nefZV9UM",
     "name": "Water Slime",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/water-slime.webp",
     "system": {
       "health": {
         "value": 10,
@@ -10157,7 +10157,7 @@
     "prototypeToken": {
       "name": "Water Slime",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/water-slime.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -10276,7 +10276,7 @@
     "_key": "!actors!nGGJcDjzottG4Lvv",
     "name": "Ghoul",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/ghoul.webp",
     "system": {
       "health": {
         "value": 20,
@@ -10342,7 +10342,7 @@
     "prototypeToken": {
       "name": "Ghoul",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/ghoul.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -10421,7 +10421,7 @@
     "_key": "!actors!gAnswd6QlvfAgxBn",
     "name": "Mummy Master",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/mummy-master.webp",
     "system": {
       "health": {
         "value": 90,
@@ -10487,7 +10487,7 @@
     "prototypeToken": {
       "name": "Mummy Master",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/mummy-master.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -10622,7 +10622,7 @@
     "_key": "!actors!lGWm7C9I8eZcQW39",
     "name": "Mummy Warrior",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/mummy-warrior.webp",
     "system": {
       "health": {
         "value": 24,
@@ -10688,7 +10688,7 @@
     "prototypeToken": {
       "name": "Mummy Warrior",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/mummy-warrior.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -10831,7 +10831,7 @@
     "_key": "!actors!jkzJCCbbuVKKfW2k",
     "name": "Mummy",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/mummy.webp",
     "system": {
       "health": {
         "value": 16,
@@ -10897,7 +10897,7 @@
     "prototypeToken": {
       "name": "Mummy",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/mummy.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -11008,7 +11008,7 @@
     "_key": "!actors!lYx4MFT8Tl4iPte2",
     "name": "Skeleton Champion Elite",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/skeleton-champion-elite.webp",
     "system": {
       "health": {
         "value": 40,
@@ -11074,7 +11074,7 @@
     "prototypeToken": {
       "name": "Skeleton Champion Elite",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/skeleton-champion-elite.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -11225,7 +11225,7 @@
     "_key": "!actors!znPqGg82de57JqdW",
     "name": "Skeleton Warrior",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/skeleton-warrior.webp",
     "system": {
       "health": {
         "value": 16,
@@ -11291,7 +11291,7 @@
     "prototypeToken": {
       "name": "Skeleton Warrior",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/skeleton-warrior.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -11410,7 +11410,7 @@
     "_key": "!actors!NbWB2hP7zFNcsouo",
     "name": "Winged Ghoul",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/winged-ghoul.webp",
     "system": {
       "health": {
         "value": 65,
@@ -11476,7 +11476,7 @@
     "prototypeToken": {
       "name": "Winged Ghoul",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/winged-ghoul.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -11659,7 +11659,7 @@
     "_key": "!actors!qtT1q1i0NabqFn0X",
     "name": "Zombie",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/zombie.webp",
     "system": {
       "health": {
         "value": 12,
@@ -11725,7 +11725,7 @@
     "prototypeToken": {
       "name": "Zombie",
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/zombie.webp"
       },
       "disposition": -1,
       "actorLink": false
