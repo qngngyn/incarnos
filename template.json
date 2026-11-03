@@ -2,9 +2,7 @@
   "Actor": {
     "types": [
       "npc",
-      "character",
-      "vehicle",
-      "monster"
+      "character"
     ],
     "templates": {
       "base": {

@@ -5,11 +5,8 @@
  * for player characters and its negative for monsters and NPCs.
  */
 
-/** Monster-side actor types; everything else (player characters, unowned items) counts as the players' side. */
-const MONSTER_TYPES = ["npc", "monster"];
-
-/** Whether an actor is on the players' side. */
-export const isPlayerSide = actor => !MONSTER_TYPES.includes(actor?.type);
+/** Whether an actor is on the players' side: everything but NPCs (monsters are NPCs), including unowned items. */
+export const isPlayerSide = actor => actor?.type !== "npc";
 
 /**
  * The modifier as it applies to the value this actor rolls under.
