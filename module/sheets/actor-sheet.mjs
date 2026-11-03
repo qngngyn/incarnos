@@ -1,3 +1,5 @@
+import { ACTIONS, actionLabel, actionTooltip } from "../data/actions.mjs";
+import { useCombatAction } from "../helpers/combat-actions.mjs";
 import { changeActions, actorParticipatesInCombat } from "../helpers/action-tracker.mjs";
 import { CONTEST_STATS, getContestDefender, requestDefenderContest, getContestDie, renderNewContestBoard, rollBoardSide, showContestDialog, waitForContestAnimations } from "../helpers/contest-requests.mjs";
 import { renderCheckCard } from "../helpers/roll-card.mjs";
@@ -6,7 +8,7 @@ import { getParryModifier, getSpellSummary, groupSpellsByElement } from "../help
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { itemSyncStatus } from "../helpers/item-sync.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
-import { advantageFormula, conditionAdvantage, proneParry } from "../helpers/conditions.mjs";
+import { advantageFormula, conditionAdvantage, proneParry, hasDodge, consumeDodge } from "../helpers/conditions.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -47,6 +49,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       spendAction: function () { return changeActions(this.actor, "spend"); },
       restoreAction: function () { return changeActions(this.actor, "restore"); },
       resetActions: function () { return changeActions(this.actor, "reset"); },
+      combatAction: function (event, target) { event.preventDefault(); return useCombatAction(this.actor, target.dataset.combatAction); },
       contestRoll: IncarnosActorSheet.#onContestRoll,
       editImage: IncarnosActorSheet.#onEditImage,
       itemCreate: IncarnosActorSheet.#onItemCreate,
@@ -96,6 +99,10 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const actorData = actor.toObject(false);
 
     context.actor = actor;
+    context.actionGroups = ["contest", "misc"].map(kind => ({
+      label: game.i18n.localize(`INCARNOS.Actions.${kind}`),
+      actions: ACTIONS.filter(action => action.kind === kind).map(action => ({ id: action.id, label: actionLabel(action), tooltip: actionTooltip(action) }))
+    }));
     context.showActionTracker = actorParticipatesInCombat(actor);
     context.system = actorData.system;
     // Remember the displayed total and its underlying base for safe form edits.
@@ -330,12 +337,14 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       // rolls enough dice to show both cases instead of asking.
       const statuses = this.actor.statuses ?? new Set();
       const proneParryRoll = dataset.check === "parry" && statuses.has("prone");
-      const conditionAdv = dataset.check === "parry" && !proneParryRoll ? conditionAdvantage(statuses, "parry") : { delta: 0, sources: [] };
+      const dodging = dataset.check === "parry" && hasDodge(this.actor);
+      const conditionAdv = dataset.check === "parry" ? conditionAdvantage(statuses, "parry", null, { dodge: dodging }) : { delta: 0, sources: [] };
       const advantageDelta = (advantageSource ? 1 : 0) + conditionAdv.delta;
       const advantageSources = [advantageSource, ...conditionAdv.sources].filter(Boolean).join(", ");
-      const formula = proneParryRoll ? `${statuses.has("hidden") ? 3 : 2}d20` : advantageDelta ? advantageFormula(advantageDelta) : dataset.roll;
+      const formula = proneParryRoll ? `${conditionAdv.delta + 2}d20` : advantageDelta ? advantageFormula(advantageDelta) : dataset.roll;
       const roll = await new Roll(formula, this.actor.getRollData()).evaluate();
-      const parryCases = proneParryRoll ? proneParry(roll.dice[0].results.map(result => result.result), statuses.has("hidden")) : null;
+      if (dodging) await consumeDodge(this.actor);
+      const parryCases = proneParryRoll ? proneParry(roll.dice[0].results.map(result => result.result), conditionAdv.delta) : null;
       const ability = this.actor.system.abilities?.[dataset.stat];
       const value = dataset.check === "parry" ? Number(this.actor.system.attributes?.parry?.value)
         : dataset.check === "save" ? Number(ability?.save) : Number(ability?.value);
@@ -351,7 +360,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         advantage: advantageDelta ? { source: advantageSources, dice: roll.dice[0]?.results.map(result => result.result) ?? [], low: advantageDelta > 0 } : null,
         bonus: saveBonus,
         cases: parryCases ? [{ label: "vs melee", d20: parryCases.melee }, { label: "vs ranged", d20: parryCases.ranged }] : null,
-        casesTag: parryCases ? `Prone${statuses.has("hidden") ? ", Hidden" : ""}` : ""
+        casesTag: parryCases ? `Prone${conditionAdv.sources.length ? `, ${conditionAdv.sources.join(", ")}` : ""}` : ""
       });
       const chatData = { speaker, content: card(true), rolls: [roll.toJSON()], sound: CONFIG.sounds.dice };
       ChatMessage.applyMode(chatData, rollMode);

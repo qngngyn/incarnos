@@ -77,6 +77,14 @@ Contest windows are queued per client, including attack choosers, defender promp
 
 Contest result messages are authored by the actual roller, preserving Dice So Nice player appearance and visibility preferences. The original requester is stored separately for permission checks.
 
+## Combat action buttons
+
+Character and NPC **Profile** tabs have an **Actions** block beside the generic Contest controls. **Contest** offers Shove, Grapple, Escape, Find, Intimidate, Taunt and Scale; **Misc** offers Dodge, Hinder, Hide and Insight. Hover a button for its action-list Play Cheat and **1 AP** cost. Spend AP with the existing −/+ controls; these buttons do not spend it automatically. Reload every connected client with **F5** after installing.
+
+Target exactly one defender for a contest action. The attacker stat is preset (Scale asks for Speed or Dexterity); the defender chooses only an allowed save, with the first preselected. The shared contest board names the action, retains it through tie rerolls, and reports the effect applied once by the elected active GM. Defender wins apply nothing. Shove lets the attacker's owner or GM choose **Knock Prone** or **Pushed 2 m**; move pushed tokens by hand. Scale's size restriction stays manual. Intimidate and Taunt end at the end of the target's next turn; HUD-applied conditions remain untimed. An active GM is required for contest actions and Hinder.
+
+**Dodge** adds a visible temporary effect: +1 Parry advantage, combined with Hidden and Prone, consumed by the next Parry or removed at the start of your next turn. **Hinder** asks the GM to put Hindered on the targeted token; its next attack consumes it. **Hide** rolls under Dexterity and grants Hidden on success. **Insight** requires a targeted enemy and rolls under Intelligence plus `4 − 2 × enemy level` (level 1: +2, level 6: −8, continuing above 6); a success offers the GM-information prompt. Hide and Insight use the usual natural-1 success/natural-20 failure rules. Sight, source-specific condition restrictions and narrative choices remain GM calls.
+
 ## Actions on tokens
 
 Actions belong to the system and are implemented in `module/helpers/action-tracker.mjs`, using the existing `system.actionpoints` resource. New actors start with 3 actions. On loading the world as GM, the former 4-action default is converted to 3 for existing characters/NPCs, including unlinked tokens. Custom pools such as 6 and 9 are preserved. Item passives modifying maximum actions continue to apply.

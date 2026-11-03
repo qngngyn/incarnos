@@ -1,5 +1,6 @@
 import { registerSceneScaleHooks } from "./helpers/scene-scale.mjs";
 import { registerActionTrackerHooks } from "./helpers/action-tracker.mjs";
+import { registerCombatActionHooks } from "./helpers/action-effects.mjs";
 import { registerContestRequestHooks } from "./helpers/contest-requests.mjs";
 import { registerSpellCastHooks } from "./helpers/spell-cast.mjs";
 import { registerTalentHooks } from "./helpers/talents.mjs";
@@ -22,6 +23,7 @@ import { INCARNOS } from "./helpers/config.mjs";
 /* -------------------------------------------- */
 
 registerContestRequestHooks();
+registerCombatActionHooks();
 registerSpellCastHooks();
 registerCriticalFailureHooks();
 registerTalentHooks();

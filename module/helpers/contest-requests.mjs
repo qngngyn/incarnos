@@ -6,6 +6,8 @@
  * queued per board and always rendered from the current data, so concurrent updates cannot overwrite each other.
  * Anyone whose side is still open gets a Roll button on the board (resume after a disconnect); the GM can cancel.
  */
+import { actionById, actionMatchup } from "../data/actions.mjs";
+import { applyContestAction } from "./action-effects.mjs";
 import { renderContestBoard } from "./roll-card.mjs";
 export const CONTEST_STATS = { Strength: "str", Dexterity: "dex", Constitution: "con", Willpower: "wis", Perception: "prc", Speed: "spd", Intelligence: "int", Charisma: "cha" };
 /** Contest improvements stop at d2; invalid stat values cannot produce a roll. */
@@ -79,11 +81,27 @@ export function findBoard(message) {
   return id ? game.messages.get(id) ?? null : null;
 }
 
+/** Action save restrictions come from definitions, never a list supplied by a response. */
+export function contestRequestStats(message) {
+  const data = requestData(message);
+  const action = actionById(boardData(findBoard(message))?.actionId ?? data?.actionId);
+  return action ? (data?.role === "attack" ? action.stats : action.saves) ?? [] : Object.keys(CONTEST_STATS);
+}
+
+function contestActionDisplay(data, outcome = null) {
+  const action = actionById(data.actionId);
+  if (!action?.saves) return {};
+  return { actionTitle: actionMatchup(action, data.stat ?? data.attacker?.stat),
+    note: action.note ? game.i18n.localize(action.note) : "", applied: data.appliedText ?? "",
+    choices: action.effect.choice && !data.applied && !data.cancelled && outcome?.winner === "attack"
+      ? [{ id: "prone", label: game.i18n.localize("INCARNOS.Actions.knockProne") }, { id: "push", label: game.i18n.localize("INCARNOS.Actions.pushed") }] : [] };
+}
+
 /** Initial board for the sheet's contest roll, before any request exists. */
-export function renderNewContestBoard({ stat, attacker, defender = null, note = "" }) {
+export function renderNewContestBoard({ stat, attacker, defender = null, note = "", actionId = null }) {
   const sides = [{ key: attacker.role === "save" ? "save" : "attack", name: attacker.name, img: attacker.img, stat: attacker.stat, value: attacker.value, die: attacker.die, state: "waiting" }];
   if (defender) sides.push({ key: "save", name: defender.name, img: defender.img, stat: "", state: "waiting" });
-  return renderContestBoard({ stat, sides, cancelled: Boolean(note), note });
+  return renderContestBoard({ stat, sides, cancelled: Boolean(note), note, ...contestActionDisplay({ actionId, stat }) });
 }
 
 /** Send a pending saving contest to the defender's owners, attacker and GMs. */
@@ -109,7 +127,8 @@ export async function requestDefenderContest({ attacker, defender, attackMessage
   const data = {
     defenderUuid: actor.uuid, attackerUuid: attacker.uuid, attackMessageId: attackMessage.id,
     boardId: boardData(attackMessage) ? attackMessage.id : requestData(attackMessage)?.boardId ?? null, rollerImg: actor.img ?? null,
-    stat, requestAuthorId: game.user.id, popup: true, recipientUserId: defender.playerId ?? null, status: "pending", defenderName: actor.name, attackerName: attacker.name
+    stat: actionById(boardData(attackMessage)?.actionId)?.saves?.[0] ?? stat,
+    actionId: boardData(attackMessage)?.actionId ?? null, requestAuthorId: game.user.id, popup: true, recipientUserId: defender.playerId ?? null, status: "pending", defenderName: actor.name, attackerName: attacker.name
   };
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }), whisper,
@@ -131,7 +150,7 @@ export async function rollDefenderContest(message) {
       return ui.notifications.warn("A GM must be online to process this contest response.");
     }
     const isAttack = data.role === "attack";
-    const options = Object.keys(CONTEST_STATS)
+    const options = contestRequestStats(message)
       .map(stat => `<option value="${stat}"${stat === data.stat ? " selected" : ""}>${stat}</option>`)
       .join("");
     const stat = await showContestDialog("prompt", {
@@ -148,7 +167,7 @@ export async function rollDefenderContest(message) {
         && owns(actor, game.user);
     });
     if (!stat || requestData(message)?.status !== "pending") return;
-    if (!Object.hasOwn(CONTEST_STATS, stat)) return ui.notifications.warn("Choose a valid saving throw.");
+    if (!contestRequestStats(message).includes(stat)) return ui.notifications.warn("Choose a valid saving throw.");
     const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.[data.role === "attack" ? "value" : "save"]);
     const die = getContestDie(value);
     if (!Number.isInteger(die) || die < 1) return ui.notifications.warn("This defender's saving throw does not produce a valid contest die.");
@@ -178,7 +197,7 @@ export async function completeDefenderContest(message, actor, response, userId) 
   if (actor.uuid !== data.defenderUuid || !CONTEST_STATS[data.stat]) return false;
   if (!user.isGM && data.recipientUserId && data.recipientUserId !== userId) return false;
   const stat = response.stat ?? data.stat; // Pending responses from older clients use the requested stat.
-  if (!Object.hasOwn(CONTEST_STATS, stat) || (data.reroll && stat !== data.stat)) return false;
+  if (!contestRequestStats(message).includes(stat) || (data.reroll && stat !== data.stat)) return false;
   const value = Number(actor.system.abilities?.[CONTEST_STATS[stat]]?.[data.role === "attack" ? "value" : "save"]);
   const die = getContestDie(value);
   if (response.value !== value || !Number.isInteger(die) || die < 1) return false;
@@ -304,11 +323,13 @@ export function refreshBoard(board) {
   const next = (boardQueues.get(board.id) ?? Promise.resolve()).catch(() => {}).then(async () => {
     const current = game.messages.get(board.id) ?? board;
     if (!boardData(current)) return;
+    if (boardData(current)?.actionId) await applyContestAction(current);
     const write = async sides => {
       const data = boardData(current);
       const content = renderContestBoard({
         stat: data.stat ?? data.attacker?.stat ?? sides[0]?.stat, round: data.round ?? 1, sides,
-        outcome: current.flags?.incarnos?.contestOutcome ?? null, cancelled: Boolean(data.cancelled)
+        outcome: current.flags?.incarnos?.contestOutcome ?? null, cancelled: Boolean(data.cancelled),
+        ...contestActionDisplay(data, current.flags?.incarnos?.contestOutcome)
       });
       if (content !== current.content) await current.update({ content });
     };
@@ -377,13 +398,15 @@ export async function resolveContestTie(message) {
         speaker: ChatMessage.getSpeaker({ actor: attacker }),
         whisper: [], blind: false, flavor: "",
         content: renderContestBoard({ stat: data.responseStat ?? data.stat, round: (boardData(board)?.round ?? 1) + 1, sides: [] }),
-        flags: { incarnos: { contestBoard: { round: (boardData(board)?.round ?? 1) + 1, stat: requestData(attackMessage)?.responseStat ?? boardData(board)?.attacker?.stat ?? data.stat } } }
+        flags: { incarnos: { contestBoard: { actionId: boardData(board)?.actionId ?? null,
+          attacker: boardData(board)?.attacker ?? null, defender: boardData(board)?.defender ?? null,
+          round: (boardData(board)?.round ?? 1) + 1, stat: requestData(attackMessage)?.responseStat ?? boardData(board)?.attacker?.stat ?? data.stat } } }
       });
       const attackData = requestData(attackMessage);
       const attackOwner = !attackMessage.author.isGM && owns(attacker, attackMessage.author)
         ? attackMessage.author.id : null;
       const attackRecipient = attackData?.recipientUserId ?? attackOwner;
-      const base = { attackerUuid: data.attackerUuid, attackerName: data.attackerName, defenderName: data.defenderName, boardId: nextBoard.id,
+      const base = { actionId: boardData(board)?.actionId ?? data.actionId ?? null, attackerUuid: data.attackerUuid, attackerName: data.attackerName, defenderName: data.defenderName, boardId: nextBoard.id,
         requestAuthorId: game.user.id, popup: true, reroll: true, previousMessageIds: [attackMessage.id, defenderMessage.id], status: "pending" };
       const createReroll = (actor, recipientUserId, extra) => ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor }),
@@ -516,5 +539,5 @@ export function registerContestRequestHooks() {
     void refreshBoard(findBoard(message));
   });
   // Popups only open from live events; on ready, open contests are resumed from their boards.
-  Hooks.once("ready", () => { void resumeContests(); });
+  Hooks.once("ready", () => resumeContests());
 }

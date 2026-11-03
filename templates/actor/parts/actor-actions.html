@@ -1,0 +1,13 @@
+<div class="combat-actions">
+  <span class="resource-label">{{localize "INCARNOS.Actions.block"}}</span>
+  {{#each actionGroups as |group|}}
+  <div class="combat-action-row">
+    <span class="combat-action-label">{{group.label}}</span>
+    <div class="combat-action-buttons">
+      {{#each group.actions as |action|}}
+      <button type="button" class="ability-mod" data-action="combatAction" data-combat-action="{{action.id}}" title="{{action.tooltip}}" {{#unless @root.editable}}disabled{{/unless}}>{{action.label}}</button>
+      {{/each}}
+    </div>
+  </div>
+  {{/each}}
+</div>

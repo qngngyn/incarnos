@@ -126,8 +126,8 @@ export function renderRollCard({ img, icon, title, tags = "", chip: headChip = "
  * @param {{label: string, d20: number}[]} [cases]  Several readings of one roll (e.g. Prone Parry vs melee / vs ranged).
  * @param {string} [casesTag]  What caused the cases, shown as a tag.
  */
-export function renderCheckCard({ roller, kind, statLabel = "", value, d20, pending = false, advantage = null, bonus = null, cases = null, casesTag = "" }) {
-  const title = kind === "parry" ? "Parry" : kind === "save" ? `${statLabel} save` : `${statLabel} check`;
+export function renderCheckCard({ roller, kind, statLabel = "", value, d20, pending = false, advantage = null, bonus = null, cases = null, casesTag = "", title: actionTitle = "", notes = [] }) {
+  const title = actionTitle || (kind === "parry" ? "Parry" : kind === "save" ? `${statLabel} save` : `${statLabel} check`);
   const icon = kind === "parry" ? "fa-shield" : kind === "save" ? "fa-shield-halved" : "fa-dice-d20";
   const parryChip = (roll, label = "Apply GM modifier") => chip(label, { tone: "note", small: `${roll} vs ${value}`, title: `Parry: rolled ${roll}; succeeds if ${roll} ≤ ${value} + the attack modifier the GM announces` });
   const chips = pending ? [rollingChip()] : cases?.length ? cases.map(item => parryChip(item.d20, item.label))
@@ -139,7 +139,8 @@ export function renderCheckCard({ roller, kind, statLabel = "", value, d20, pend
     icon, title: escape(title),
     tags: escape([advantage ? `${advantage.low === false ? "Disadvantage" : "Advantage"} · ${advantage.source}` : "", casesTag, bonus ? `${bonus.value < 0 ? bonus.value : `+${bonus.value}`} · ${bonus.source}` : ""].filter(Boolean).join(", ")),
     chip: chip(`≤ ${value}`, { tone: "info", title: `Needs ${value} or less` }),
-    rows: [{ img: roller.img, name: roller.name, chips, values }]
+    rows: [{ img: roller.img, name: roller.name, chips, values }],
+    notes: notes.map(note => `<span>${escape(note)}</span>`)
   });
 }
 
@@ -154,13 +155,14 @@ export function renderCheckCard({ roller, kind, statLabel = "", value, d20, pend
  * @param {boolean} [board.cancelled]
  * @param {boolean} [board.canCancel] Show the GM's Cancel button while unresolved.
  */
-export function renderContestBoard({ stat = "", round = 1, sides = [], outcome = null, cancelled = false, canCancel = true, note = "" }) {
+export function renderContestBoard({ stat = "", round = 1, sides = [], outcome = null, cancelled = false, canCancel = true, note = "", actionTitle = "", applied = "", choices = [] }) {
   const rule = "Each side rolls d(20 − stat), at least d2. Lower total wins; a tie means both roll again.";
   const [first, second] = sides;
   const versus = second ? `${escape(first.name)} vs ${escape(second.name)}` : "";
   const winnerKey = outcome?.winner === "attack" ? "attack" : outcome?.winner === "defender" ? "save" : null;
   const winner = sides.find(side => side.key === winnerKey);
-  const title = cancelled ? "Contest cancelled" : outcome?.tie ? "Tie! Both roll again" : winner ? `${escape(winner.name)} wins!` : `${escape(stat || first?.stat || "")} contest`;
+  const resultTitle = cancelled ? "Contest cancelled" : outcome?.tie ? "Tie! Both roll again" : winner ? `${escape(winner.name)} wins!` : `${escape(stat || first?.stat || "")} contest`;
+  const title = actionTitle ? `${escape(actionTitle)}${cancelled || outcome ? ` · ${resultTitle}` : ""}` : resultTitle;
   const rows = sides.map(side => {
     const roleText = side.key === "attack" ? "Attack" : "Save";
     const dieText = Number.isInteger(side.die) ? `d${side.die} = d(20 − ${side.value}). Lower total wins.` : "";
@@ -185,8 +187,8 @@ export function renderContestBoard({ stat = "", round = 1, sides = [], outcome =
     title, tags: versus,
     chip: round > 1 ? chip(`Round ${round}`, { tone: "info", title: "Reroll after a tie" }) : "",
     rows,
-    action: !resolved && canCancel ? `<button type="button" class="isc-contest-cancel" data-incarnos-contest-cancel title="GM: end this contest without a result"><i class="fas fa-ban"></i> Cancel contest</button>` : "",
-    notes: note ? [`<span>${escape(note)}</span>`] : [],
+    action: choices.length ? choices.map(choice => `<button type="button" class="isc-contest-choice" data-incarnos-shove="${escape(choice.id)}">${escape(choice.label)}</button>`).join("") : !resolved && canCancel ? `<button type="button" class="isc-contest-cancel" data-incarnos-contest-cancel title="GM: end this contest without a result"><i class="fas fa-ban"></i> Cancel contest</button>` : "",
+    notes: [note, applied].filter(Boolean).map(text => `<span>${escape(text)}</span>`),
     hint: rule,
     cls: "isc-contest"
   });

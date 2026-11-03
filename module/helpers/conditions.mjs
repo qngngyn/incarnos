@@ -33,14 +33,14 @@ export const asleepAfterActions = (tokens, spent) => Math.max(0, tokens - Math.m
 
 /**
  * Prone Parry without asking: roll enough d20s and read both cases. Against melee it is disadvantage, against ranged
- * advantage; Hidden adds advantage to both.
- * @param {number[]} dice  d20 results (2 dice, or 3 when Hidden).
- * @param {boolean} hidden
+ * advantage; Hidden and Dodge each add advantage to both.
+ * @param {number[]} dice  d20 results (2 plus the number of advantage sources).
+ * @param {number|boolean} advantage  Number of advantage sources (legacy Hidden boolean also works).
  * @returns {{melee: number, ranged: number}}
  */
-export function proneParry(dice, hidden = false) {
-  const [a, b, c] = dice;
-  return hidden ? { melee: a, ranged: Math.min(a, b, c) } : { melee: Math.max(a, b), ranged: Math.min(a, b) };
+export function proneParry(dice, advantage = 0) {
+  const extra = Number(advantage);
+  return { melee: extra ? Math.min(...dice.slice(0, extra)) : Math.max(...dice), ranged: Math.min(...dice) };
 }
 
 /** Damage while asleep halves the sleep tokens, but not below 2 (fewer tokens stay as they are). */
@@ -53,11 +53,12 @@ export const asleepAfterDamage = tokens => Math.max(Math.min(tokens, 2), Math.fl
  * @param {"melee"|"ranged"|null} [against]  For Parry: the kind of attack being parried (Prone).
  * @returns {{delta: number, sources: string[]}}
  */
-export function conditionAdvantage(statuses, kind, against = null) {
+export function conditionAdvantage(statuses, kind, against = null, { dodge = false } = {}) {
   const has = id => (statuses instanceof Set ? statuses.has(id) : statuses?.includes?.(id));
   let delta = 0;
   const sources = [];
   if (has("hidden")) { delta += 1; sources.push("Hidden"); }
+  if (kind === "parry" && dodge) { delta += 1; sources.push("Dodge"); }
   if (kind === "attack" && has("hindered")) { delta -= 1; sources.push("Hindered"); }
   if (kind === "parry" && has("prone") && against) { delta += against === "ranged" ? 1 : -1; sources.push("Prone"); }
   return { delta, sources };
@@ -188,10 +189,15 @@ export const defaultRegenFormula = level => `1d6 + ${Math.max(0, Number(level) |
 
 const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
-/** Only source-timed Immobilized counts down, at the end of this combatant's turn. HUD counters alone aren't durations. */
-export async function endOfTurn(actor) {
-  if (statusEffect(actor, "immobilized")?.getFlag("incarnos", "timed") !== true) return;
-  await setConditionTokens(actor, "immobilized", conditionTokens(actor, "immobilized") - 1);
+/** Expire action conditions after the next turn and count down source-timed Immobilized. HUD durations stay manual. */
+export async function endOfTurn(actor, turn = null) {
+  for (const effect of [...(actor.effects ?? [])]) {
+    if (effect.getFlag("incarnos", "untilEndOfTurn") === true
+      && (!turn || effect.getFlag("incarnos", "appliedTurn") !== turn)) await effect.delete();
+  }
+  if (statusEffect(actor, "immobilized")?.getFlag("incarnos", "timed") === true) {
+    await setConditionTokens(actor, "immobilized", conditionTokens(actor, "immobilized") - 1);
+  }
 }
 
 /**
@@ -201,6 +207,7 @@ export async function endOfTurn(actor) {
  * - every other active condition is listed with what it does (Asleep with its tokens, Prone, Grappled, …).
  */
 export async function startOfTurn(actor) {
+  await consumeDodge(actor);
   const entries = [];
   for (const id of DAMAGE_TOKEN_CONDITIONS) {
     const tokens = conditionTokens(actor, id);
@@ -323,7 +330,7 @@ export function registerConditionHooks() {
     const previous = prior?.round > 0 ? combat.combatants.get(prior.combatantId)?.actor : null;
     const actor = combat.combatants.get(current.combatantId)?.actor;
     void (async () => {
-      if (previous && isWriter(previous)) await endOfTurn(previous);
+      if (previous && isWriter(previous)) await endOfTurn(previous, `${combat.id}:${prior.round}:${prior.turn}`);
       if (actor && isWriter(actor)) await startOfTurn(actor);
     })().catch(error => console.error("Incarnos | turn conditions", error));
   });
@@ -390,4 +397,30 @@ export async function applyAttackConditions(actor, conditions = []) {
 /** Hindered lasts for one attack: remove it after an attack roll. */
 export async function consumeHindered(actor) {
   if (actor?.statuses?.has("hindered")) await actor.toggleStatusEffect("hindered", { active: false });
+}
+
+/** Dodge is a temporary ActiveEffect, separate from token-HUD status conditions. */
+export const dodgeEffects = actor => [...(actor?.effects ?? [])].filter(effect => effect.getFlag("incarnos", "dodge") === true);
+export const hasDodge = actor => dodgeEffects(actor).some(effect => !effect.disabled && !effect.isSuppressed);
+export async function consumeDodge(actor) {
+  for (const effect of dodgeEffects(actor)) await effect.delete();
+}
+export async function applyDodge(actor) {
+  await consumeDodge(actor);
+  return actor.createEmbeddedDocuments("ActiveEffect", [{
+    name: game.i18n.localize("INCARNOS.Actions.dodge"), img: "icons/svg/shield.svg",
+    duration: { rounds: 1 }, flags: { incarnos: { dodge: true } }
+  }]);
+}
+
+/** Preserve an existing HUD condition's indefinite duration. Repeated timed sources refresh the next-turn expiry. */
+export async function applyActionCondition(actor, id, { untilEndOfTurn = false } = {}) {
+  const existing = statusEffect(actor, id);
+  await applyAttackConditions(actor, [{ id }]);
+  const effect = statusEffect(actor, id);
+  if (untilEndOfTurn && effect && (!existing || existing.getFlag("incarnos", "untilEndOfTurn") === true)) {
+    const combat = game.combat;
+    await effect.update({ "flags.incarnos.untilEndOfTurn": true,
+      "flags.incarnos.appliedTurn": combat ? `${combat.id}:${combat.round}:${combat.turn}` : null });
+  }
 }

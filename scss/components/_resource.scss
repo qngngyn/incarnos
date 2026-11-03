@@ -42,3 +42,11 @@
   .parry-resource input { flex: 0 0 4.5ch; width: 4.5ch; min-width: 4.5ch; padding: 0 2px; text-align: center; }
   .parry-resource .parry-modifier { flex: 0 0 auto; margin-left: 0; }
 }
+
+// Compact action rows shared by character and NPC profiles.
+.combat-actions { grid-column: 1 / -1; min-width: 0; margin-top: 8px; }
+.combat-actions > .resource-label { font-size: 12px; }
+.combat-action-row { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+.combat-action-label { flex: 0 0 48px; font-size: 11px; opacity: 0.75; }
+.combat-action-buttons { display: flex; flex: 1; flex-wrap: wrap; gap: 3px; min-width: 0; }
+.combat-action-buttons button { flex: 0 0 auto; width: auto; min-height: 24px; margin: 0; padding: 0 5px; font-size: 11px; line-height: 22px; }
