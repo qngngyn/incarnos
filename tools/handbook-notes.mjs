@@ -107,7 +107,9 @@ export function convertHandbookNote(markdown, { path, notes = [], pages = HANDBO
     html: token => safeRawHtml(token.text),
     link(token) {
       const text = this.parser.parseInline(token.tokens);
-      return safeUrl(token.href) ? `<a href="${escapeHtml(token.href)}"${token.title ? ` title="${escapeHtml(token.title)}"` : ""}>${text}</a>` : text;
+      // Web links (Google Sheets) open in a new tab instead of replacing the Foundry window.
+      const external = /^https?:\/\//i.test(token.href) ? ' target="_blank" rel="noopener noreferrer"' : "";
+      return safeUrl(token.href) ? `<a href="${escapeHtml(token.href)}"${token.title ? ` title="${escapeHtml(token.title)}"` : ""}${external}>${text}</a>` : text;
     },
     image: token => escapeHtml(token.text) // Embedded assets are labels, never copied out of the vault.
   } });
@@ -142,7 +144,8 @@ export function convertHandbookNote(markdown, { path, notes = [], pages = HANDBO
         // The link reads as the page name ("Character Creation"), not the Discord channel.
         if (channel) return placeholder(wiki(channels[channel], noteName(channels[channel])));
         const value = listLink ?? inlineLink;
-        const [target, ...alias] = value.split("|");
+        // Inside Obsidian tables the alias pipe is escaped: [[path\|label]].
+        const [target, ...alias] = value.replace(/\\\|/g, "|").split("|");
         const label = alias.length ? alias.join("|") : noteName(target.split("#")[0]);
         const embedded = embed === "!" || (list && raw.trimStart().replace(/^(?:[-+*]|\d+[.)])\s+/, "").startsWith("!"));
         if (list && !embedded) {

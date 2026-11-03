@@ -58,6 +58,16 @@ test("page, heading, full path and bare-name links use stable page UUIDs, even i
   assert.match(result.html, /first<br>second/);
 });
 
+test("escaped alias pipes in Obsidian tables keep the link and the column count; web links open a new tab", () => {
+  const path = "Rules/Incarnos Rules.md";
+  const markdown = "# Title\n\n| Want | Go to |\n| --- | --- |\n| rules | [[System Files/Rules/Incarnos Rules\\|The rules]] |\n| sheet | [Sheet](https://example.test/s) |";
+  const result = convert(markdown, { notes: [note(path)] });
+  assert.equal(result.links, 1);
+  assert.ok(result.html.includes(`<td>@UUID[${pageUuid(path)}]{The rules}</td>`));
+  assert.equal((result.html.match(/<th>/g) ?? []).length, 2);
+  assert.match(result.html, /<a href="https:\/\/example\.test\/s" target="_blank" rel="noopener noreferrer">Sheet<\/a>/);
+});
+
 test("weapon, talent, race and nested spell links find item source IDs by name, preserving trailing dots", () => {
   const notes = [note("Listen/Weapons/Sword.md"), note("Listen/Talents/Talent.md"), note("Listen/Races/Race.md"), note("Listen/Spells/Dream/Go to Sleep...md")];
   const items = { weapons: [item("Sword", "w")], talents: [item("Talent", "t")], races: [item("Race", "r")], spells: [item("Go to Sleep..", "s")] };
