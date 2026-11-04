@@ -304,3 +304,26 @@ test("monster attack conditions carry Immobilized duration metadata through to A
     assert.match(env.updates[0].content, timed ? />Immobilized 2</ : />Immobilized</);
   }
 });
+
+test("Bloody Claws upgrades Unarmed: a hit carries Bleed 2d6 for 3 turns to Apply; other weapons stay as they are", async () => {
+  const talent = { type: "feature", name: "Bloody Claws", system: { bonus: "Unarmed attacks inflict bleeding status:\n2d6 dmg at the beginning of the victim's turn for 3 turns" } };
+  for (const [name, upgraded] of [["Unarmed", true], ["Longsword", false]]) {
+    const env = setup([3, 2]);
+    game.user.targets = new Set();
+    await rollWeaponAttackAction({
+      item: { name, actor: { items: [talent] }, system: { attackMode: "ranged", modifier: 0, damage: "1d4" } },
+      rollData: { abilities: { dex: { value: 10 } } },
+      speaker: {}, rollMode: "publicroll", attackId: "shoot", mode: "ranged", parryModifiers: [0]
+    });
+    const conditions = env.cards[0].flags.incarnos.spellCast.targets[0].conditions;
+    const card = env.updates[0].content;
+    if (upgraded) {
+      assert.deepEqual(conditions, [{ id: "bleed", name: "Bleed 2d6 for 3 turns", tokens: 3, damage: "2d6", label: true }]);
+      assert.match(card, />Bleed 2d6 for 3 turns</);
+      assert.match(card, /Bloody Claws: Bleed 2d6 for 3 turns/);
+    } else {
+      assert.deepEqual(conditions, []);
+      assert.doesNotMatch(card, /Bloody Claws/);
+    }
+  }
+});

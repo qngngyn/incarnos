@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  applyTalentRules, describeTalent, getTalentRules, getTalentSummary, isSpectacle, parseTalentPassives, parseTalentRules
+  applyTalentRules, describeTalent, getTalentRules, getTalentSummary, isSpectacle, isUnarmedWeapon, parseTalentPassives, parseTalentRules
 } from "../module/helpers/talents.mjs";
 import { parseTalentNote, talentsToDocuments } from "../tools/talent-notes.mjs";
 import { renderCheckCard } from "../module/helpers/roll-card.mjs";
@@ -22,7 +22,7 @@ test("save advantage, darkvision and Impressive Spectacle are read from the Bonu
   assert.equal(parseTalentRules("Vision up to 9m in Darkness").darkvision, 9);
   assert.deepEqual(parseTalentRules("If you attack with a one-handed weapon, and you succeed an attack by over 10 (e.g. …), your damage is doubled for this attack.").spectacle, { margin: 10 });
   assert.deepEqual(parseTalentRules("You have advantage on survival checks"),
-    { saveAdvantage: [], saveBonus: null, darkvision: 0, spectacle: null, movementMultiplier: 1, hpMagic: false });
+    { saveAdvantage: [], saveBonus: null, darkvision: 0, spectacle: null, movementMultiplier: 1, hpMagic: false, unarmedCondition: null });
 });
 
 test("actor rules combine all talents and name the source; other item types are ignored", () => {
@@ -148,4 +148,16 @@ test("vault Abomination race notes preserve IP text and enable the live HP conve
   const system = { health: { max: 20 }, power: { max: 9, value: 4 } };
   applyTalentRules(system, rules, "resources");
   assert.deepEqual(system, { health: { max: 29 }, power: { max: 0, value: 0 } });
+});
+
+test("Bloody Claws: unarmed attacks get a bleed that rolls 2d6 for 3 turns; Unarmed and Claws count as unarmed", () => {
+  const bonus = "Unarmed attacks inflict bleeding status:\n2d6 dmg at the beginning of the victim's turn for 3 turns";
+  assert.deepEqual(parseTalentRules(bonus).unarmedCondition, { id: "bleed", damage: "2d6", turns: 3 });
+  assert.deepEqual(getTalentRules([{ type: "feature", name: "Bloody Claws", system: { bonus } }]).unarmedCondition,
+    { id: "bleed", damage: "2d6", turns: 3, source: "Bloody Claws" });
+  assert.match(describeTalent({ bonus }), /unarmed hits: Bleed 2d6 for 3 turns/);
+  assert.equal(parseTalentRules("+2 Strength").unarmedCondition, null);
+  assert.equal(isUnarmedWeapon({ name: "Unarmed" }), true);
+  assert.equal(isUnarmedWeapon({ name: "Claws" }), true);
+  assert.equal(isUnarmedWeapon({ name: "Longsword" }), false);
 });

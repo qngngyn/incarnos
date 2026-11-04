@@ -2,7 +2,7 @@ import { waitForContestAnimations } from "../helpers/contest-requests.mjs";
 import { castSpell } from "../helpers/spell-cast.mjs";
 import { payActions } from "../helpers/action-tracker.mjs";
 import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
-import { getTalentRules, getTalentSummary, isSpectacle } from "../helpers/talents.mjs";
+import { getTalentRules, getTalentSummary, isSpectacle, isUnarmedWeapon, unarmedConditionLabel } from "../helpers/talents.mjs";
 import { isPlayerSide, isPvpHit, modifierForRoller } from "../helpers/modifiers.mjs";
 import { conditionAdvantage, consumeHindered, parseAttackConditions } from "../helpers/conditions.mjs";
 import {
@@ -243,6 +243,9 @@ export async function rollWeaponAttackAction({
       if (tokenRoll) rolls.push(tokenRoll);
       conditions.push({ id, name, ...(tokenRoll ? { tokens: tokenRoll.total } : {}), ...(timed !== undefined ? { timed } : {}) });
     }
+    // Bloody Claws (talent): unarmed hits put a condition that rolls its damage each turn, tokens = turns.
+    const unarmed = talents.unarmedCondition && isUnarmedWeapon(item) ? talents.unarmedCondition : null;
+    if (success && unarmed) conditions.push({ id: unarmed.id, name: unarmedConditionLabel(unarmed), tokens: unarmed.turns, damage: unarmed.damage, label: true });
     const token = tokenFor(i);
     // PvP rules, as for spells: a player's attack hitting another player character deals half damage.
     const pvp = isPvpHit(item.actor, token?.actor) && Boolean(damageRoll);
@@ -283,6 +286,12 @@ export async function rollWeaponAttackAction({
   return rolls;
 }
 
+/** "Bloody Claws: Bleed 2d6 for 3 turns" when a talent upgrades this unarmed attack. */
+function upgradedBy(item) {
+  const unarmed = isUnarmedWeapon(item) ? getTalentRules(item.actor?.items).unarmedCondition : null;
+  return unarmed ? `${unarmed.source}: ${unarmedConditionLabel(unarmed)}` : "";
+}
+
 /** Weapon attack chat card on the shared roll card layout. */
 export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending = false, rules = getWeaponRules(item.system), twoHanded = false, criticalFailureLabel, paidActions = 0 }) {
   const advantage = advantageDice
@@ -292,7 +301,7 @@ export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityV
   const forHeroes = item.actor && !isPlayerSide(item.actor) ? ` (${formatSignedNumber(Number(item.system?.modifier ?? 0))} for heroes)` : "";
   const facts = [paidActions ? game.i18n.format("INCARNOS.Actions.paid", { cost: paidActions }) : "",
     `Weapon ${formatSignedNumber(weaponModifier)}${forHeroes}`, twoHanded ? "Two-handed" : "", advantage,
-    attack.parry?.apply === false ? "Ignores Parry" : "", rules.poorPrecision ? "Poor Precision" : ""]
+    attack.parry?.apply === false ? "Ignores Parry" : "", rules.poorPrecision ? "Poor Precision" : "", upgradedBy(item)]
     .filter(Boolean).map(escapeCard).join(" · ");
   const rows = results.map((result, index) => {
     if (pending) return { img: result.img, name: result.name, chips: [rollingChip()] };
@@ -306,8 +315,8 @@ export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityV
       chips: [checkChip(result.check, { pass: "Hit", fail: "Miss", label: `${statLabel} ${abilityValue} ${formatSignedNumber(weaponModifier)} weapon${modifierText}` }),
         result.spectacle ? cardChip("×2", { tone: "crit", title: `${result.spectacle.source}: one-handed hit rolled ${result.spectacle.margin}+ under the target number, damage doubled` }) : "",
         result.pvp ? cardChip("PvP ½", { title: "PvP rules: damage halved" }) : "",
-        ...(result.conditions ?? []).map(condition => cardChip(`${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, {
-          tone: "note", title: `${condition.name}${condition.tokens ? ` (${condition.tokens} tokens)` : ""}: applied to the target together with the damage (Apply)` }))]
+        ...(result.conditions ?? []).map(condition => cardChip(condition.label ? condition.name : `${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, {
+          tone: "note", title: `${condition.name}${condition.tokens && !condition.label ? ` (${condition.tokens} tokens)` : ""}: applied to the target together with the damage (Apply)` }))]
     };
   });
   const damaged = pending ? [] : results.filter(result => result.damageRoll);

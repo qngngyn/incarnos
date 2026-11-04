@@ -212,6 +212,15 @@ export async function startOfTurn(actor) {
   for (const id of DAMAGE_TOKEN_CONDITIONS) {
     const tokens = conditionTokens(actor, id);
     if (!statusEffect(actor, id) || tokens <= 0) continue;
+    // A source with its own damage per turn (Bloody Claws: "2d6 … for 3 turns") rolls it; tokens count the turns left.
+    const formula = statusEffect(actor, id).getFlag("incarnos", "damage");
+    if (formula) {
+      const roll = await new Roll(String(formula)).evaluate();
+      entries.push({ condition: id, kind: "damage", amount: roll.total, formula: `${roll.formula} = ${roll.result}`,
+        text: `${roll.total} damage (${roll.formula}). ${tokens - 1 ? `${plural(tokens - 1, "turn")} left.` : "It ends."}` });
+      await setConditionTokens(actor, id, tokens - 1);
+      continue;
+    }
     const tick = tickDamageTokens(tokens);
     entries.push({ condition: id, kind: "damage", amount: tick.damage,
       text: `${tick.damage} damage (1 per token). ${tick.remaining ? `${plural(tick.remaining, "token")} left.` : "It ends."}` });
@@ -375,8 +384,14 @@ export function registerConditionHooks() {
  * @param {{id: string, tokens?: number, timed?: boolean, heal?: string}[]} conditions  Immobilized durations explicitly carry timed: true.
  */
 export async function applyAttackConditions(actor, conditions = []) {
-  for (const { id, tokens, heal, timed } of conditions) {
+  for (const { id, tokens, heal, timed, damage } of conditions) {
     if (!conditionById(id)) continue;
+    if (damage && DAMAGE_TOKEN_CONDITIONS.includes(id)) {
+      // Bloody Claws: tokens count the turns and each turn rolls the source's damage; a new source refreshes the turns.
+      await setConditionTokens(actor, id, Math.max(conditionTokens(actor, id), Math.max(1, Number(tokens) || 1)));
+      await statusEffect(actor, id)?.setFlag("incarnos", "damage", damage);
+      continue;
+    }
     if (id === "immobilized") {
       const existing = statusEffect(actor, id);
       if (timed === true && (!existing || existing.getFlag("incarnos", "timed") === true)) {

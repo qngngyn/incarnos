@@ -85,15 +85,26 @@ export function parseTalentRules(bonus = "") {
   const vision = text.match(/vision up to (\d+(?:[.,]\d+)?)\s*m in darkness/i);
   // Impressive Spectacle: "If you attack with a one-handed weapon, and you succeed an attack by over 10 (…), your damage is doubled".
   const spectacle = text.match(/one-handed weapon[\s\S]*?succeed an attack by over (\d+)[\s\S]*?damage is doubled/i);
+  // Bloody Claws: "Unarmed attacks inflict bleeding status: 2d6 dmg at the beginning of the victim's turn for 3 turns".
+  const unarmed = text.match(/unarmed attacks inflict (bleed(?:ing)?|burn(?:ing)?|poison(?:ed)?) status:?\s*(\d*d\d+(?:\s*[+-]\s*\d+)?)\s*dmg[\s\S]*?for (\d+) turns/i);
+  const unarmedId = unarmed && { bleed: "bleed", burn: "burn", poison: "poisoned" }[unarmed[1].toLowerCase().replace(/ing$|ed$/, "")];
   return {
     saveAdvantage, saveBonus, darkvision: vision ? number(vision[1]) : 0, spectacle: spectacle ? { margin: Number(spectacle[1]) } : null,
-    movementMultiplier: multiplier ? number(multiplier[1]) : 1, hpMagic
+    movementMultiplier: multiplier ? number(multiplier[1]) : 1, hpMagic,
+    unarmedCondition: unarmedId ? { id: unarmedId, damage: unarmed[2].replace(/\s+/g, ""), turns: Number(unarmed[3]) } : null
   };
 }
 
+/** "Bleed 2d6 for 3 turns" */
+export const unarmedConditionLabel = ({ id, damage, turns }) =>
+  `${{ bleed: "Bleed", burn: "Burn", poisoned: "Poisoned" }[id] ?? id} ${damage} for ${turns} turns`;
+
+/** Weapons that count as unarmed attacks for talents like Bloody Claws: Unarmed and natural Claws. */
+export const isUnarmedWeapon = item => /^(unarmed|claws?)$/i.test(String(item?.name ?? "").trim());
+
 /** Combined live rules of an actor's talents and race, each tagged with the talent or race that gives it. */
 export function getTalentRules(items = []) {
-  const rules = { saveAdvantage: {}, saveBonus: {}, darkvision: 0, darkvisionSource: "", spectacle: null, movementMultiplier: null, hpMagic: null };
+  const rules = { saveAdvantage: {}, saveBonus: {}, darkvision: 0, darkvisionSource: "", spectacle: null, movementMultiplier: null, hpMagic: null, unarmedCondition: null };
   for (const item of items ?? []) {
     if (!BONUS_ITEM_TYPES.includes(item?.type)) continue;
     const parsed = parseTalentRules(item.system?.bonus);
@@ -106,6 +117,7 @@ export function getTalentRules(items = []) {
     if (parsed.hpMagic && !rules.hpMagic) rules.hpMagic = { source: item.name };
     if (parsed.darkvision > rules.darkvision) Object.assign(rules, { darkvision: parsed.darkvision, darkvisionSource: item.name });
     if (parsed.spectacle && !rules.spectacle) rules.spectacle = { ...parsed.spectacle, source: item.name };
+    if (parsed.unarmedCondition && !rules.unarmedCondition) rules.unarmedCondition = { ...parsed.unarmedCondition, source: item.name };
   }
   return rules;
 }
@@ -163,6 +175,7 @@ export function talentRuleLabels(bonus = "") {
   if (rules.hpMagic) labels.push("no IP: Max IP is added to Max HP and spells cost HP");
   if (rules.darkvision) labels.push(`darkvision ${rules.darkvision} m on the token`);
   if (rules.spectacle) labels.push(`one-handed hits rolled ${rules.spectacle.margin}+ under the target number deal double damage`);
+  if (rules.unarmedCondition) labels.push(`unarmed hits: ${unarmedConditionLabel(rules.unarmedCondition)}`);
   return labels;
 }
 

@@ -282,3 +282,21 @@ test("Immobilized and Grappled stop player movement with the existing warning st
   }
   assert.equal(hook({ actor: { statuses: new Set() } }, { x: 100 }), undefined);
 });
+
+test("Bloody Claws bleed: tokens count the turns and each start of turn rolls the source's damage", async () => {
+  const { applyAttackConditions, conditionTokens, startOfTurn, statusEffect } = CONDITION_HELPERS;
+  const actor = immobilizedActor();
+  await applyAttackConditions(actor, [{ id: "bleed", tokens: 3, damage: "2d6" }]);
+  assert.equal(conditionTokens(actor, "bleed"), 3);
+  assert.equal(statusEffect(actor, "bleed").getFlag("incarnos", "damage"), "2d6");
+  await applyAttackConditions(actor, [{ id: "bleed", tokens: 3, damage: "2d6" }]);
+  assert.equal(conditionTokens(actor, "bleed"), 3, "a second hit refreshes the turns instead of stacking them");
+  const gm = { id: "gm", active: true, isGM: true };
+  globalThis.game = { user: gm, users: [gm] };
+  globalThis.Roll = class { constructor(formula) { this.formula = formula; } async evaluate() { this.total = 7; this.result = "3 + 4"; return this; } };
+  const prompts = [];
+  globalThis.ChatMessage = { getSpeaker: () => ({}), create: async data => prompts.push(data) };
+  await startOfTurn(actor);
+  assert.equal(conditionTokens(actor, "bleed"), 2);
+  assert.match(prompts[0].content, /7 damage \(2d6\)\. 2 turns left\./);
+});
