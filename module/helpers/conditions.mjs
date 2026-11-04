@@ -245,7 +245,30 @@ export async function startOfTurn(actor) {
   }
   if (!entries.length && !infos.length) return;
   const notes = statusEffect(actor, "burn") ? ["Burn: 1 AP to put out the flames (or water) removes all Burn tokens."] : [];
+  // Bleed hits by itself (no Apply button); a creature that bleeds to 0 HP dies.
+  for (const entry of entries.filter(entry => AUTO_DAMAGE_CONDITIONS.includes(entry.condition) && entry.amount > 0)) {
+    await actor.update({ "system.health.value": getHealthAfter(actor.system.health, entry.amount, "damage") });
+    entry.applied = true;
+  }
+  if (entries.some(entry => entry.applied) && Number(actor.system.health?.value) <= 0) {
+    await markDead(actor);
+    notes.unshift(`${actor.name} bled out and is dead.`);
+  }
   return postHealthPrompt(actor, "Start of turn", entries, notes, infos);
+}
+
+/** Damage-over-time conditions whose damage is dealt at once at the start of the turn instead of offered with Apply. */
+export const AUTO_DAMAGE_CONDITIONS = ["bleed"];
+
+/** Dead: Foundry's defeated status (skull overlay) on the actor and every combatant of it marked defeated. */
+export async function markDead(actor) {
+  const dead = CONFIG.specialStatusEffects?.DEFEATED ?? "dead";
+  if (!actor.statuses?.has(dead)) await actor.toggleStatusEffect(dead, { active: true, overlay: true });
+  for (const combat of game.combats ?? []) {
+    for (const combatant of combat.combatants ?? []) {
+      if (combatant.actor === actor && !combatant.defeated) await combatant.update({ defeated: true });
+    }
+  }
 }
 
 /** Users who see a private prompt for an actor: its owners and the GMs. */
@@ -267,7 +290,9 @@ export async function postHealthPrompt(actor, title, entries, notes = [], infos 
         img: conditionById(entry.condition)?.img, name: conditionById(entry.condition)?.name ?? entry.kind,
         chips: [chip(entry.kind === "heal" ? "Heal" : "Damage", { tone: entry.kind === "heal" ? "good" : "bad", title: entry.formula || entry.text })],
         detail: entry.text,
-        values: entry.amount ? [amount(entry.amount, { kind: entry.kind }) + healthPromptButton(entry, index)] : []
+        // Already dealt (Bleed): a check mark instead of the Apply button.
+        values: entry.amount ? [amount(entry.amount, { kind: entry.kind }) + (entry.applied
+          ? '<span class="isc-apply isc-done" title="Dealt automatically"><i class="fas fa-check"></i></span>' : healthPromptButton(entry, index))] : []
       })),
       ...infos.map(info => ({ img: conditionById(info.condition)?.img, name: conditionById(info.condition)?.name ?? info.condition, detail: info.text, values: [] }))
     ],

@@ -11,7 +11,7 @@ export const CONDITIONS = [
     "id": "bleed",
     "name": "Bleed",
     "img": "icons/svg/blood.svg",
-    "description": "You get that many Bleed tokens. At the start of your turn you take 1 damage per Bleed token, then remove 1 token. Any healing removes all Bleed tokens.",
+    "description": "You get that many Bleed tokens. At the start of your turn you take 1 damage per Bleed token, then remove 1 token. Any healing removes all Bleed tokens. If Bleed brings you to 0 HP, you bleed out and die.",
     "tokens": true
   },
   {
