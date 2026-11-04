@@ -19,10 +19,23 @@
 
     {{!-- Spell Tab --}}
     <div class="tab spell {{tabs.spell.cssClass}}" data-group="{{tabs.spell.group}}" data-tab="{{tabs.spell.id}}">
+      {{#if spellOptions.length}}
+      <div class="spell-options">
+        {{#each spellOptions}}
+        <fieldset class="spell-option">
+          <legend>{{name}}</legend>
+          <p>{{summary}}</p>
+          <div class="spell-option-effect">{{effect}}</div>
+        </fieldset>
+        {{/each}}
+      </div>
+      <details><summary>{{localize "INCARNOS.SpellOptions.edit"}}</summary>
+      {{/if}}
       <label class="resource spell-effect-field">
         <span class="resource-label">{{localize "INCARNOS.Effect"}}</span>
         <textarea name="system.effect" rows="8" placeholder="On hit: Deals 3d6 + (lvl * 2) fire dmg">{{system.effect}}</textarea>
       </label>
+      {{#if spellOptions.length}}</details>{{/if}}
       <div class="spell-fields">
         <div class="resource">
           <label class="resource-label">Element</label>

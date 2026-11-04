@@ -1,5 +1,5 @@
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
-import { SPELL_ACTION_TYPES, describeSpellAutomation, getSpellAutomation } from "../helpers/spells.mjs";
+import { SPELL_ACTION_TYPES, describeSpellAutomation, getSpellAutomation, getSpellOptions, getSpellSummary } from "../helpers/spells.mjs";
 import { describeWeaponRules, getWeaponRules } from "../helpers/weapons.mjs";
 import { describeTalent, talentRulePassives } from "../helpers/talents.mjs";
 import { isPlayerSide } from "../helpers/modifiers.mjs";
@@ -143,6 +143,7 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     if (item.type === "spell") {
       context.system.actionType ??= "action";
       context.spellAutomationText = describeSpellAutomation(getSpellAutomation(item.system));
+      context.spellOptions = getSpellOptions(item.system).map(option => ({ ...option, summary: getSpellSummary(option) }));
       context.spellActionTypes = SPELL_ACTION_TYPES;
     }
 

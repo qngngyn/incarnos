@@ -1,5 +1,5 @@
 /** Chat card for a cast spell, built on the shared roll card layout. */
-import { SPELL_STATS } from "./spells.mjs";
+import { SPELL_STATS, getSpellOptionSystem } from "./spells.mjs";
 import { amount, applyAllButton, applyButton, checkChip, chip, criticalFailureButton, escape, renderRollCard, rollingChip } from "./roll-card.mjs";
 import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 
@@ -20,8 +20,9 @@ export { damageIcon } from "./roll-card.mjs";
  * @param {boolean} [card.pending]      Dice still rolling: show targets without outcomes.
  * @returns {string}
  */
-export function renderSpellCard({ name, img, system = {}, auto = {}, paid = {}, damage = null, critDamage = null, heal = null, results = [], attackLabel = "Attack", pending = false, criticalFailureLabel, summon = null }) {
-  const tags = [system.element, system.category].filter(Boolean).map(escape).join(" · ");
+export function renderSpellCard({ name, img, system = {}, option = null, auto = {}, paid = {}, damage = null, critDamage = null, heal = null, results = [], attackLabel = "Attack", pending = false, criticalFailureLabel, summon = null }) {
+  system = getSpellOptionSystem(system, option);
+  const tags = [system.element, system.category, option?.name].filter(Boolean).map(escape).join(" · ");
   const cost = [paid.mp ? `${paid.mp} IP` : "", paid.hp ? `${paid.hp} HP` : "", paid.actions ? `${paid.actions} AP` : ""].filter(Boolean).join(" · ");
   const facts = [...new Set([system.range, system.target, system.check, system.duration].map(value => String(value ?? "").trim()).filter(Boolean))].map(escape).join(" · ");
   const resolves = Boolean(auto.attackStat || auto.saveStat || auto.damage || auto.heal);
@@ -73,7 +74,7 @@ export function renderSpellCard({ name, img, system = {}, auto = {}, paid = {}, 
   const flavourLabel = globalThis.game?.i18n?.localize("INCARNOS.Flavour") ?? "Flavour";
 
   return renderRollCard({
-    img, title: escape(name), tags, facts, rows, notes,
+    img, title: escape(option ? `${name} — ${option.name}` : name), tags, facts, rows, notes,
     effect: effect ? `<span class="isc-effect-label">${escape(effectLabel)}</span><p class="isc-effect">${escape(effect).replace(/\n/g, "<br>")}</p>` : "",
     chip: cost ? chip(cost, { tone: "info", title: "Paid" }) : "",
     empty: resolves && !results.length ? (auto.areaShape ? "No one in the area." : "No targets.") : "",

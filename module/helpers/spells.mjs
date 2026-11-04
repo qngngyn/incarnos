@@ -21,6 +21,70 @@ const DAMAGE_TYPES = /\b(fire|water|air|earth|thunder|lightning|blood|poison|lig
 const meters = text => Number(String(text).replace(",", "."));
 const toFormula = dice => dice.replace(/\s+/g, " ").trim().replace(/\blvl\b/g, "@lvl");
 
+/** Card subheaders are either range · target or check · duration. A dash inherits the default. */
+function optionFields(line) {
+  const parts = line.split("·").map(part => part.trim());
+  if (parts.length !== 2) return null;
+  const [left, right] = parts;
+  if (/^(?:[\d.,]+\s*m\b|Self\b|Touch\b)/i.test(left)) return { range: left, target: right };
+  if (/^(?:-|No Check|(?:Caster |Targets? )?(?:Save\b|Attack\b)|(?:Str|Dex|Con|Wil|Prc|Spd|Int|Cha) Save\b)/i.test(left)
+    && /^(?:Instant|[\d.,]+\s+turns?\b|varied|permanent|-)/i.test(right)) {
+    return { ...(left === "-" ? {} : { check: left }), ...(right === "-" ? {} : { duration: right }) };
+  }
+  return null;
+}
+
+function optionHeading(line) {
+  const match = line.match(/^([A-Za-z][A-Za-z '\-()]+):\s*(.*)$/);
+  if (!match || /^(?:On\b|If\b|Effect\b|Caster\b|Target\b|After\b|End of\b|At\b|When\b|Whenever\b|Empower\b)|\bonly from\b/i.test(match[1])) return null;
+  return { name: match[1].trim(), effect: match[2] };
+}
+
+/** Read cast choices from spell-card blocks, without changing the stored spell. */
+export function getSpellOptions(system = {}) {
+  const lines = String(system.effect ?? "").replace(/\r/g, "").split("\n").map(line => line.trim());
+  const intro = lines.findIndex(line => /^(?:On cast:\s*)?(?:Choose\b|Pick\b)|\bone of the effects of your choice\b/i.test(line));
+  if (intro < 0) return [];
+  const starts = [];
+  for (let i = intro + 1; i < lines.length; i++) {
+    const start = i;
+    let fields = optionFields(lines[i]);
+    if (fields) {
+      while (i + 1 < lines.length && (optionFields(lines[i + 1]) || !lines[i + 1])) {
+        Object.assign(fields, optionFields(lines[++i]) ?? {});
+      }
+      const heading = optionHeading(lines[i + 1] ?? "");
+      // Nested follow-ups belong to the preceding choice, including their card subheaders.
+      if (/\bonly from\b/i.test(lines[i + 1] ?? "")) continue;
+      if (heading) { starts.push({ start, body: i + 2, fields, ...heading }); i++; }
+      else {
+        const effect = lines.slice(i + 1).find(line => line && !/^On\b/i.test(line));
+        const name = effect?.match(/^([A-Za-z]+)\s+targets?\b/i)?.[1];
+        if (name) starts.push({ start, body: i + 1, fields, name, effect: "" });
+      }
+    } else {
+      const heading = optionHeading(lines[i]);
+      if (heading && heading.effect) starts.push({ start, body: i + 1, fields: {}, ...heading });
+    }
+  }
+  if (starts.length < 2) return [];
+  const context = /^(?:On cast:\s*)?(?:Choose\b|Pick\b)/i.test(lines[intro]) ? "" : lines[intro];
+  const common = [context, ...lines.slice(intro + 1, starts[0].start)].filter(Boolean).join("\n").trim();
+  return starts.map((entry, index) => ({
+    name: entry.name,
+    ...Object.fromEntries(["range", "target", "check", "duration"].map(key => [key, String(entry.fields[key] ?? system[key] ?? "")])),
+    effect: [common, entry.effect, ...lines.slice(entry.body, starts[index + 1]?.start ?? lines.length)].filter(Boolean).join("\n").trim()
+  }));
+}
+
+/** Apply only the option's card fields; cost, category and flavour belong to the spell. */
+export function getSpellOptionSystem(system = {}, option) {
+  if (!option) return system;
+  const fields = Object.fromEntries(["range", "target", "check", "duration", "effect"]
+    .filter(key => option[key] !== undefined).map(key => [key, option[key]]));
+  return { ...system, ...fields };
+}
+
 /**
  * Read automation settings from a spell's sheet text (check, effect, range, target).
  * Only clear patterns are filled in; conditional or tiered effects stay manual.
@@ -39,7 +103,8 @@ export function parseSpellAutomation(system = {}) {
     const count = check.slice(attack.index + attack[0].length).match(/^\s*(?:\(\s*([1-9]\d*)\s*x\s*\)|([1-9]\d*)\s*x\b)/i);
     if (count) result.attackCount = Number(count[1] ?? count[2]);
   }
-  const save = check.match(new RegExp(String.raw`\bTargets?\s+(?:Save\s+(${STAT})\s*([+-]\s*\d+)?|(${STAT})\s+Save)`, "i"));
+  const save = check.match(new RegExp(String.raw`\bTargets?\s+(?:Save\s+(${STAT})\s*([+-]\s*\d+)?|(${STAT})\s+Save)`, "i"))
+    ?? check.match(new RegExp(String.raw`^\s*(${STAT})\s+Save\s*([+-]\s*\d+)?\s*$`, "i"));
   if (save) {
     result.saveStat = STAT_WORDS[(save[1] ?? save[3]).toLowerCase()];
     result.saveModifier = save[2] ? Number(save[2].replace(/\s+/g, "")) : 0;
@@ -72,7 +137,13 @@ export function parseSpellAutomation(system = {}) {
   } else if ((match = plain.match(/^[\d.]+\s*m\s*\(([\d.]+)\s*m\s*[x×]\s*([\d.]+)\s*m\)/i))) {
     Object.assign(result, { areaShape: "rect", areaSize: meters(match[1]), areaWidth: meters(match[2]), areaOrigin: "placed" });
   } else if (/line/i.test(target) && (match = plain.match(/^([\d.]+)\s*m(?: from user)? \(([\d.]+)\s*m width\)/i))) {
-    Object.assign(result, { areaShape: "line", areaSize: meters(match[1]), areaWidth: meters(match[2]), areaOrigin: "self" });
+    Object.assign(result, /orthogonal/i.test(target)
+      ? { areaShape: "line", areaSize: meters(match[2]), areaWidth: 1.5, areaOrigin: "placed" }
+      : { areaShape: "line", areaSize: meters(match[1]), areaWidth: meters(match[2]), areaOrigin: "self" });
+  } else if (/line from user/i.test(target) && (match = plain.match(/^([\d.]+)\s*m\s*$/i))) {
+    Object.assign(result, { areaShape: "line", areaSize: meters(match[1]), areaWidth: 1.5, areaOrigin: "self" });
+  } else if (/ground circle/i.test(target) && (match = plain.match(/^([\d.]+)\s*m radius\s*$/i))) {
+    Object.assign(result, { areaShape: "circle", areaSize: meters(match[1]), areaOrigin: "placed" });
   }
   return result;
 }
@@ -112,7 +183,11 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
     if (found.some(condition => condition.id === id)) return;
     found.push({ id, name: CONDITION_NAMES[id], formula, saveNegates: hasSave && /\b(none|not \w+) when \w*\s*save/i.test(line), ...extra });
   };
+  let deferred = false;
   for (const line of lines) {
+    if (/^(?:On beginning of|After \d+ turns?)[^:]*:\s*$/i.test(line)) deferred = true;
+    if (/^On (hit|cast):/i.test(line)) deferred = false;
+    if (deferred) continue;
     // Regenerating names when it heals ("at the beginning of the target's turn"), so it comes before the conditional-line check.
     const regen = line.match(new RegExp(String.raw`\bRegenerating\s+(\d+)\b[^\n]*?\bheals?\b[^\d]*(${DICE})`, "i"));
     if (regen) { add("regenerating", regen[1], line, { heal: toFormula(regen[2]) }); continue; }
@@ -124,7 +199,7 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
         ?? String(duration ?? "").match(/^\s*(\d+)\s+turns?\s*$/i)?.[1] ?? null;
       add("immobilized", formula, line, { timed: formula !== null, saveNegates: hasSave });
     }
-    if (/\b(knock(?:s|ed)?|falls?)\b[^.]*\bprone\b/i.test(line)) add("prone", null, line);
+    if (/\b(knock(?:s|ed)?|falls?)\b[^.]*\bprone\b|^Prone targets?\b/i.test(line)) add("prone", null, line);
     const sleep = line.match(new RegExp(String.raw`\bapply\s+(${DICE}|\d+)\s+sleep tokens?\b`, "i"));
     if (sleep) add("asleep", toFormula(sleep[1]), line);
     for (const token of line.matchAll(/\b(Burn|Poisoned|Bleed)\s+(\d*d\d+)\b/gi)) add(token[1].toLowerCase(), token[2].toLowerCase(), line);
@@ -138,13 +213,19 @@ export function getParryModifier(parry) {
 }
 
 /** The automation a cast uses, read live from the spell's own fields (Check, Range, Target, Effect). */
-export function getSpellAutomation(system = {}) {
-  return parseSpellAutomation(system);
+export function getSpellAutomation(system = {}, option) {
+  const options = option ? [] : getSpellOptions(system);
+  if (options.length) return { ...SPELL_AUTOMATION_DEFAULTS, conditions: [], options };
+  return parseSpellAutomation(getSpellOptionSystem(system, option));
 }
 
 /** Short description of what a cast will do, for the spell sheet. */
 export function describeSpellAutomation(auto = {}) {
   const parts = [];
+  if (auto.options?.length) {
+    const data = { count: auto.options.length, names: auto.options.map(option => option.name).join(", ") };
+    return globalThis.game?.i18n?.format?.("INCARNOS.SpellOptions.summary", data) ?? `${data.count} options: ${data.names}`;
+  }
   if (auto.summon) {
     const summon = auto.summon;
     const data = { creature: summon.creature.replace(/\b\w/g, char => char.toUpperCase()), tiers: summon.tiers.length, turns: summon.turns };

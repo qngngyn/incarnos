@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { readFileSync } from "node:fs";
+import { parseSpellNote } from "../tools/spell-notes.mjs";
 
 class ItemSheet {
   tabGroups = { primary: "description" };
@@ -94,6 +96,27 @@ test("only spells use Spell, Flavour and Passives, defaulting to Spell and retai
     }
   }
   assert.equal(IncarnosItemSheet.TABS.primary.initial, "description", "shared defaults are unchanged");
+});
+
+test("spell sheets show the choice summary and separate option blocks while keeping the source editable", async () => {
+  const system = parseSpellNote(readFileSync(new URL("fixtures/crystal-shower.md", import.meta.url), "utf8"), "Crystal Shower").spell;
+  const snapshot = structuredClone(system);
+  const sheet = new IncarnosItemSheet();
+  Object.assign(sheet, { isEditable: true, options: { classes: [] }, item: {
+    type: "spell", system, isOwner: true, toObject: () => ({ system: structuredClone(system), flags: {} })
+  } });
+  const context = await sheet._prepareContext({});
+  assert.equal(context.spellAutomationText, "2 options: Spear, Needles");
+  assert.deepEqual(context.spellOptions.map(option => option.name), ["Spear", "Needles"]);
+  assert.equal(context.spellOptions[0].summary, "9m · Single Target · Attack Int / Cha · Instant");
+  assert.equal(context.spellOptions[1].summary, "9m (4,5m x 4,5m) · Square Ground · Attack Int / Cha · Instant");
+  assert.match(context.spellOptions[1].effect, /Leaves difficult terrain/);
+  const html = readFileSync(new URL("../templates/item/item-spell-sheet.html", import.meta.url), "utf8");
+  assert.match(html, /{{#each spellOptions}}\s*<fieldset class="spell-option">\s*<legend>{{name}}<\/legend>/);
+  assert.match(html, /class="spell-option-effect">{{effect}}<\/div>/);
+  assert.match(html, /<details><summary>{{localize "INCARNOS.SpellOptions.edit"}}/);
+  assert.match(html, /<textarea name="system.effect"/);
+  assert.deepEqual(system, snapshot);
 });
 
 test("linked sheet headers expose sync status and an owner reset action with confirmation", async () => {

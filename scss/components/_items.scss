@@ -203,6 +203,12 @@
   .spell-field-wide { grid-column: 1 / -1; }
 }
 
+.spell-options { display: grid; gap: 8px; margin-bottom: 10px; }
+.spell-option { min-width: 0; padding: 6px 8px; border-radius: 4px; }
+.spell-option legend { font-weight: bold; }
+.spell-option p { margin: 0 0 6px; font-size: 12px; opacity: 0.8; }
+.spell-option-effect { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; }
+
 
 .spell-automation-summary {
   margin-top: 8px; padding: 4px 6px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px;

@@ -3,10 +3,11 @@ import { getCastCost, spendCastCost } from "./spell-cost.mjs";
 import { castSummon } from "./summons.mjs";
 import { waitForContestAnimations } from "./contest-requests.mjs";
 import {
-  SPELL_STATS, getSpellAttackThreshold, getSpellAutomation, getSpellDamage,
+  SPELL_STATS, getSpellAttackThreshold, getSpellAutomation, getSpellDamage, getSpellOptions, getSpellOptionSystem,
   rollUnderSucceeds
 } from "./spells.mjs";
 import { renderSpellCard } from "./spell-card.mjs";
+import { escape } from "./roll-card.mjs";
 import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
@@ -15,18 +16,36 @@ import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAd
 const castData = message => message.flags?.incarnos?.spellCast;
 const applying = new Set();
 
+/** A fresh choice for every cast; closing the dialog never starts a cast. */
+async function chooseSpellOption(item, options) {
+  const data = await foundry.applications.api.DialogV2.input({
+    window: { title: game.i18n.format("INCARNOS.SpellOptions.choose", { name: item.name }) },
+    content: options.map((option, index) => `<fieldset class="spell-option"><legend><label>
+      <input type="radio" name="option" value="${index}"${index === 0 ? " checked" : ""}>${escape(option.name)}</label></legend>
+      <p>${[option.range, option.target, option.check, option.duration].filter(Boolean).map(escape).join(" · ")}</p>
+      <p>${escape(option.effect).replace(/\n/g, "<br>")}</p></fieldset>`).join(""),
+    ok: { label: game.i18n.localize("INCARNOS.SpellOptions.cast") },
+    rejectClose: false
+  });
+  if (!data || !/^\d+$/.test(String(data.option))) return null;
+  return options[Number(data.option)] ?? null;
+}
+
 /**
  * Cast a spell from an owned item. Spells without automation fields only pay their cost and post their card.
  * @param {Item} item
  */
 export async function castSpell(item) {
   const actor = item.actor;
-  const system = item.system;
-  const auto = getSpellAutomation(system);
+  const options = getSpellOptions(item.system);
+  const option = options.length ? await chooseSpellOption(item, options) : null;
+  if (options.length && !option) return;
+  const system = getSpellOptionSystem(item.system, option);
+  const auto = getSpellAutomation(item.system, option);
   const speaker = ChatMessage.getSpeaker({ actor });
   const rollMode = game.settings.get("core", "messageMode");
   if (!actor) {
-    return ChatMessage.create({ speaker, rollMode, content: renderSpellCard({ name: item.name, img: item.img, system }) });
+    return ChatMessage.create({ speaker, rollMode, content: renderSpellCard({ name: item.name, img: item.img, system, option }) });
   }
 
   if (auto.summon) return castSummon(item, auto);
@@ -44,7 +63,7 @@ export async function castSpell(item) {
   if (auto.areaShape && Number(auto.areaSize) > 0) {
     if (!canvas.ready) return ui.notifications.warn("Open a scene to place the spell's area.");
     if (auto.areaOrigin === "self" && !casterToken) return ui.notifications.warn(`${actor.name} needs a token on this scene to cast ${item.name}.`);
-    const area = await placeSpellArea(item, auto, casterToken);
+    const area = await placeSpellArea(item, auto, casterToken, system);
     if (!area) return;
     targets = getTokensInArea(area).filter(token => auto.areaShape === "rect" || healOnly || token !== casterToken);
   } else if (resolves) {
@@ -147,7 +166,7 @@ export async function castSpell(item) {
   const rollSummary = roll => roll && { total: roll.total, formula: roll.formula, result: roll.result };
   const attackName = auto.attackStat === "intcha" ? (Number(abilities.int?.value ?? 0) >= Number(abilities.cha?.value ?? 0) ? "Int" : "Cha") : SPELL_STATS[auto.attackStat];
   const card = pending => renderSpellCard({
-    name: item.name, img: item.img, system, auto, paid, results, pending,
+    name: item.name, img: item.img, system, option, auto, paid, results, pending,
     criticalFailureLabel: game.i18n?.localize("INCARNOS.CriticalFailure.title"),
     damage: rollSummary(damageRoll), critDamage: rollSummary(critRoll), heal: rollSummary(healRoll),
     attackLabel: `Attack (${attackName} ${attackValue} + Parry modifier${casterAdvantage.delta ? `, ${casterAdvantage.delta > 0 ? "advantage" : "disadvantage"}: ${casterAdvantage.sources.join(", ")}` : ""})`
@@ -183,7 +202,7 @@ function getCasterToken(actor) {
  * The Region is kept on the scene when the user may create Regions, otherwise only its preview is used.
  * @returns {Promise<RegionDocument|null>}
  */
-async function placeSpellArea(item, auto, casterToken) {
+async function placeSpellArea(item, auto, casterToken, system = item.system) {
   const unit = canvas.dimensions.distancePixels;
   const start = casterToken?.center ?? canvas.mousePosition ?? { x: 0, y: 0 };
   const shape = ["line", "rect"].includes(auto.areaShape)
@@ -200,18 +219,25 @@ async function placeSpellArea(item, auto, casterToken) {
   if (canvas.level?.id) data.levels = [canvas.level.id];
 
   const fromCaster = auto.areaOrigin === "self" && casterToken;
-  const range = auto.areaShape === "rect" && casterToken
-    ? Number(String(item.system.range ?? "").replace(",", ".").match(/^\s*([\d.]+)\s*m/i)?.[1]) : 0;
-  ui.notifications.info(auto.areaShape === "rect"
+  const orthogonal = auto.areaShape === "line" && /orthogonal/i.test(system.target ?? "") && casterToken;
+  const range = auto.areaOrigin === "placed" && casterToken
+    ? Number(String(system.range ?? "").replace(",", ".").match(/^\s*([\d.]+)\s*m(?!\s*radius)/i)?.[1]) : 0;
+  ui.notifications.info(orthogonal
+    ? game.i18n.format("INCARNOS.SpellArea.placeOrthogonal", { name: item.name })
+    : auto.areaShape === "rect"
     ? game.i18n.format("INCARNOS.SpellArea.placeRectangle", { name: item.name })
     : fromCaster && shape.type === "line"
       ? `Point ${item.name} with the mouse and left-click to cast (right-click cancels).`
       : `Left-click to place ${item.name} (right-click cancels).`);
   const preview = await canvas.regions.placeRegion(data, {
     create: false,
-    allowRotation: shape.type === "line" && !fromCaster,
+    allowRotation: shape.type === "line" && !fromCaster && !orthogonal,
     preConfirm: range > 0 ? ({ shape: placed }) => {
-      if (Math.hypot(placed.x - casterToken.center.x, placed.y - casterToken.center.y) <= range * unit) return;
+      const angle = (placed.rotation ?? 0) * Math.PI / 180;
+      const offset = orthogonal ? Number(placed.length) / 2 : 0;
+      const x = placed.x + Math.cos(angle) * offset;
+      const y = placed.y + Math.sin(angle) * offset;
+      if (Math.hypot(x - casterToken.center.x, y - casterToken.center.y) <= range * unit + 1e-6) return;
       ui.notifications.warn(game.i18n.format("INCARNOS.SpellArea.outOfRange", { name: item.name, range }));
       return false;
     } : undefined,
@@ -220,6 +246,11 @@ async function placeSpellArea(item, auto, casterToken) {
       const changes = { x: center.x, y: center.y };
       if (placed.type === "line") changes.rotation = Math.toDegrees(Math.atan2(position.y - center.y, position.x - center.x));
       placed.updateSource(changes);
+      return false;
+    } : orthogonal ? ({ shape: placed, position }) => {
+      const angle = Math.atan2(position.y - casterToken.center.y, position.x - casterToken.center.x) + Math.PI / 2;
+      placed.updateSource({ x: position.x - Math.cos(angle) * placed.length / 2,
+        y: position.y - Math.sin(angle) * placed.length / 2, rotation: angle * 180 / Math.PI });
       return false;
     } : undefined
   });

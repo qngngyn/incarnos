@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { applyCastConditions, applySpellResult, castSpell, getTokensInArea, registerSpellCastHooks } from "../module/helpers/spell-cast.mjs";
 import { applyAttackConditions, conditionTokens, setConditionTokens } from "../module/helpers/conditions.mjs";
+import { parseSpellNote } from "../tools/spell-notes.mjs";
 
 const leafWind = {
   element: "Plants", category: "Heal", check: "No Check", target: "Single Ally", range: "6m",
@@ -137,7 +138,7 @@ const leafToss = {
 };
 
 /** Deterministic casting through the public flow, with no world documents. */
-async function castAttackSpell({ system = leafToss, statuses = [], parries = [14], playerTarget = false, stat = 14, dice, area = false, cancel = false }) {
+async function castAttackSpell({ system = leafToss, statuses = [], parries = [14], playerTarget = false, stat = 14, dice, area = false, cancel = false, choice }) {
   const casterWrites = [];
   const consumed = [];
   const caster = { uuid: "Actor.caster", name: "Caster", type: "character", hasPlayerOwner: true, items: [], statuses: new Set(statuses),
@@ -169,10 +170,17 @@ async function castAttackSpell({ system = leafToss, statuses = [], parries = [14
   globalThis.CONFIG = { sounds: { dice: "dice" } };
   globalThis.foundry = { utils: { deepClone: structuredClone, isEmpty: object => !Object.keys(object).length } };
   globalThis.ui = { notifications: { warn: message => assert.fail(message) } };
+  const language = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url), "utf8"));
+  game.i18n = { localize: key => language[key] ?? key, format: (key, data) => language[key].replace(/\{(\w+)\}/g, (_, field) => data[field]) };
+  const dialogs = [];
+  foundry.applications = { api: { DialogV2: { async input(options) {
+    assert.deepEqual(casterWrites, [], "the option dialog opens before any cost is paid");
+    assert.equal(placements.length, 0, "choose before placing an area");
+    dialogs.push(options);
+    return choice === null ? null : { option: String(choice) };
+  } } } };
   const placements = [];
   if (area) {
-    const language = JSON.parse(readFileSync(new URL("../lang/en.json", import.meta.url), "utf8"));
-    game.i18n = { localize: key => language[key] ?? key, format: (key, data) => language[key].replace(/\{(\w+)\}/g, (_, field) => data[field]) };
     const casterToken = { actor: caster, center: { x: 0, y: 0 }, document: { actorId: caster.id } };
     const tokens = [...game.user.targets].map((token, index) => ({ ...token, center: { x: 300 + index * 100, y: 100 } }));
     canvas.ready = true;
@@ -228,11 +236,103 @@ async function castAttackSpell({ system = leafToss, statuses = [], parries = [14
       } };
     }
   };
-  const message = await castSpell({ name: "Leaf toss", actor: caster, system });
+  const message = await castSpell({ name: system.name ?? "Leaf toss", actor: caster, system });
   assert.equal(queue.length, 0, "all expected attacks and damage rolls must happen");
-  assert.deepEqual(casterWrites, cancel ? [] : [{ "system.actionpoints.value": 3 - system.actions }, { "system.power.value": 30 - system.mp }], "IP/AP paid once for the whole cast");
-  return { message, targets, pending, calls, consumed, placements };
+  assert.deepEqual(casterWrites, cancel || choice === null ? [] : [{ "system.actionpoints.value": 3 - system.actions }, { "system.power.value": 30 - system.mp }], "IP/AP paid once for the whole cast");
+  return { message, targets, pending, calls, consumed, placements, dialogs, caster };
 }
+
+const optionNote = name => parseSpellNote(readFileSync(new URL(`fixtures/${name}.md`, import.meta.url), "utf8"), name).spell;
+
+test("Crystal Shower chooses Spear before rolling and uses only its single-target damage and card", async () => {
+  const system = optionNote("crystal-shower");
+  const { message, placements, dialogs } = await castAttackSpell({ system, choice: 0,
+    dice: [{ formula: "4d6 + (@lvl * 2)", total: 16 }, { formula: "1d20", total: 5 }] });
+  assert.equal(dialogs.length, 1);
+  assert.equal(dialogs[0].window.title, "Choose how to cast Crystal Shower");
+  assert.equal(dialogs[0].rejectClose, false);
+  assert.equal((dialogs[0].content.match(/name="option"/g) ?? []).length, 2);
+  assert.match(dialogs[0].content, /Spear[\s\S]*9m · Single Target · Attack Int \/ Cha/);
+  assert.match(dialogs[0].content, /Needles[\s\S]*Leaves difficult terrain/);
+  assert.equal(placements.length, 0);
+  assert.match(message.content, /Crystal Shower — Spear/);
+  assert.doesNotMatch(message.content, /Needles|2d4|difficult terrain/);
+  assert.equal(message.flags.incarnos.spellCast.targets[0].damage, 16);
+});
+
+test("choosing Needles replaces range, ground square and damage before area placement", async () => {
+  const system = optionNote("crystal-shower");
+  const { message, placements } = await castAttackSpell({ system, choice: 1, area: true, parries: [14, 14, 14],
+    dice: [{ formula: "2d4 + 1 + (@lvl * 2)", total: 12 }, ...[5, 5, 5].map(total => ({ formula: "1d20", total }))] });
+  assert.deepEqual(placements[0].data.shapes, [{ type: "line", x: 0, y: 0, length: 450, width: 450, rotation: 0 }]);
+  assert.equal(placements[0].options.allowRotation, true);
+  assert.equal(placements[0].options.preConfirm({ shape: { x: 900, y: 0 } }), undefined);
+  const warnings = [];
+  ui.notifications.warn = text => warnings.push(text);
+  assert.equal(placements[0].options.preConfirm({ shape: { x: 901, y: 0 } }), false);
+  assert.match(warnings[0], /within 9 m/);
+  assert.match(message.content, /Crystal Shower — Needles/);
+  assert.match(message.content, /Leaves difficult terrain/);
+  assert.doesNotMatch(message.content, /Spear|4d6|Varied/);
+  assert.equal(message.flags.incarnos.spellCast.targets.length, 3);
+});
+
+test("closing the choice dialog cancels before IP/AP, area placement, rolls or chat", async () => {
+  const { message, calls, placements, dialogs } = await castAttackSpell({ system: optionNote("crystal-shower"), choice: null, area: true, dice: [] });
+  assert.equal(message, undefined);
+  assert.deepEqual(calls, []);
+  assert.deepEqual(placements, []);
+  assert.equal(dialogs.length, 1);
+});
+
+test("Crescent places a transverse 12m line centred at the chosen point within its own 9m range", async () => {
+  const { message, placements } = await castAttackSpell({ system: optionNote("darkness-manifestation"), choice: 1, area: true,
+    dice: [{ formula: "2d6 + (@lvl *1)", total: 10 }, { formula: "1d20", total: 5 }] });
+  const { data, options } = placements[0];
+  assert.deepEqual(data.shapes, [{ type: "line", x: 0, y: 0, length: 1200, width: 150, rotation: 0 }]);
+  assert.equal(options.allowRotation, false);
+  const placed = { ...data.shapes[0], updateSource(changes) { Object.assign(this, changes); } };
+  assert.equal(options.onMove({ shape: placed, position: { x: 900, y: 0 } }), false);
+  assert.equal(placed.rotation, 90);
+  assert.ok(Math.abs(placed.x - 900) < 1e-6);
+  assert.equal(placed.y, -600);
+  assert.equal(options.preConfirm({ shape: placed }), undefined);
+  options.onMove({ shape: placed, position: { x: 901, y: 0 } });
+  const warnings = [];
+  ui.notifications.warn = text => warnings.push(text);
+  assert.equal(options.preConfirm({ shape: placed }), false);
+  assert.match(warnings[0], /within 9 m/);
+  assert.match(message.content, /Darkness Manifestation — Crescent/);
+  assert.doesNotMatch(message.content, /Spiked Ball|4d6/);
+});
+
+test("cancelling placement after an option choice also costs nothing", async () => {
+  const { message, dialogs, placements } = await castAttackSpell({ system: optionNote("crystal-shower"), choice: 1, area: true, cancel: true, dice: [] });
+  assert.equal(message, undefined);
+  assert.equal(dialogs.length, 1);
+  assert.equal(placements.length, 1);
+});
+
+test("the same spell asks again on the next cast, and cancelling that choice spends nothing", async () => {
+  const system = optionNote("shadow-play");
+  const { caster, message } = await castAttackSpell({ system, choice: 0, dice: [{ formula: "1d20", total: 5 }] });
+  assert.match(message.content, /Shadow Play — Taunt/);
+  assert.doesNotMatch(message.content, /Knife Throw|Flower Bouquet|4d4/);
+  caster.update = () => assert.fail("a cancelled repeat cast spent resources");
+  let prompted = false;
+  foundry.applications.api.DialogV2.input = async ({ content }) => { prompted = true; assert.match(content, /Flower Bouquet/); return null; };
+  assert.equal(await castSpell({ name: "Shadow Play", system, actor: caster }), undefined);
+  assert.equal(prompted, true);
+});
+
+test("option dialogs escape names, facts and rules text", async () => {
+  const system = { ...optionNote("shadow-play"), range: '<range> & "facts"',
+    effect: 'Pick one:\nFirst: <script>bad()</script> & "rules"\nSecond: Heal 1d6' };
+  const { dialogs } = await castAttackSpell({ system, choice: null, dice: [] });
+  assert.doesNotMatch(dialogs[0].content, /<script>|<range>/);
+  assert.match(dialogs[0].content, /&lt;range&gt; &amp; &quot;facts&quot;/);
+  assert.match(dialogs[0].content, /&lt;script&gt;bad\(\)&lt;\/script&gt; &amp; &quot;rules&quot;/);
+});
 
 const ivyVines = { ...leafToss, check: "Attack Int / Cha", target: "Ground", range: "12m (3m x 1,5m)", duration: "2 turns",
   effect: "On cast: Summons ivy vines from the ground that occupy the space they grow from\n"
