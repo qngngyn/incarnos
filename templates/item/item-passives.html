@@ -4,6 +4,13 @@
     Enable item passives
   </label>
   <p class="hint">Enabled passives apply while this item belongs to an actor. Use positive values to add and negative values to subtract. Each item applies once, regardless of quantity; quantity zero disables its passives.</p>
+  {{#each rulePassives as |rule|}}
+  <div class="passive-entry passive-rule">
+    <strong>{{rule.label}}</strong>
+    {{#if rule.description}}<p class="effect-description">{{rule.description}}</p>{{/if}}
+  </div>
+  {{/each}}
+  {{#if rulePassives.length}}<p class="hint">These come from the Bonus text and always apply; stat passives below can be edited.</p>{{/if}}
   {{#each system.passives as |passive id|}}
   <div class="passive-entry flexcol">
   <div class="form-group flexrow" style="gap: 8px; margin-bottom: 8px;">
@@ -19,7 +26,7 @@
   </label>
   </div>
   {{else}}
-  <p>No passive modifiers.</p>
+  <p>No stat passives.</p>
   {{/each}}
   {{#if editable}}<button type="button" data-action="passiveAdd">Add passive</button>{{/if}}
 </div>

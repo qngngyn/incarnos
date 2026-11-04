@@ -16,9 +16,16 @@
       <li class="item effect flexrow {{#unless effect.isItemPassive}}draggable{{/unless}}" {{#if effect.isItemPassive}}data-item-id="{{effect.itemId}}" title="{{effect.description}}"{{else}}data-effect-id="{{effect.id}}"{{/if}}>
         <div class="item-name effect-name flexrow">
           <img class="item-image" src="{{effect.icon}}"/>
-          <h4>{{effect.name}}</h4>
+          <div class="effect-text">
+            <h4>{{effect.name}}</h4>
+            {{#if effect.isItemPassive}}
+            {{#each effect.lines as |line|}}<p class="effect-description">{{line}}</p>{{/each}}
+            {{else if effect.descriptionText}}
+            <p class="effect-description">{{effect.descriptionText}}</p>
+            {{/if}}
+          </div>
         </div>
-        <div class="effect-source" {{#if effect.isItemPassive}}title="{{effect.description}}"{{/if}}>{{#if effect.isItemPassive}}Item{{else}}Status{{/if}}</div>
+        <div class="effect-source" {{#if effect.isItemPassive}}title="{{effect.description}}"{{/if}}>{{#if effect.isItemPassive}}{{effect.sourceLabel}}{{else}}Status{{/if}}</div>
         <div class="effect-duration">{{effect.duration.label}}</div>
         <div class="item-controls effect-controls flexrow">
           {{#if effect.isItemPassive}}

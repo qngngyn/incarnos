@@ -145,18 +145,43 @@ export function describeTalent(system = {}) {
   const signed = value => (value < 0 ? `${value}` : `+${value}`);
   const parts = Object.values(system.passives ?? {}).filter(passive => names[passive?.stat] && Number(passive.value))
     .map(passive => `${names[passive.stat]} ${signed(Number(passive.value))}${passive.stat === "attributes.movement.value" ? " m" : ""}`);
-  const rules = parseTalentRules(system.bonus);
-  const saveNames = { str: "Str", dex: "Dex", con: "Con", wis: "Wil", prc: "Prc", spd: "Spd", int: "Int", cha: "Cha" };
   for (const passive of Object.values(system.passives ?? {})) {
     if (passive && !passive.stat && Number(passive.value)) parts.push(`${signed(Number(passive.value))} to a stat you pick on the Passives tab`);
   }
-  if (rules.saveAdvantage.length) parts.push(`advantage on ${rules.saveAdvantage.map(key => saveNames[key]).join("/")} saves`);
-  if (rules.saveBonus) parts.push(`${signed(rules.saveBonus.value)} on ${rules.saveBonus.keys.map(key => saveNames[key]).join("/")} saves`);
-  if (rules.movementMultiplier !== 1) parts.push(`Movement ×${rules.movementMultiplier}`);
-  if (rules.hpMagic) parts.push("no IP: Max IP is added to Max HP and spells cost HP");
-  if (rules.darkvision) parts.push(`darkvision ${rules.darkvision} m on the token`);
-  if (rules.spectacle) parts.push(`one-handed hits rolled ${rules.spectacle.margin}+ under the target number deal double damage`);
-  return parts.join(" · ");
+  return [...parts, ...talentRuleLabels(system.bonus)].join(" · ");
+}
+
+/** Rules of a Bonus text that Foundry applies by itself (beyond flat stat passives), as short labels. */
+export function talentRuleLabels(bonus = "") {
+  const rules = parseTalentRules(bonus);
+  const saveNames = { str: "Str", dex: "Dex", con: "Con", wis: "Wil", prc: "Prc", spd: "Spd", int: "Int", cha: "Cha" };
+  const signed = value => (value < 0 ? `${value}` : `+${value}`);
+  const labels = [];
+  if (rules.saveAdvantage.length) labels.push(`advantage on ${rules.saveAdvantage.map(key => saveNames[key]).join("/")} saves`);
+  if (rules.saveBonus) labels.push(`${signed(rules.saveBonus.value)} on ${rules.saveBonus.keys.map(key => saveNames[key]).join("/")} saves`);
+  if (rules.movementMultiplier !== 1) labels.push(`Movement ×${rules.movementMultiplier}`);
+  if (rules.hpMagic) labels.push("no IP: Max IP is added to Max HP and spells cost HP");
+  if (rules.darkvision) labels.push(`darkvision ${rules.darkvision} m on the token`);
+  if (rules.spectacle) labels.push(`one-handed hits rolled ${rules.spectacle.margin}+ under the target number deal double damage`);
+  return labels;
+}
+
+/** The Bonus text without its flat stat lines ("+1 Parry"): what still matters in play beyond the stat passives. */
+export function talentRuleText(bonus = "") {
+  return String(bonus ?? "").split("\n").map(line => line.trim())
+    .filter(line => line && !parseTalentPassives(line).length).join("\n");
+}
+
+/**
+ * Everything a talent or race does beyond its flat stat passives: rules Foundry applies, then rules for the table.
+ * With getItemPassiveEntries this gives every talent or race with a Bonus at least one visible passive.
+ * @returns {{label: string, description: string}[]}
+ */
+export function talentRulePassives(bonus = "") {
+  const text = talentRuleText(bonus);
+  const applied = talentRuleLabels(bonus);
+  if (applied.length) return [{ label: `Applied: ${applied.join(" · ")}`, description: text }];
+  return text ? [{ label: "At the table", description: text }] : [];
 }
 
 /**

@@ -409,6 +409,7 @@ export async function applyDodge(actor) {
   await consumeDodge(actor);
   return actor.createEmbeddedDocuments("ActiveEffect", [{
     name: game.i18n.localize("INCARNOS.Actions.dodge"), img: "icons/svg/shield.svg",
+    description: "<p>Your next Parry against a melee, ranged or spell attack has advantage until the beginning of your next turn.</p>",
     duration: { rounds: 1 }, flags: { incarnos: { dodge: true } }
   }]);
 }

@@ -1,7 +1,7 @@
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { SPELL_ACTION_TYPES, describeSpellAutomation, getSpellAutomation } from "../helpers/spells.mjs";
 import { describeWeaponRules, getWeaponRules } from "../helpers/weapons.mjs";
-import { describeTalent } from "../helpers/talents.mjs";
+import { describeTalent, talentRulePassives } from "../helpers/talents.mjs";
 import { isPlayerSide } from "../helpers/modifiers.mjs";
 import { itemSyncStatus, canResetItemSync, resetItemToCompendium } from "../helpers/item-sync.mjs";
 
@@ -136,6 +136,8 @@ export class IncarnosItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     if (item.type === "feature" || item.type === "race") {
       context.system.bonus ??= "";
       context.talentRulesText = describeTalent(item.system);
+      // Rules of the Bonus beyond flat stats, shown as passives (applied by Foundry, or used at the table).
+      context.rulePassives = talentRulePassives(context.system.bonus);
     }
 
     if (item.type === "spell") {
