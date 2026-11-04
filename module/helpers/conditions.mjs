@@ -202,8 +202,8 @@ export async function endOfTurn(actor, turn = null) {
 
 /**
  * Start of a combatant's turn, as one private chat window (owners and GMs):
- * - token conditions count down; their HP changes get an Apply button the owner clicks: Burn, Poisoned, Bleed deal
- *   1 damage per token, Regenerating heals the amount its source fixed (Leaf wind: "1d6 + (2 * 1)"), or 1d6 + own level;
+ * - token conditions count down: Burn, Poisoned, Bleed deal 1 damage per token (or their source's roll) at once;
+ *   Regenerating heals the amount its source fixed (Leaf wind: "1d6 + (2 * 1)"), or 1d6 + own level, with an Apply button;
  * - every other active condition is listed with what it does (Asleep with its tokens, Prone, Grappled, …).
  */
 export async function startOfTurn(actor) {
@@ -245,12 +245,14 @@ export async function startOfTurn(actor) {
   }
   if (!entries.length && !infos.length) return;
   const notes = statusEffect(actor, "burn") ? ["Burn: 1 AP to put out the flames (or water) removes all Burn tokens."] : [];
-  // Bleed hits by itself (no Apply button); a creature that bleeds to 0 HP dies.
+  // Burn, Poisoned and Bleed hit by themselves (no Apply button); only bleeding to 0 HP kills (other 0 HP: the table's rules).
+  let bledOut = false;
   for (const entry of entries.filter(entry => AUTO_DAMAGE_CONDITIONS.includes(entry.condition) && entry.amount > 0)) {
     await actor.update({ "system.health.value": getHealthAfter(actor.system.health, entry.amount, "damage") });
     entry.applied = true;
+    if (entry.condition === "bleed" && Number(actor.system.health?.value) <= 0) bledOut = true;
   }
-  if (entries.some(entry => entry.applied) && Number(actor.system.health?.value) <= 0) {
+  if (bledOut) {
     await markDead(actor);
     notes.unshift(`${actor.name} bled out and is dead.`);
   }
@@ -258,7 +260,7 @@ export async function startOfTurn(actor) {
 }
 
 /** Damage-over-time conditions whose damage is dealt at once at the start of the turn instead of offered with Apply. */
-export const AUTO_DAMAGE_CONDITIONS = ["bleed"];
+export const AUTO_DAMAGE_CONDITIONS = ["burn", "poisoned", "bleed"];
 
 /** Dead: Foundry's defeated status (skull overlay) on the actor and every combatant of it marked defeated. */
 export async function markDead(actor) {

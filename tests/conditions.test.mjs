@@ -306,14 +306,14 @@ test("Bloody Claws bleed: tokens count the turns and each start of turn rolls th
   assert.doesNotMatch(prompts[0].content, /data-incarnos-health-apply/);
 });
 
-test("a creature that bleeds to 0 HP dies: defeated status and its combatants marked defeated; Burn still waits for Apply", async () => {
-  const { startOfTurn } = CONDITION_HELPERS;
+/** An actor with token conditions, HP and one combatant, under an online GM. */
+function dotActor(hp, tokens) {
   const actor = immobilizedActor();
-  await actor.toggleStatusEffect("bleed");
-  actor.effects[0].setFlag("statuscounter", "value", 3);
-  await actor.toggleStatusEffect("burn");
-  actor.effects[1].setFlag("statuscounter", "value", 2);
-  actor.system.health = { value: 2, min: 0, max: 20 };
+  for (const [id, count] of Object.entries(tokens)) {
+    actor.toggleStatusEffect(id);
+    actor.effects.at(-1).setFlag("statuscounter", "value", count);
+  }
+  actor.system.health = { value: hp, min: 0, max: 20 };
   actor.update = async changes => { actor.system.health.value = changes["system.health.value"]; };
   const combatant = { actor, defeated: false, async update(changes) { Object.assign(this, changes); } };
   const gm = { id: "gm", active: true, isGM: true };
@@ -321,10 +321,29 @@ test("a creature that bleeds to 0 HP dies: defeated status and its combatants ma
   globalThis.CONFIG = { specialStatusEffects: { DEFEATED: "dead" } };
   const prompts = [];
   globalThis.ChatMessage = { getSpeaker: () => ({}), create: async data => prompts.push(data) };
-  await startOfTurn(actor);
-  assert.equal(actor.system.health.value, 0, "3 Bleed damage on 2 HP; Burn's 2 damage is not dealt");
-  assert.equal(actor.statuses.has("dead"), true);
-  assert.equal(combatant.defeated, true);
-  assert.match(prompts[0].content, /bled out and is dead/);
-  assert.match(prompts[0].content, /data-incarnos-health-apply/, "Burn keeps its Apply button");
+  return { actor, combatant, prompts };
+}
+
+test("Burn, Poisoned and Bleed deal their damage at the start of the turn without an Apply button", async () => {
+  const { actor, combatant, prompts } = dotActor(10, { burn: 2, poisoned: 1, bleed: 3 });
+  await CONDITION_HELPERS.startOfTurn(actor);
+  assert.equal(actor.system.health.value, 4, "2 Burn + 1 Poison + 3 Bleed");
+  assert.equal(actor.statuses.has("dead"), false);
+  assert.equal(combatant.defeated, false);
+  assert.doesNotMatch(prompts[0].content, /data-incarnos-health-apply/);
+  assert.equal((prompts[0].content.match(/isc-done/g) ?? []).length, 3);
+});
+
+test("bleeding to 0 HP kills (dead status, combatant defeated); Burn or Poison alone at 0 HP does not", async () => {
+  const bleeding = dotActor(4, { burn: 2, bleed: 3 });
+  await CONDITION_HELPERS.startOfTurn(bleeding.actor);
+  assert.equal(bleeding.actor.system.health.value, 0);
+  assert.equal(bleeding.actor.statuses.has("dead"), true);
+  assert.equal(bleeding.combatant.defeated, true);
+  assert.match(bleeding.prompts[0].content, /bled out and is dead/);
+  const burning = dotActor(2, { burn: 2 });
+  await CONDITION_HELPERS.startOfTurn(burning.actor);
+  assert.equal(burning.actor.system.health.value, 0);
+  assert.equal(burning.actor.statuses.has("dead"), false, "0 HP from Burn follows the normal rules");
+  assert.doesNotMatch(burning.prompts[0].content, /dead/);
 });
