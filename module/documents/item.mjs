@@ -258,6 +258,12 @@ export async function rollWeaponAttackAction({
       conditions
     });
   }
+  // Attack: Crazed: the attacker takes the same damage it dealt, as its own row with Apply (and Apply all).
+  const selfDamage = attack.damage?.selfDamage ? results.reduce((sum, result) => sum + (result.damage || 0), 0) : 0;
+  if (selfDamage) {
+    results.push({ name: `${item.actor?.name ?? "Attacker"} (self)`, img: item.actor?.img, uuid: item.actor?.uuid,
+      self: true, success: true, damage: selfDamage, damageRoll: null, conditions: [] });
+  }
 
   const statLabel = selectedStat.charAt(0).toUpperCase() + selectedStat.slice(1);
   const advantageDice = /^(\d+)d20k([lh])$/.exec(hitFormula);
@@ -305,6 +311,11 @@ export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityV
     .filter(Boolean).map(escapeCard).join(" · ");
   const rows = results.map((result, index) => {
     if (pending) return { img: result.img, name: result.name, chips: [rollingChip()] };
+    if (result.self) {
+      return { img: result.img, name: result.name, chips: [cardChip("Crazed", { tone: "bad", title: "Attack: Crazed: you take the same damage yourself" })],
+        values: [cardAmount(result.damage, { kind: "damage", title: `${result.damage} damage to yourself (Crazed)` })
+          + (result.uuid ? applyButton("damage", index, result.damage) : "")] };
+    }
     const modifierText = attack.parry?.apply === false ? "" : ` ${formatSignedNumber(-result.parryModifier)} attack modifier`;
     const values = result.damage
       ? [cardAmount(result.damage, { kind: "damage", title: `${result.damage} damage (${result.damageRoll.formula}: ${result.damageRoll.result})` })

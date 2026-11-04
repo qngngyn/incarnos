@@ -120,7 +120,7 @@ INCARNOS.attackActions = {
     statByMode: { melee: "str", ranged: "dex" },
     roll: { advantageDelta: 0, allowAdvantage: true },
     parry: { apply: true },
-    damage: { multiplier: 3 },
+    damage: { multiplier: 3, selfDamage: true },
     notes: ["On success, deal triple weapon damage.", "You take the same amount of damage yourself."]
   },
   cleave: {

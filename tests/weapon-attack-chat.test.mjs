@@ -327,3 +327,24 @@ test("Bloody Claws upgrades Unarmed: a hit carries Bleed 2d6 for 3 turns to Appl
     }
   }
 });
+
+test("Attack: Crazed puts the dealt damage on the attacker as its own row with Apply; a miss costs nothing", async () => {
+  for (const [rolls, expected] of [[[3, 9], 9], [[18], 0]]) {
+    const env = setup(rolls);
+    CONFIG.INCARNOS.attackActions.crazed = { name: "Attack: Crazed", modes: ["ranged"], statByMode: { ranged: "dex" }, damage: { multiplier: 3, selfDamage: true } };
+    game.user.targets = new Set();
+    await rollWeaponAttackAction({
+      item: { name: "Bow", actor: { name: "Piet", img: "piet.webp", uuid: "Actor.piet", items: [] }, system: { attackMode: "ranged", modifier: 0, damage: "1d4" } },
+      rollData: { abilities: { dex: { value: 10 } } },
+      speaker: {}, rollMode: "publicroll", attackId: "crazed", mode: "ranged", parryModifiers: [0]
+    });
+    const targets = env.cards[0].flags.incarnos.spellCast.targets;
+    if (expected) {
+      assert.deepEqual(targets.at(-1), { name: "Piet (self)", uuid: "Actor.piet", damage: 9, heal: 0, conditions: [], appliedDamage: false, appliedHeal: false });
+      assert.match(env.updates[0].content, /Piet \(self\)/);
+      assert.match(env.updates[0].content, />Crazed</);
+    } else {
+      assert.equal(targets.length, 1, "no self row after a miss");
+    }
+  }
+});
