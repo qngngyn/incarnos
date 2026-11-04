@@ -33,7 +33,7 @@ test("weapon notes become sheet rows with trait lines from the trait notes", () 
   }), "Whip", traits);
   assert.deepEqual(warnings, []);
   assert.deepEqual(row, ["Whip", "Melee", "1", "+1", "1d4",
-    "Finesse: Use Dex.\nReach 4,5m: Attack within the named range.\nDeadly D8: When you crit, add the named dice."]);
+    "Finesse: Use Dex.\nReach 4,5m: Attack within the named range.\nDeadly D8: When you crit, add the named dice.", "", ""]);
 });
 
 test("a trailing (…) fills the trait's placeholder or replaces its text; prefixes and plain text stay", () => {
@@ -53,4 +53,36 @@ test("rows feed the weapon parser; non-weapon notes and missing traits warn", ()
   assert.deepEqual(warnings, ['Shortbow: no trait note "Unknown"', 'Notes: not a weapon note (no "Typ: Waffe")']);
   const [bow] = parseWeaponRows(rows).weapons;
   assert.deepEqual({ ...bow }, { name: "Shortbow", attackMode: "ranged", range: "24m", hands: 2, modifier: 0, damage: "1d6", traits: "Unknown" });
+});
+
+test("legendary notes: bullet traits below the Traits line, bare range, conditional damage, picture and description", () => {
+  const markdown = `\`\`\`ad-note
+title: ### Supreme Favor
+\`\`\`
+\`\`\`ad-check
+title: ### Stat Beschreibung:
+Typ: Waffe
+Icon: tokens/items/supreme-favor.webp
+Reichweite: 18m
+Anzahl Hände: 1
+Damage: 2d8 + 1d8 vs Undead/Fiends
+Traits:
+- Bound weapon: Returns to your hand, whenever you will it.
+[[Finesse]], [[Deadly]] D8
+\`\`\`
+\`\`\`ad-example
+title: ### Beschreibung:
+A blessed blade.
+
+Second line.
+### 
+\`\`\`
+`;
+  const { row, warnings } = parseWeaponNote(markdown, "Eostre's Favor", traits);
+  assert.deepEqual(warnings, []);
+  assert.deepEqual(row, ["Supreme Favor", "Ranged (18m)", "1", "", "2d8",
+    "Bound weapon: Returns to your hand, whenever you will it.\nFinesse: Use Dex.\nDeadly D8: When you crit, add the named dice.\n"
+    + "Bonus Damage: +1d8 vs Undead/Fiends", "tokens/items/supreme-favor.webp", "A blessed blade.\n\nSecond line."]);
+  assert.equal(parseWeaponNote(markdown.replace("Supreme Favor", ""), "Eostre's Favor", traits).row[0], "Eostre's Favor",
+    "an empty heading falls back to the file name");
 });

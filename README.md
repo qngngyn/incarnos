@@ -142,7 +142,7 @@ Conversion requires confirmation and marks the scene to prevent repeat conversio
 
 ## Weapons compendium
 
-The **Incarnos Weapons** compendium holds the 30 weapons from the Obsidian vault (`System Files/Listen/Weapons`, with trait texts from `Listen/Weapon Traits`), in a Melee and a Ranged folder. Each weapon has Attack Mode, Hitrate, Damage, Hands, Range (ranged weapons, or Reach for melee) and its Traits, one per line with the text of its trait note. Drag a weapon onto a character and click its icon to attack.
+The **Incarnos Weapons** compendium holds the 30 weapons from the Obsidian vault (`System Files/Listen/Weapons`, with trait texts from `Listen/Weapon Traits`), in a Melee and a Ranged folder, plus a **Legendary** folder with the unique weapons from `Welten/Incarnos/Custom Items/Weapons` (not on the Google Sheet; a note that only repeats a regular weapon's name is skipped). Legendary notes may list traits as `- Name: text` bullets below `Traits:`, write a bare range (`Reichweite: 18m` = ranged), put conditional damage after the roll (`2d8 + 1d8 vs Undead` → damage 2d8 and a *Bonus Damage* trait line), set a picture with `Icon: tokens/items/<name>.webp` (a path in Foundry's data folder, never committed) and fill the Beschreibung block, which becomes the description. Each weapon has Attack Mode, Hitrate, Damage, Hands, Range (ranged weapons, or Reach for melee) and its Traits, one per line with the text of its trait note. Drag a weapon onto a character and click its icon to attack.
 
 Traits are read live from the Traits field (the weapon sheet shows an **In attacks:** line with what was read):
 

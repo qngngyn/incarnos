@@ -59,17 +59,34 @@ export function parseWeaponNote(markdown, fallbackName, traits = {}) {
   const warnings = [];
   const text = String(markdown ?? "");
   const field = label => text.match(new RegExp(`^${label}:[ \\t]*(.*)$`, "m"))?.[1].trim() ?? "";
-  const name = text.match(/^title:\s*#*\s*(.+)$/m)?.[1].trim() || fallbackName;
+  // Only the first title line (the ad-note heading); an empty one falls back to the file name.
+  const name = text.match(/^title:[ \t]*#*[ \t]*(.*)$/m)?.[1].trim() || fallbackName;
   if (!/^Typ:\s*Waffe/m.test(text)) return { row: null, warnings: [`${fallbackName}: not a weapon note (no "Typ: Waffe")`] };
   const values = Object.fromEntries(Object.entries(FIELDS).map(([key, label]) => [key, field(label)]));
-  const traitLines = splitTopLevel(values.traits).map(entry => traitLine(entry, traits, warnings, name));
-  return { row: [name, values.type, values.hands, values.hitrate, values.damage, traitLines.join("\n")], warnings };
+  if (/^\d+(?:[.,]\d+)?\s*m$/i.test(values.type)) values.type = `Ranged (${values.type})`; // "18m" = a ranged weapon
+  // Traits on the "Traits:" line (comma list) or on the lines below it until the block ends; "- Name: text" bullets
+  // are one trait each (their text may hold commas).
+  const below = text.match(/^Traits:[ \t]*\r?\n([\s\S]*?)^```/m)?.[1] ?? "";
+  const entries = [values.traits, ...below.split(/\r?\n/)].map(line => line.trim()).filter(Boolean)
+    .flatMap(line => (/^[-*]\s+/.test(line) ? [line.replace(/^[-*]\s+/, "")] : splitTopLevel(line)));
+  const traitLines = entries.map(entry => traitLine(entry, traits, warnings, name));
+  // "2d8 + 1d8 vs Undead/Fiends": the leading roll is the damage, the conditional rest becomes a trait line.
+  let damage = values.damage;
+  const extra = damage.match(/^(\d*d\d+(?:\s*[+-]\s*\d+(?!\s*d))*)\s*(\S.*[a-z].*)$/i);
+  if (extra) { damage = extra[1]; traitLines.push(`Bonus Damage: ${extra[2].replace(/^([+-])\s+/, "$1")}`); }
+  return { row: [name, values.type, values.hands, values.hitrate, damage, traitLines.join("\n"), field("Icon"), noteDescription(text)], warnings };
+}
+
+/** Text of the "Beschreibung" block (ad-example), without empty heading lines. */
+export function noteDescription(markdown) {
+  const block = String(markdown ?? "").match(/^```ad-example[ \t]*\r?\ntitle:[^\n]*Beschreibung[^\n]*\r?\n([\s\S]*?)^```/m)?.[1] ?? "";
+  return block.split(/\r?\n/).filter(line => !/^#+\s*$/.test(line.trim())).join("\n").trim();
 }
 
 /** Sheet-shaped grid (with header) from all weapon notes. */
 export function weaponNotesToRows(notes, traits) {
   const warnings = [];
-  const rows = [["Name", "Weapon Type", "Hands", "Hitrate", "Damage", "Traits"]];
+  const rows = [["Name", "Weapon Type", "Hands", "Hitrate", "Damage", "Traits", "Icon", "Description"]];
   for (const { name, markdown } of notes) {
     const result = parseWeaponNote(markdown, name, traits);
     warnings.push(...result.warnings);

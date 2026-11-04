@@ -18,6 +18,8 @@ export function parseWeaponRows(rows) {
   const column = name => header.findIndex(title => title.startsWith(name));
   const at = { name: column("name"), type: column("weapon type"), hands: column("hands"), hitrate: column("hitrate"), damage: column("damage"), traits: column("traits") };
   if (Object.values(at).some(index => index < 0)) throw new Error(`Unexpected header: ${rows[0]?.join(" | ")}`);
+  // Optional columns (vault notes only): picture path and description text.
+  const iconAt = column("icon"), descriptionAt = column("description");
 
   const weapons = [];
   for (const row of rows.slice(1)) {
@@ -38,7 +40,9 @@ export function parseWeaponRows(rows) {
       hands: Math.max(1, number(row[at.hands]) || 1),
       modifier: number(hitrate),
       damage: damage === "-" ? "" : damage,
-      traits
+      traits,
+      ...(iconAt >= 0 && cell(row[iconAt]) ? { img: cell(row[iconAt]) } : {}),
+      ...(descriptionAt >= 0 && cell(row[descriptionAt]) ? { description: cell(row[descriptionAt]) } : {})
     });
   }
   return { weapons, warnings };
@@ -51,25 +55,33 @@ function stats(systemVersion) {
   };
 }
 
-/** Foundry source documents: a Melee and a Ranged folder plus one weapon Item per row, with stable IDs. */
+const escapeHTML = text => text.replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
+/** Plain note text as HTML paragraphs (blank line = new paragraph, line break = <br>). */
+export const descriptionHTML = text => String(text ?? "").trim().split(/\r?\n\s*\r?\n/).filter(Boolean)
+  .map(paragraph => `<p>${escapeHTML(paragraph.trim()).replace(/\r?\n/g, "<br>")}</p>`).join("");
+
+/**
+ * Foundry source documents: a Melee, a Ranged and a Legendary folder plus one weapon Item per row, with stable IDs.
+ * Weapons with `legendary: true` (unique items from the world notes) go into the Legendary folder.
+ */
 export function weaponsToDocuments(weapons, { icon = () => null, systemVersion = "1.4.0" } = {}) {
-  const folders = ["Melee", "Ranged"].map((name, index) => {
+  const folders = ["Melee", "Ranged", "Legendary"].map((name, index) => {
     const id = stableId(`folder:weapons:${name}`);
     return { _id: id, _key: `!folders!${id}`, name, type: "Item", folder: null, sorting: "m", sort: (index + 1) * 100000, color: null, description: "", flags: {}, _stats: stats(systemVersion) };
   });
-  const folderFor = mode => folders[mode === "ranged" ? 1 : 0]._id;
+  const folderFor = weapon => folders[weapon.legendary ? 2 : weapon.attackMode === "ranged" ? 1 : 0]._id;
   const items = weapons.map((weapon, index) => {
-    const id = stableId(`weapon:${weapon.name}`);
-    const { name, ...system } = weapon;
+    const id = stableId(`${weapon.legendary ? "legendary-weapon" : "weapon"}:${weapon.name}`);
+    const { name, img, legendary, description = "", ...system } = weapon;
     // "Parry: +1 Parry" becomes an item passive, so the owner's Parry rises while the weapon's passives are on.
     const parry = getWeaponRules(weapon).traits.find(trait => trait.name === "Parry")?.text.match(/([+-]\d+)\s*Parry/i);
     const passives = parry ? { parry: { stat: "attributes.parry.value", value: Number(parry[1]), description: "Parry trait" } } : {};
     return {
       _id: id, _key: `!items!${id}`, name, type: "weapon",
-      img: icon(weapon) ?? (weapon.attackMode === "ranged" ? "icons/weapons/bows/bow-simple-small.webp" : "icons/svg/sword.svg"),
-      system: { description: "", passivesEnabled: true, passives, quantity: 1, weight: 0, versatile: false, ...system },
-      effects: [], folder: folderFor(weapon.attackMode), sort: (index + 1) * 100000,
-      ownership: { default: 0 }, flags: {}, _stats: stats(systemVersion)
+      img: img ?? icon(weapon) ?? (weapon.attackMode === "ranged" ? "icons/weapons/bows/bow-simple-small.webp" : "icons/svg/sword.svg"),
+      system: { description: descriptionHTML(description), passivesEnabled: true, passives, quantity: 1, weight: 0, versatile: false, ...system },
+      effects: [], folder: folderFor(weapon), sort: (index + 1) * 100000,
+      ownership: { default: 0 }, flags: legendary ? { incarnos: { legendary: true } } : {}, _stats: stats(systemVersion)
     };
   });
   return [...folders, ...items];

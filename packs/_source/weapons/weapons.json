@@ -46,6 +46,29 @@
     }
   },
   {
+    "_id": "4cMNjkPgl6piFCz1",
+    "_key": "!folders!4cMNjkPgl6piFCz1",
+    "name": "Legendary",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 300000,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
     "_id": "y36IACbpmiDQzuMk",
     "_key": "!items!y36IACbpmiDQzuMk",
     "name": "Bloodrecombobulator",
@@ -1215,6 +1238,227 @@
       "default": 0
     },
     "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "koCfYshoHoYGk7SA",
+    "_key": "!items!koCfYshoHoYGk7SA",
+    "name": "Bringer of Death and Fire Trident",
+    "type": "weapon",
+    "img": "tokens/items/bringer-of-death-and-fire-trident.webp",
+    "system": {
+      "description": "<p>Made out of two deathfire rods and a brazier. Who knows why. Fire and skull motifs, blue and gold. Who knows why.</p><p>Samuel's weapon.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": -5,
+      "damage": "3d12",
+      "traits": "Deathfire Blaze: Pay 3 IP when you attack: the attack deals an additional 2d6 fire damage."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "8z4LwJoQi8q9bvvA",
+    "_key": "!items!8z4LwJoQi8q9bvvA",
+    "name": "Coronacht, the Heartseeking Bow",
+    "type": "weapon",
+    "img": "tokens/items/coronacht-the-heartseeking-bow.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "18m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "2d10",
+      "traits": "Deadly d10: When you crit, add the named dice to your damage roll (not doubled).\nMultishot: Your normal attack deals half the damage but hits every enemy in a cone.\nPower Shot d10: You may spend an additional action to add an additional named dice to your damage roll (doubled on crit)."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ZMyWWh5uAW3c9g1K",
+    "_key": "!items!ZMyWWh5uAW3c9g1K",
+    "name": "Supreme Deity's Favor",
+    "type": "weapon",
+    "img": "tokens/items/supreme-deity-s-favor.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "2d8",
+      "traits": "Eostre's Will: You can ask once per lifetime for a favor from Eostre.\nBenevocatus' Ductor: By the will of Eostre, you are able to heal all friendly for 4d4 + (lvl*2). All friendly also gain 1 action this turn. (Once per Longrest)\nBound weapon: This weapon always returns in your hand whenever you will it.\n(Once per Shortrest) Pommel Strike: A target must succeed a Con saving throw or be dazed.\nBonus Damage: +1d8 vs Undead/Fiends"
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "eYE2njXaPUBF0F0K",
+    "_key": "!items!eYE2njXaPUBF0F0K",
+    "name": "Glarid's Glamorous Greaser",
+    "type": "weapon",
+    "img": "tokens/items/glarid-s-glamorous-greaser.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "12m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "",
+      "traits": "Grease Cannon: You are able to hit 4 squares in a line but must reload the weapon to use it again. Reloading costs 1 action.\nFlama Diddle: Your weapon may now attack with incendiary projectiles that deal 1d8 fire damage for 1 action. When greased enemies are hit, the target take additional 2d8 fire damage.\nShotgun mode: For 1 round, you may turn your weapon into a shotgun. While in shotgun mode, your range becomes 3m and every action you do with your weapon cost 1 less action and can be used a maximum of 3times. After this, your weapon breaks and can only be reinstated by a Longrest."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "AT17dmeU71zD2PId",
+    "_key": "!items!AT17dmeU71zD2PId",
+    "name": "Paua Pole",
+    "type": "weapon",
+    "img": "tokens/items/paua-pole.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {
+        "parry": {
+          "stat": "attributes.parry.value",
+          "value": 1,
+          "description": "Parry trait"
+        }
+      },
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "2d8",
+      "traits": "Sentient: This weapon inhabits the soul of the Pole.\nEndless Growth: This weapon can grow by 3m per action and retract momentarily when wanted.\nFinesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nParry: +1 Parry\nRetaliation Knockback: When you parry an attack wearing this weapon, knock the attacker 3m back in an any direction. (Once per Shortrest)\nKnockdown Sweep: Your next attack hits up to 3 targets in front of you and prones them instead of dealing damage."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
     "_stats": {
       "coreVersion": "14.364",
       "systemId": "incarnos",

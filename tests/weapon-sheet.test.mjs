@@ -25,8 +25,8 @@ test("weapon rows become weapons with mode, range, hands, hitrate, damage and tr
 test("documents get stable IDs, Melee/Ranged folders, icons, Parry passives and the system's weapon fields", () => {
   const { weapons } = parseWeaponRows(rows.slice(0, 4));
   const docs = weaponsToDocuments(weapons, { icon: weapon => (weapon.name === "Whip" ? "icons/whip.webp" : null) });
-  const [melee, ranged, whip, shield, bow] = docs;
-  assert.deepEqual([melee.name, ranged.name], ["Melee", "Ranged"]);
+  const [melee, ranged, legendary, whip, shield, bow] = docs;
+  assert.deepEqual([melee.name, ranged.name, legendary.name], ["Melee", "Ranged", "Legendary"]);
   assert.deepEqual([whip.folder, shield.folder, bow.folder], [melee._id, melee._id, ranged._id]);
   assert.deepEqual(weaponsToDocuments(weapons).map(doc => doc._id), docs.map(doc => doc._id), "IDs are stable");
   assert.equal(whip.img, "icons/whip.webp");
@@ -37,4 +37,21 @@ test("documents get stable IDs, Melee/Ranged folders, icons, Parry passives and 
   const expected = Object.keys(template).filter(key => key !== "templates").sort();
   const actual = Object.keys(whip.system).filter(key => !["description", "passivesEnabled", "passives"].includes(key)).sort();
   assert.deepEqual(actual, expected);
+});
+
+test("legendary weapons go into the Legendary folder with their own picture, description and ID", () => {
+  const header = ["Name", "Weapon Type", "Hands", "Hitrate", "Damage", "Traits", "Icon", "Description"];
+  const { weapons } = parseWeaponRows([header,
+    ["Coronacht", "Ranged (18m)", "2", "", "2d10", "", "tokens/items/coronacht.webp", "A <bow>.\n\nSecond part."],
+    ["Coronacht", "Ranged (18m)", "2", "", "2d10", "", "", ""]]);
+  weapons[0].legendary = true;
+  const docs = weaponsToDocuments(weapons);
+  const [legendaryFolder, special, plain] = [docs[2], docs[3], docs[4]];
+  assert.equal(special.folder, legendaryFolder._id);
+  assert.equal(plain.folder, docs[1]._id);
+  assert.notEqual(special._id, plain._id, "a legendary weapon never shares the ID of a regular one");
+  assert.equal(special.img, "tokens/items/coronacht.webp");
+  assert.equal(special.system.description, "<p>A &lt;bow&gt;.</p><p>Second part.</p>");
+  assert.deepEqual(special.flags, { incarnos: { legendary: true } });
+  assert.equal("img" in special.system || "legendary" in special.system, false);
 });
