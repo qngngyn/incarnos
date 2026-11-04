@@ -20,7 +20,7 @@ export { damageIcon } from "./roll-card.mjs";
  * @param {boolean} [card.pending]      Dice still rolling: show targets without outcomes.
  * @returns {string}
  */
-export function renderSpellCard({ name, img, system = {}, auto = {}, paid = {}, damage = null, critDamage = null, heal = null, results = [], attackLabel = "Attack", pending = false, criticalFailureLabel }) {
+export function renderSpellCard({ name, img, system = {}, auto = {}, paid = {}, damage = null, critDamage = null, heal = null, results = [], attackLabel = "Attack", pending = false, criticalFailureLabel, summon = null }) {
   const tags = [system.element, system.category].filter(Boolean).map(escape).join(" · ");
   const cost = [paid.mp ? `${paid.mp} IP` : "", paid.hp ? `${paid.hp} HP` : "", paid.actions ? `${paid.actions} AP` : ""].filter(Boolean).join(" · ");
   const facts = [...new Set([system.range, system.target, system.check, system.duration].map(value => String(value ?? "").trim()).filter(Boolean))].map(escape).join(" · ");
@@ -57,6 +57,8 @@ export function renderSpellCard({ name, img, system = {}, auto = {}, paid = {}, 
 
   // The roll line only matters when someone was affected; on a full miss it would read like damage dealt.
   const notes = pending ? [] : [
+    ...(summon ? [escape(game.i18n.format("INCARNOS.Summon.card", { name: summon.name, width: summon.width, height: summon.height, turns: summon.turns })),
+      summon.corpse ? escape(game.i18n.localize("INCARNOS.Summon.corpse")) : "", escape(summon.warning)] : []),
     damage && results.some(result => result.damage && !result.crit) ? `<span title="${escape(damage.formula)}"><i class="fas fa-dice"></i> Damage ${escape(damage.result)} = <b>${damage.total}</b></span>` : "",
     critDamage && results.some(result => result.damage && result.crit) ? `<span title="${escape(critDamage.formula)}"><i class="fas fa-dice"></i> Crit damage (dice maxed) ${escape(critDamage.result)} = <b>${critDamage.total}</b></span>` : "",
     // Token rolls of conditions (e.g. sleep tokens), per target.

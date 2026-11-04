@@ -1,4 +1,5 @@
 /** Incarnos action resource, token segments and end-of-turn replenishment. */
+import { tickSummons } from "./summon-lifecycle.mjs";
 const writes = new WeakMap();
 const displays = new WeakMap();
 const tokenControls = new Map();
@@ -67,6 +68,14 @@ export function payActions(actor, count, label) {
     const paid = Math.min(count, getActionState(actor).value);
     if (paid) await actor.update({ "system.actionpoints.value": getActionState(actor).value - paid });
     return paid;
+  });
+}
+
+/** Failed summons return AP through the same queue as other resource writes. */
+export function refundActions(actor, count) {
+  return queueActions(actor, async () => {
+    const state = getActionState(actor);
+    if (count) await actor.update({ "system.actionpoints.value": Math.min(state.max, state.value + count) });
   });
 }
 
@@ -331,6 +340,7 @@ export async function replenishCombatTurn(combat, prior, current) {
   try {
     await replenishEndedTurn(combat, { round: current.round, turn: current.turn },
       { incarnosEndedCombatantId: prior.combatantId });
+    await tickSummons(combat, prior, current);
   } catch (error) {
     // Failed writes remain retryable; a stale failure cannot clear a newer turn.
     if (replenishedTurns.get(combat) === signature) replenishedTurns.delete(combat);

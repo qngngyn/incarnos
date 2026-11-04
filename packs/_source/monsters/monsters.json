@@ -92,6 +92,29 @@
     }
   },
   {
+    "_id": "iPZgp6pFHfJpGp3F",
+    "_key": "!folders!iPZgp6pFHfJpGp3F",
+    "name": "Elementals",
+    "type": "Actor",
+    "folder": null,
+    "sorting": "a",
+    "sort": 0,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
     "_id": "80BjYGsUrbcLlOtK",
     "_key": "!folders!80BjYGsUrbcLlOtK",
     "name": "Goblins",
@@ -276,6 +299,8 @@
     },
     "prototypeToken": {
       "name": "Ignition Frog",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/ignition-frog.webp"
       },
@@ -461,6 +486,8 @@
     },
     "prototypeToken": {
       "name": "Lashtail Panther",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/lashtail-panther.webp"
       },
@@ -710,6 +737,8 @@
     },
     "prototypeToken": {
       "name": "Snake",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/snake.webp"
       },
@@ -855,6 +884,8 @@
     },
     "prototypeToken": {
       "name": "Molem v1",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/molem-v1.webp"
       },
@@ -1032,6 +1063,8 @@
     },
     "prototypeToken": {
       "name": "Molem v2",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/molem-v2.webp"
       },
@@ -1217,6 +1250,8 @@
     },
     "prototypeToken": {
       "name": "Small Fire Golem",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/small-fire-golem.webp"
       },
@@ -1394,6 +1429,8 @@
     },
     "prototypeToken": {
       "name": "Small Light Golem",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/small-light-golem.webp"
       },
@@ -1571,6 +1608,8 @@
     },
     "prototypeToken": {
       "name": "Small Shadow Golem",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/small-shadow-golem.webp"
       },
@@ -1748,6 +1787,8 @@
     },
     "prototypeToken": {
       "name": "Small Water Golem",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/small-water-golem.webp"
       },
@@ -1925,6 +1966,8 @@
     },
     "prototypeToken": {
       "name": "Daemobunny",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/daemobunny.webp"
       },
@@ -2174,6 +2217,8 @@
     },
     "prototypeToken": {
       "name": "Hellhound",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/hellhound.webp"
       },
@@ -2383,6 +2428,8 @@
     },
     "prototypeToken": {
       "name": "Jin Ho Yang, Okher's Vessel",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/jin-ho-yang-okher-s-vessel.webp"
       },
@@ -2584,6 +2631,8 @@
     },
     "prototypeToken": {
       "name": "Mezzoloth",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/mezzoloth.webp"
       },
@@ -2825,6 +2874,8 @@
     },
     "prototypeToken": {
       "name": "Salameleon",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/salameleon.webp"
       },
@@ -2973,6 +3024,722 @@
     }
   },
   {
+    "_id": "Ff5jrRXrt9zGN8pc",
+    "_key": "!actors!Ff5jrRXrt9zGN8pc",
+    "name": "Deathfire Elemental +20 IP",
+    "type": "npc",
+    "img": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png",
+    "system": {
+      "health": {
+        "value": 45,
+        "min": 0,
+        "max": 45,
+        "bonus": 0
+      },
+      "power": {
+        "value": 0,
+        "min": 0,
+        "max": 0,
+        "bonus": 0
+      },
+      "attributes": {
+        "level": {
+          "value": 2
+        },
+        "parry": {
+          "value": 15,
+          "bonus": 0
+        },
+        "movement": {
+          "value": 10.5,
+          "bonus": 0
+        }
+      },
+      "abilities": {
+        "str": {
+          "value": 15,
+          "bonus": 0
+        },
+        "dex": {
+          "value": 15,
+          "bonus": 0
+        },
+        "con": {
+          "value": 15,
+          "bonus": 0
+        },
+        "wis": {
+          "value": 15,
+          "bonus": 0
+        },
+        "prc": {
+          "value": 15,
+          "bonus": 0
+        },
+        "spd": {
+          "value": 15,
+          "bonus": 0
+        },
+        "int": {
+          "value": 15,
+          "bonus": 0
+        },
+        "cha": {
+          "value": 15,
+          "bonus": 0
+        }
+      },
+      "biography": "<p><strong>Element: Fire · Speed: 7 (10,5m)</strong></p><p>Aussehen: Eine lodernde Gestalt aus violettem Todesfeuer, die aus einer Leiche aufsteigt. Je mehr Incarna in sie fließt, desto größer wird sie (2 Felder).</p><p>Geruch: Verbranntes Fleisch und Asche.</p><p>Hörend: Ein tiefes Knistern, wie ein Scheiterhaufen.</p><p>Stats come from the spell Death fire elemental (base: 10 in every stat, 1d8 fire damage; each +20 IP: +1 size, +5 to all stats, +1d8 fire damage).</p>"
+    },
+    "prototypeToken": {
+      "name": "Deathfire Elemental +20 IP",
+      "width": 2,
+      "height": 2,
+      "texture": {
+        "src": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png"
+      },
+      "disposition": -1,
+      "actorLink": false
+    },
+    "items": [
+      "a04euH1H2L7tFgXS",
+      "MHktIzHRrV0iYTps"
+    ],
+    "effects": [],
+    "folder": "iPZgp6pFHfJpGp3F",
+    "sort": 1500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "monster": {
+          "element": "Fire",
+          "weakness": "",
+          "level": 2
+        }
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "a04euH1H2L7tFgXS",
+    "_key": "!actors.items!Ff5jrRXrt9zGN8pc.a04euH1H2L7tFgXS",
+    "name": "Deathfire Strike",
+    "type": "weapon",
+    "img": "icons/svg/sword.svg",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "2d8",
+      "traits": ""
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "MHktIzHRrV0iYTps",
+    "_key": "!actors.items!Ff5jrRXrt9zGN8pc.MHktIzHRrV0iYTps",
+    "name": "Traits",
+    "type": "feature",
+    "img": "icons/svg/aura.svg",
+    "system": {
+      "description": "<p>Summoned with Death fire elemental at a corpse; it lasts 10 turns. Empowered with +20 IP: +1 size, +5 to all stats, +1d8 fire damage.<br>It cannot hold or carry items and cannot speak.</p>",
+      "bonus": "",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "4BoG5LlfGH1dY2Kg",
+    "_key": "!actors!4BoG5LlfGH1dY2Kg",
+    "name": "Deathfire Elemental +40 IP",
+    "type": "npc",
+    "img": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png",
+    "system": {
+      "health": {
+        "value": 60,
+        "min": 0,
+        "max": 60,
+        "bonus": 0
+      },
+      "power": {
+        "value": 0,
+        "min": 0,
+        "max": 0,
+        "bonus": 0
+      },
+      "attributes": {
+        "level": {
+          "value": 3
+        },
+        "parry": {
+          "value": 20,
+          "bonus": 0
+        },
+        "movement": {
+          "value": 15,
+          "bonus": 0
+        }
+      },
+      "abilities": {
+        "str": {
+          "value": 20,
+          "bonus": 0
+        },
+        "dex": {
+          "value": 20,
+          "bonus": 0
+        },
+        "con": {
+          "value": 20,
+          "bonus": 0
+        },
+        "wis": {
+          "value": 20,
+          "bonus": 0
+        },
+        "prc": {
+          "value": 20,
+          "bonus": 0
+        },
+        "spd": {
+          "value": 20,
+          "bonus": 0
+        },
+        "int": {
+          "value": 20,
+          "bonus": 0
+        },
+        "cha": {
+          "value": 20,
+          "bonus": 0
+        }
+      },
+      "biography": "<p><strong>Element: Fire · Speed: 10 (15m)</strong></p><p>Aussehen: Eine lodernde Gestalt aus violettem Todesfeuer, die aus einer Leiche aufsteigt. Je mehr Incarna in sie fließt, desto größer wird sie (3 Felder).</p><p>Geruch: Verbranntes Fleisch und Asche.</p><p>Hörend: Ein tiefes Knistern, wie ein Scheiterhaufen.</p><p>Stats come from the spell Death fire elemental (base: 10 in every stat, 1d8 fire damage; each +20 IP: +1 size, +5 to all stats, +1d8 fire damage).</p>"
+    },
+    "prototypeToken": {
+      "name": "Deathfire Elemental +40 IP",
+      "width": 3,
+      "height": 3,
+      "texture": {
+        "src": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png"
+      },
+      "disposition": -1,
+      "actorLink": false
+    },
+    "items": [
+      "leAJTr4DPZWwKybr",
+      "RqGDFOWMA2TMC13E"
+    ],
+    "effects": [],
+    "folder": "iPZgp6pFHfJpGp3F",
+    "sort": 1600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "monster": {
+          "element": "Fire",
+          "weakness": "",
+          "level": 3
+        }
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "leAJTr4DPZWwKybr",
+    "_key": "!actors.items!4BoG5LlfGH1dY2Kg.leAJTr4DPZWwKybr",
+    "name": "Deathfire Strike",
+    "type": "weapon",
+    "img": "icons/svg/sword.svg",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "3d8",
+      "traits": ""
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "RqGDFOWMA2TMC13E",
+    "_key": "!actors.items!4BoG5LlfGH1dY2Kg.RqGDFOWMA2TMC13E",
+    "name": "Traits",
+    "type": "feature",
+    "img": "icons/svg/aura.svg",
+    "system": {
+      "description": "<p>Summoned with Death fire elemental at a corpse; it lasts 10 turns. Empowered with +40 IP: +2 sizes, +10 to all stats, +2d8 fire damage.<br>It cannot hold or carry items and cannot speak.</p>",
+      "bonus": "",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "F4CHBm3vxvMNFBQD",
+    "_key": "!actors!F4CHBm3vxvMNFBQD",
+    "name": "Deathfire Elemental +60 IP",
+    "type": "npc",
+    "img": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png",
+    "system": {
+      "health": {
+        "value": 75,
+        "min": 0,
+        "max": 75,
+        "bonus": 0
+      },
+      "power": {
+        "value": 0,
+        "min": 0,
+        "max": 0,
+        "bonus": 0
+      },
+      "attributes": {
+        "level": {
+          "value": 4
+        },
+        "parry": {
+          "value": 25,
+          "bonus": 0
+        },
+        "movement": {
+          "value": 18,
+          "bonus": 0
+        }
+      },
+      "abilities": {
+        "str": {
+          "value": 25,
+          "bonus": 0
+        },
+        "dex": {
+          "value": 25,
+          "bonus": 0
+        },
+        "con": {
+          "value": 25,
+          "bonus": 0
+        },
+        "wis": {
+          "value": 25,
+          "bonus": 0
+        },
+        "prc": {
+          "value": 25,
+          "bonus": 0
+        },
+        "spd": {
+          "value": 25,
+          "bonus": 0
+        },
+        "int": {
+          "value": 25,
+          "bonus": 0
+        },
+        "cha": {
+          "value": 25,
+          "bonus": 0
+        }
+      },
+      "biography": "<p><strong>Element: Fire · Speed: 12 (18m)</strong></p><p>Aussehen: Eine lodernde Gestalt aus violettem Todesfeuer, die aus einer Leiche aufsteigt. Je mehr Incarna in sie fließt, desto größer wird sie (4 Felder).</p><p>Geruch: Verbranntes Fleisch und Asche.</p><p>Hörend: Ein tiefes Knistern, wie ein Scheiterhaufen.</p><p>Stats come from the spell Death fire elemental (base: 10 in every stat, 1d8 fire damage; each +20 IP: +1 size, +5 to all stats, +1d8 fire damage).</p>"
+    },
+    "prototypeToken": {
+      "name": "Deathfire Elemental +60 IP",
+      "width": 4,
+      "height": 4,
+      "texture": {
+        "src": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png"
+      },
+      "disposition": -1,
+      "actorLink": false
+    },
+    "items": [
+      "ciNsrnwU2GkNCaYf",
+      "6d2G50uPmBIUPfSL"
+    ],
+    "effects": [],
+    "folder": "iPZgp6pFHfJpGp3F",
+    "sort": 1700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "monster": {
+          "element": "Fire",
+          "weakness": "",
+          "level": 4
+        }
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ciNsrnwU2GkNCaYf",
+    "_key": "!actors.items!F4CHBm3vxvMNFBQD.ciNsrnwU2GkNCaYf",
+    "name": "Deathfire Strike",
+    "type": "weapon",
+    "img": "icons/svg/sword.svg",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "4d8",
+      "traits": ""
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "6d2G50uPmBIUPfSL",
+    "_key": "!actors.items!F4CHBm3vxvMNFBQD.6d2G50uPmBIUPfSL",
+    "name": "Traits",
+    "type": "feature",
+    "img": "icons/svg/aura.svg",
+    "system": {
+      "description": "<p>Summoned with Death fire elemental at a corpse; it lasts 10 turns. Empowered with +60 IP: +3 sizes, +15 to all stats, +3d8 fire damage.<br>It cannot hold or carry items and cannot speak.</p>",
+      "bonus": "",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "pBFgsuEioCBw28LD",
+    "_key": "!actors!pBFgsuEioCBw28LD",
+    "name": "Deathfire Elemental",
+    "type": "npc",
+    "img": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png",
+    "system": {
+      "health": {
+        "value": 30,
+        "min": 0,
+        "max": 30,
+        "bonus": 0
+      },
+      "power": {
+        "value": 0,
+        "min": 0,
+        "max": 0,
+        "bonus": 0
+      },
+      "attributes": {
+        "level": {
+          "value": 1
+        },
+        "parry": {
+          "value": 10,
+          "bonus": 0
+        },
+        "movement": {
+          "value": 7.5,
+          "bonus": 0
+        }
+      },
+      "abilities": {
+        "str": {
+          "value": 10,
+          "bonus": 0
+        },
+        "dex": {
+          "value": 10,
+          "bonus": 0
+        },
+        "con": {
+          "value": 10,
+          "bonus": 0
+        },
+        "wis": {
+          "value": 10,
+          "bonus": 0
+        },
+        "prc": {
+          "value": 10,
+          "bonus": 0
+        },
+        "spd": {
+          "value": 10,
+          "bonus": 0
+        },
+        "int": {
+          "value": 10,
+          "bonus": 0
+        },
+        "cha": {
+          "value": 10,
+          "bonus": 0
+        }
+      },
+      "biography": "<p><strong>Element: Fire · Speed: 5 (7,5m)</strong></p><p>Aussehen: Eine lodernde Gestalt aus violettem Todesfeuer, die aus einer Leiche aufsteigt. Je mehr Incarna in sie fließt, desto größer wird sie (1 Feld).</p><p>Geruch: Verbranntes Fleisch und Asche.</p><p>Hörend: Ein tiefes Knistern, wie ein Scheiterhaufen.</p><p>Stats come from the spell Death fire elemental (base: 10 in every stat, 1d8 fire damage; each +20 IP: +1 size, +5 to all stats, +1d8 fire damage).</p>"
+    },
+    "prototypeToken": {
+      "name": "Deathfire Elemental",
+      "width": 1,
+      "height": 1,
+      "texture": {
+        "src": "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png"
+      },
+      "disposition": -1,
+      "actorLink": false
+    },
+    "items": [
+      "EfDeU3IPWpQFPxym",
+      "F7XtiYH7DUr0Hapk"
+    ],
+    "effects": [],
+    "folder": "iPZgp6pFHfJpGp3F",
+    "sort": 1800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "monster": {
+          "element": "Fire",
+          "weakness": "",
+          "level": 1
+        }
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "EfDeU3IPWpQFPxym",
+    "_key": "!actors.items!pBFgsuEioCBw28LD.EfDeU3IPWpQFPxym",
+    "name": "Deathfire Strike",
+    "type": "weapon",
+    "img": "icons/svg/sword.svg",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d8",
+      "traits": ""
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "F7XtiYH7DUr0Hapk",
+    "_key": "!actors.items!pBFgsuEioCBw28LD.F7XtiYH7DUr0Hapk",
+    "name": "Traits",
+    "type": "feature",
+    "img": "icons/svg/aura.svg",
+    "system": {
+      "description": "<p>Summoned with Death fire elemental at a corpse; it lasts 10 turns. Not empowered.<br>It cannot hold or carry items and cannot speak.</p>",
+      "bonus": "",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
     "_id": "IOlWPlzg2P4RWU9b",
     "_key": "!actors!IOlWPlzg2P4RWU9b",
     "name": "Goblin King",
@@ -3042,6 +3809,8 @@
     },
     "prototypeToken": {
       "name": "Goblin King",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/goblin-king.webp"
       },
@@ -3056,7 +3825,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 1500000,
+    "sort": 1900000,
     "ownership": {
       "default": 0
     },
@@ -3291,6 +4060,8 @@
     },
     "prototypeToken": {
       "name": "Goblin",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/goblin.webp"
       },
@@ -3302,7 +4073,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 1600000,
+    "sort": 2000000,
     "ownership": {
       "default": 0
     },
@@ -3436,6 +4207,8 @@
     },
     "prototypeToken": {
       "name": "Goblinarcher",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/goblinarcher.webp"
       },
@@ -3447,7 +4220,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 1700000,
+    "sort": 2100000,
     "ownership": {
       "default": 0
     },
@@ -3581,6 +4354,8 @@
     },
     "prototypeToken": {
       "name": "Goblinboss",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/goblinboss.webp"
       },
@@ -3595,7 +4370,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 1800000,
+    "sort": 2200000,
     "ownership": {
       "default": 0
     },
@@ -3830,6 +4605,8 @@
     },
     "prototypeToken": {
       "name": "Goblinshaman",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/goblinshaman.webp"
       },
@@ -3843,7 +4620,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 1900000,
+    "sort": 2300000,
     "ownership": {
       "default": 0
     },
@@ -4039,6 +4816,8 @@
     },
     "prototypeToken": {
       "name": "Goblinwarrior",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/goblinwarrior.webp"
       },
@@ -4051,7 +4830,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 2000000,
+    "sort": 2400000,
     "ownership": {
       "default": 0
     },
@@ -4224,6 +5003,8 @@
     },
     "prototypeToken": {
       "name": "Hobgoblin",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/hobgoblin.webp"
       },
@@ -4237,7 +5018,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 2100000,
+    "sort": 2500000,
     "ownership": {
       "default": 0
     },
@@ -4441,6 +5222,8 @@
     },
     "prototypeToken": {
       "name": "Troll",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/troll.webp"
       },
@@ -4455,7 +5238,7 @@
     ],
     "effects": [],
     "folder": "80BjYGsUrbcLlOtK",
-    "sort": 2200000,
+    "sort": 2600000,
     "ownership": {
       "default": 0
     },
@@ -4690,6 +5473,8 @@
     },
     "prototypeToken": {
       "name": "Bandit",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/bandit.webp"
       },
@@ -4702,7 +5487,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2300000,
+    "sort": 2700000,
     "ownership": {
       "default": 0
     },
@@ -4875,6 +5660,8 @@
     },
     "prototypeToken": {
       "name": "Aiden, the Rock",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/aiden-the-rock.webp"
       },
@@ -4888,7 +5675,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2400000,
+    "sort": 2800000,
     "ownership": {
       "default": 0
     },
@@ -5084,6 +5871,8 @@
     },
     "prototypeToken": {
       "name": "Katrina, the Blue Dragon",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/katrina-the-blue-dragon.webp"
       },
@@ -5098,7 +5887,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2500000,
+    "sort": 2900000,
     "ownership": {
       "default": 0
     },
@@ -5333,6 +6122,8 @@
     },
     "prototypeToken": {
       "name": "Nathen, the Phantom",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/nathen-the-phantom.webp"
       },
@@ -5346,7 +6137,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2600000,
+    "sort": 3000000,
     "ownership": {
       "default": 0
     },
@@ -5542,6 +6333,8 @@
     },
     "prototypeToken": {
       "name": "Radella, the Hawk",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/radella-the-hawk.webp"
       },
@@ -5554,7 +6347,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2700000,
+    "sort": 3100000,
     "ownership": {
       "default": 0
     },
@@ -5719,6 +6512,8 @@
     },
     "prototypeToken": {
       "name": "Bandit Captain 3",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/bandit-captain-3.webp"
       },
@@ -5733,7 +6528,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2800000,
+    "sort": 3200000,
     "ownership": {
       "default": 0
     },
@@ -5960,6 +6755,8 @@
     },
     "prototypeToken": {
       "name": "Bandit Captain 4",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/bandit-captain-4.webp"
       },
@@ -5974,7 +6771,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 2900000,
+    "sort": 3300000,
     "ownership": {
       "default": 0
     },
@@ -6201,6 +6998,8 @@
     },
     "prototypeToken": {
       "name": "Bandit Captain",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/bandit-captain.webp"
       },
@@ -6215,7 +7014,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3000000,
+    "sort": 3400000,
     "ownership": {
       "default": 0
     },
@@ -6442,6 +7241,8 @@
     },
     "prototypeToken": {
       "name": "Rebeca the Fang",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/rebeca-the-fang.webp"
       },
@@ -6456,7 +7257,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3100000,
+    "sort": 3500000,
     "ownership": {
       "default": 0
     },
@@ -6683,6 +7484,8 @@
     },
     "prototypeToken": {
       "name": "Tamia the Spider",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/tamia-the-spider.webp"
       },
@@ -6697,7 +7500,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3200000,
+    "sort": 3600000,
     "ownership": {
       "default": 0
     },
@@ -6924,6 +7727,8 @@
     },
     "prototypeToken": {
       "name": "Thug",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/thug.webp"
       },
@@ -6935,7 +7740,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3300000,
+    "sort": 3700000,
     "ownership": {
       "default": 0
     },
@@ -7069,6 +7874,8 @@
     },
     "prototypeToken": {
       "name": "Trained Thug",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/trained-thug.webp"
       },
@@ -7080,7 +7887,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3400000,
+    "sort": 3800000,
     "ownership": {
       "default": 0
     },
@@ -7214,6 +8021,8 @@
     },
     "prototypeToken": {
       "name": "Akar Sangar",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/akar-sangar.webp"
       },
@@ -7227,7 +8036,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3500000,
+    "sort": 3900000,
     "ownership": {
       "default": 0
     },
@@ -7423,6 +8232,8 @@
     },
     "prototypeToken": {
       "name": "Baz Alan",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/baz-alan.webp"
       },
@@ -7435,7 +8246,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3600000,
+    "sort": 4000000,
     "ownership": {
       "default": 0
     },
@@ -7600,6 +8411,8 @@
     },
     "prototypeToken": {
       "name": "Hana Coban",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/hana-coban.webp"
       },
@@ -7612,7 +8425,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3700000,
+    "sort": 4100000,
     "ownership": {
       "default": 0
     },
@@ -7777,6 +8590,8 @@
     },
     "prototypeToken": {
       "name": "Jêla Cîhan",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/j-la-c-han.webp"
       },
@@ -7791,7 +8606,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3800000,
+    "sort": 4200000,
     "ownership": {
       "default": 0
     },
@@ -8026,6 +8841,8 @@
     },
     "prototypeToken": {
       "name": "Faceless Monk",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/faceless-monk.webp"
       },
@@ -8037,7 +8854,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 3900000,
+    "sort": 4300000,
     "ownership": {
       "default": 0
     },
@@ -8171,6 +8988,8 @@
     },
     "prototypeToken": {
       "name": "Gotulli Bressi",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/gotulli-bressi.webp"
       },
@@ -8184,7 +9003,7 @@
     ],
     "effects": [],
     "folder": "AhrQERzgICDZ3T6F",
-    "sort": 4000000,
+    "sort": 4400000,
     "ownership": {
       "default": 0
     },
@@ -8372,6 +9191,8 @@
     },
     "prototypeToken": {
       "name": "Durzol, Okher's Prodigy",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/durzol-okher-s-prodigy.webp"
       },
@@ -8387,7 +9208,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4100000,
+    "sort": 4500000,
     "ownership": {
       "default": 0
     },
@@ -8653,6 +9474,8 @@
     },
     "prototypeToken": {
       "name": "Okher Fanatic",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/okher-fanatic.webp"
       },
@@ -8667,7 +9490,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4200000,
+    "sort": 4600000,
     "ownership": {
       "default": 0
     },
@@ -8902,6 +9725,8 @@
     },
     "prototypeToken": {
       "name": "Okher Hunter",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/okher-hunter.webp"
       },
@@ -8916,7 +9741,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4300000,
+    "sort": 4700000,
     "ownership": {
       "default": 0
     },
@@ -9151,6 +9976,8 @@
     },
     "prototypeToken": {
       "name": "Okher Shaman",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/okher-shaman.webp"
       },
@@ -9165,7 +9992,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4400000,
+    "sort": 4800000,
     "ownership": {
       "default": 0
     },
@@ -9392,6 +10219,8 @@
     },
     "prototypeToken": {
       "name": "Orc Barkeeper (Clothed)",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/orc-barkeeper-clothed.webp"
       },
@@ -9404,7 +10233,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4500000,
+    "sort": 4900000,
     "ownership": {
       "default": 0
     },
@@ -9577,6 +10406,8 @@
     },
     "prototypeToken": {
       "name": "Orc Barkeeper (Extra Naked)",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/orc-barkeeper-extra-naked.webp"
       },
@@ -9588,7 +10419,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4600000,
+    "sort": 5000000,
     "ownership": {
       "default": 0
     },
@@ -9722,6 +10553,8 @@
     },
     "prototypeToken": {
       "name": "Orc Captain",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/orc-captain.webp"
       },
@@ -9735,7 +10568,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4700000,
+    "sort": 5100000,
     "ownership": {
       "default": 0
     },
@@ -9939,6 +10772,8 @@
     },
     "prototypeToken": {
       "name": "Orc Warrior",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/orc-warrior.webp"
       },
@@ -9952,7 +10787,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4800000,
+    "sort": 5200000,
     "ownership": {
       "default": 0
     },
@@ -10156,6 +10991,8 @@
     },
     "prototypeToken": {
       "name": "Water Slime",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/water-slime.webp"
       },
@@ -10168,7 +11005,7 @@
     ],
     "effects": [],
     "folder": "9ebL8pYfBcI56a29",
-    "sort": 4900000,
+    "sort": 5300000,
     "ownership": {
       "default": 0
     },
@@ -10341,6 +11178,8 @@
     },
     "prototypeToken": {
       "name": "Ghoul",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/ghoul.webp"
       },
@@ -10352,7 +11191,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5000000,
+    "sort": 5400000,
     "ownership": {
       "default": 0
     },
@@ -10486,6 +11325,8 @@
     },
     "prototypeToken": {
       "name": "Mummy Master",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/mummy-master.webp"
       },
@@ -10499,7 +11340,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5100000,
+    "sort": 5500000,
     "ownership": {
       "default": 0
     },
@@ -10687,6 +11528,8 @@
     },
     "prototypeToken": {
       "name": "Mummy Warrior",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/mummy-warrior.webp"
       },
@@ -10700,7 +11543,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5200000,
+    "sort": 5600000,
     "ownership": {
       "default": 0
     },
@@ -10896,6 +11739,8 @@
     },
     "prototypeToken": {
       "name": "Mummy",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/mummy.webp"
       },
@@ -10908,7 +11753,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5300000,
+    "sort": 5700000,
     "ownership": {
       "default": 0
     },
@@ -11073,6 +11918,8 @@
     },
     "prototypeToken": {
       "name": "Skeleton Champion Elite",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/skeleton-champion-elite.webp"
       },
@@ -11086,7 +11933,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5400000,
+    "sort": 5800000,
     "ownership": {
       "default": 0
     },
@@ -11290,6 +12137,8 @@
     },
     "prototypeToken": {
       "name": "Skeleton Warrior",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/skeleton-warrior.webp"
       },
@@ -11302,7 +12151,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5500000,
+    "sort": 5900000,
     "ownership": {
       "default": 0
     },
@@ -11475,6 +12324,8 @@
     },
     "prototypeToken": {
       "name": "Winged Ghoul",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/winged-ghoul.webp"
       },
@@ -11489,7 +12340,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5600000,
+    "sort": 6000000,
     "ownership": {
       "default": 0
     },
@@ -11724,6 +12575,8 @@
     },
     "prototypeToken": {
       "name": "Zombie",
+      "width": 1,
+      "height": 1,
       "texture": {
         "src": "tokens/monsters/zombie.webp"
       },
@@ -11736,7 +12589,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5700000,
+    "sort": 6100000,
     "ownership": {
       "default": 0
     },

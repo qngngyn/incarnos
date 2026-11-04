@@ -22,6 +22,19 @@ test("speed in metres from squares or an explicit metre value", () => {
   assert.equal(speedMetres(""), 0);
 });
 
+test("Size is optional, positive whole squares and preserves URL-encoded Token paths", () => {
+  for (const [line, expected] of [["", 1], ["Size: 1", 1], ["Size: 2", 2], ["Size: 3", 3], ["Size: 4", 4],
+    ["Size: 0", 1], ["Size: -2", 1], ["Size: 1.5", 1], ["Size: big", 1]]) {
+    const path = "pnp%20zeugs/tokens/Monster/Fire%20Elemental%20-%20Cold%20Chill.png";
+    const { monster } = parseMonsterNote(note.replace("Token: tokens/monsters/lashtail-panther.webp", `${line}\nToken: ${path}`), "Elemental");
+    const actor = monstersToDocuments([{ monster, type: "Elementals" }]).find(doc => doc.type === "npc");
+    assert.equal(monster.size, expected);
+    assert.equal(actor.prototypeToken.width, expected);
+    assert.equal(actor.prototypeToken.height, expected);
+    assert.equal(actor.prototypeToken.texture.src, path);
+  }
+});
+
 test("attack lines become weapons with hitrate, damage, range and trait text", () => {
   assert.deepEqual(parseAttackLine("Claws: Melee -1 1d6+2"), { name: "Claws", attackMode: "melee", modifier: -1, damage: "1d6+2", range: "", traits: "" });
   assert.deepEqual(parseAttackLine("Splash: Melee-3 4d8, Prone"), { name: "Splash", attackMode: "melee", modifier: -3, damage: "4d8", range: "", traits: "Prone" });

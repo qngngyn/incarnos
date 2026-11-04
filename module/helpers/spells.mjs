@@ -48,6 +48,8 @@ export function parseSpellAutomation(system = {}) {
   // Spells on oneself or allies, and "Everything" spells with several sub-options, don't deal damage directly.
   const offensive = !/\b(self|ally|allies|friendly)\b/i.test(target) && !/everything/i.test(system.category ?? "");
   const lines = String(system.effect ?? "").split("\n").map(line => line.trim());
+  const summon = parseSpellSummon(system);
+  if (summon) result.summon = summon;
   const skip = /\bif\b|%|beginning|end of|additional|extra|instead|shield|attacks deal|^(-|melee:|ranged:|on enemy|on crit)/i;
   const damageLine = offensive && lines.find(line => /\b(dmg|damage)\b/i.test(line) && new RegExp(DICE).test(line) && !skip.test(line));
   if (damageLine) {
@@ -73,6 +75,21 @@ export function parseSpellAutomation(system = {}) {
     Object.assign(result, { areaShape: "line", areaSize: meters(match[1]), areaWidth: meters(match[2]), areaOrigin: "self" });
   }
   return result;
+}
+
+/** Summons name compendium versions; empower descriptions never modify actor stats at runtime. */
+export function parseSpellSummon(system = {}) {
+  const creature = String(system.effect ?? "").match(/\bspawn\s+an?\s+([^\n]+?)\s+at\b/i)?.[1].trim();
+  if (!creature) return null;
+  const tiers = [{ ip: 0, effect: "" }];
+  const empower = String(system.effect).split(/^\s*Empower\s*:/im)[1] ?? "";
+  for (const match of empower.matchAll(/^\s*-\s*\+(\d+)\s+IP\s*:\s*(.+)$/gim)) {
+    const ip = Number(match[1]);
+    if (ip > 0 && Number.isSafeInteger(ip) && !tiers.some(tier => tier.ip === ip)) tiers.push({ ip, effect: match[2].trim() });
+  }
+  tiers.sort((a, b) => a.ip - b.ip);
+  const turns = Number(String(system.duration ?? "").match(/^\s*(\d+)\s+turns?\s*$/i)?.[1] ?? 0);
+  return { creature, tiers, turns, corpse: /\bcorpse\b/i.test(system.target ?? "") };
 }
 
 const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized" };
@@ -128,6 +145,12 @@ export function getSpellAutomation(system = {}) {
 /** Short description of what a cast will do, for the spell sheet. */
 export function describeSpellAutomation(auto = {}) {
   const parts = [];
+  if (auto.summon) {
+    const summon = auto.summon;
+    const data = { creature: summon.creature.replace(/\b\w/g, char => char.toUpperCase()), tiers: summon.tiers.length, turns: summon.turns };
+    parts.push(globalThis.game?.i18n?.format?.("INCARNOS.Summon.automation", data)
+      ?? `Summons ${data.creature} (${data.tiers} empower tiers), ${data.turns} turns`);
+  }
   if (auto.attackStat) parts.push(`Attack ${SPELL_ATTACK_STATS[auto.attackStat]}${auto.attackCount > 1 ? ` ×${auto.attackCount}` : ""}${auto.attackModifier ? ` ${auto.attackModifier > 0 ? "+" : ""}${auto.attackModifier}` : ""} vs Parry`);
   if (auto.saveStat) parts.push(`Target ${SPELL_STATS[auto.saveStat]} Save${auto.saveModifier ? ` ${auto.saveModifier > 0 ? "+" : ""}${auto.saveModifier}` : ""}${auto.saveEffect ? ` (${SPELL_SAVE_EFFECTS[auto.saveEffect].toLowerCase()} on save)` : ""}`);
   if (auto.damage) parts.push(`Damage ${auto.damage}${auto.damageType ? ` ${auto.damageType}` : ""}`);

@@ -93,6 +93,7 @@ export function parseMonsterNote(markdown, fallbackName, { traits = {} } = {}) {
     monster: {
       name: fallbackName, level, element: field("Element").replace(/^-$/, ""), weakness: field("Weakness").replace(/^-$/, ""),
       hp, parry: Number(field("Parry").match(/\d+/)?.[0] ?? 10), speed: field("Speed"), movement: speedMetres(field("Speed")),
+      size: /^[1-9]\d*$/.test(field("Size")) ? Number(field("Size")) : 1,
       token: field("Token"), abilities, traits: traitsText, weapons, special: special.join("\n"),
       actions: block(text, "Actions:").trim(), description, fullDescription: full
     },
@@ -157,7 +158,7 @@ export function monstersToDocuments(entries, { systemVersion = "1.4.0" } = {}) {
         abilities: Object.fromEntries(Object.entries(m.abilities).map(([key, value]) => [key, { value, bonus: 0 }])),
         biography
       },
-      prototypeToken: { name: m.name, texture: { src: img }, disposition: -1, actorLink: false },
+      prototypeToken: { name: m.name, width: m.size ?? 1, height: m.size ?? 1, texture: { src: img }, disposition: -1, actorLink: false },
       items: items.map(item => item._id), effects: [], folder: folders.get(type) ?? null, sort: (index + 1) * 100000,
       ownership: { default: 0 }, flags: { incarnos: { monster: { element: m.element, weakness: m.weakness, level: m.level } } },
       _stats: stats(systemVersion)

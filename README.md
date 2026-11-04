@@ -12,6 +12,14 @@ The Table of Content is as followed:
 
 # incarnos
 
+## Summoning spells
+
+Effect text `Spawn a/an <creature> at …` summons the matching actor from **Incarnos Monsters**. A tier chooser shows Base and the spell's `Empower:` lines (`- +20 IP: …`), including total IP. Empowered versions use actors named `<Creature> +20 IP`, etc.; missing versions fall back to the base creature with a warning on the card. **Death fire elemental** offers 20/40/60/80 total IP, sizes 1/2/3/4, and 10 turns. Monster notes accept optional `Size: N` (whole squares, default 1); their `Token:` paths are preserved.
+
+An active GM and a caster token on the scene are required. Click to place the grid-snapped square preview; right-click or Esc cancels free of charge. Placement uses the spell's range from the caster token's centre to the preview origin, like placed rectangle spells. Players cannot confirm out-of-range placements; GMs can choose **Place anyway?** The GM validates the hidden request, pays IP (HP for Abomination) and combat AP, reuses/imports the version in the **Summons** world actor folder, adds the caster's player owners, and creates a friendly, unlinked token. The private monster compendium remains GM-only.
+
+In a started combat, the summon joins immediately after its caster at the same initiative. `Duration: N turns` counts down at the end of each caster turn; at zero, its token and combatant disappear and chat announces it fading. Outside combat, remove summons manually. Cards show the version, size, duration and a corpse reminder when appropriate; choosing the corpse remains a table call. Reload every client with **F5** after updating.
+
 ## Item passives
 
 Open an item, weapon, talent, or spell and select **Passives**. Click **Add passive**, choose a stat, and enter a signed modifier (for example, Strength +2 or Parry -1). Changes save automatically.

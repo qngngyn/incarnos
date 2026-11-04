@@ -1,9 +1,10 @@
 /** Spell casting: pay the cost, place the area, roll attacks/saves/damage, and let the GM apply the results. */
-import { inCombat, payActions } from "./action-tracker.mjs";
+import { getCastCost, spendCastCost } from "./spell-cost.mjs";
+import { castSummon } from "./summons.mjs";
 import { waitForContestAnimations } from "./contest-requests.mjs";
 import {
-  SPELL_STATS, getHealthAfter, getSpellAttackThreshold, getSpellAutomation, getSpellDamage, getVariableCost,
-  formatSpellCost, rollUnderSucceeds
+  SPELL_STATS, getSpellAttackThreshold, getSpellAutomation, getSpellDamage,
+  rollUnderSucceeds
 } from "./spells.mjs";
 import { renderSpellCard } from "./spell-card.mjs";
 import { hasCriticalFailure } from "./critical-failure-rules.mjs";
@@ -11,7 +12,6 @@ import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
 import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied } from "./conditions.mjs";
 
-const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 const castData = message => message.flags?.incarnos?.spellCast;
 const applying = new Set();
 
@@ -28,6 +28,8 @@ export async function castSpell(item) {
   if (!actor) {
     return ChatMessage.create({ speaker, rollMode, content: renderSpellCard({ name: item.name, img: item.img, system }) });
   }
+
+  if (auto.summon) return castSummon(item, auto);
 
   for (const formula of [auto.damage, auto.heal].filter(Boolean)) {
     if (!Roll.validate(formula)) return ui.notifications.warn(`${item.name}: "${formula}" is not a valid roll formula.`);
@@ -174,47 +176,6 @@ function getCasterToken(actor) {
   if (actor.token?.object) return actor.token.object;
   const tokens = canvas.tokens?.placeables.filter(token => token.actor === actor || token.document.actorId === actor.id) ?? [];
   return tokens.find(token => token.controlled) ?? tokens[0] ?? null;
-}
-
-/** Cost to pay: fixed values or a variable-cost prompt. Checks IP; AP is checked when paying. */
-async function getCastCost(item) {
-  const { system, actor } = item;
-  // system.mp holds the Incarna (IP) cost; keep this legacy data path for existing spell items.
-  let cost = { actions: Number(system.actions ?? 0), mp: Number(system.mp ?? 0) };
-  const variable = getVariableCost(system.cost);
-  if (variable.actions || variable.mp) {
-    const data = await foundry.applications.api.DialogV2.input({
-      window: { title: `Cast ${item.name}` },
-      content: `<p>${escape(formatSpellCost(system.cost))}</p>
-        <div class="form-group"><label>Actions</label><input type="number" name="actions" value="${cost.actions}" min="0" step="1"></div>
-        <div class="form-group"><label>IP</label><input type="number" name="mp" value="${cost.mp}" min="0" step="1"></div>`,
-      ok: { label: "Cast" },
-      rejectClose: false
-    });
-    if (!data) return null;
-    cost = { actions: Math.max(0, Number(data.actions) || 0), mp: Math.max(0, Number(data.mp) || 0) };
-  }
-  // Abomination: no IP, spells take their IP cost from HP instead.
-  const hpMagic = getTalentRules(actor.items).hpMagic;
-  const pool = hpMagic ? "HP" : "IP";
-  const available = Number((hpMagic ? actor.system.health : actor.system.power)?.value ?? 0);
-  if (cost.mp > available) {
-    ui.notifications.warn(`Not enough ${hpMagic ? "HP" : "Incarna"}: ${actor.name} has ${available} ${pool}; ${item.name} costs ${cost.mp} ${pool}.`);
-    return null;
-  }
-  if (hpMagic) cost.hp = cost.mp;
-  return cost;
-}
-
-/** Deduct IP (HP for Abomination) always and AP only during combat, where the action tracker counts them. Returns what was paid. */
-async function spendCastCost(actor, { actions, mp, hp }, label) {
-  const paidActions = inCombat(actor) ? await payActions(actor, actions, label) : 0;
-  if (paidActions === false) return false;
-  const update = {};
-  if (hp) update["system.health.value"] = Number(actor.system.health?.value ?? 0) - hp;
-  else if (mp) update["system.power.value"] = Number(actor.system.power?.value ?? 0) - mp;
-  if (!foundry.utils.isEmpty(update)) await actor.update(update);
-  return hp ? { mp: 0, hp, actions: paidActions } : { mp, actions: paidActions };
 }
 
 /**
