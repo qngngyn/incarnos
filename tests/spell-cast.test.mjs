@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyCastConditions, applySpellResult, castSpell, registerSpellCastHooks } from "../module/helpers/spell-cast.mjs";
+import { applyCastConditions, applySpellResult, castSpell, getTokensInArea, registerSpellCastHooks } from "../module/helpers/spell-cast.mjs";
 import { applyAttackConditions, conditionTokens, setConditionTokens } from "../module/helpers/conditions.mjs";
 
 const leafWind = {
@@ -443,4 +443,11 @@ test("Abomination pays an IP spell cost from HP and the card shows HP", async ()
   const insufficient = await castResourceSpell({ hpMagic: true, available: 5 });
   assert.deepEqual(insufficient.writes, []);
   assert.deepEqual(insufficient.warnings, ["Not enough HP: Caster has 5 HP; Plain spell costs 12 HP."]);
+});
+
+test("area spells never hit invisible tokens (hidden from players); visible ones inside the area are hit", () => {
+  const area = { testPoint: ({ x }) => x < 100 };
+  const token = (name, x, hidden = false) => ({ name, actor: {}, center: { x, y: 0 }, document: { hidden, elevation: 0 } });
+  const hit = getTokensInArea(area, [token("Seen", 50), token("Invisible", 50, true), token("Outside", 150)]);
+  assert.deepEqual(hit.map(entry => entry.name), ["Seen"]);
 });

@@ -231,9 +231,9 @@ async function placeSpellArea(item, auto, casterToken) {
   return preview;
 }
 
-/** Tokens whose centre lies inside the area. */
-function getTokensInArea(area) {
-  return canvas.tokens.placeables.filter(token => token.actor
+/** Tokens whose centre lies inside the area. Rule: area spells never hit invisible creatures (tokens hidden from players). */
+export function getTokensInArea(area, tokens = canvas.tokens.placeables) {
+  return tokens.filter(token => token.actor && !token.document.hidden
     && area.testPoint({ x: token.center.x, y: token.center.y, elevation: token.document.elevation ?? 0 }));
 }
 
