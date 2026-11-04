@@ -464,14 +464,35 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   const field = target.dataset.field ?? "img";
   const current = foundry.utils.getProperty(this.document, field) ?? "";
 
-  const picker = new foundry.applications.apps.FilePicker({
+  const FilePicker = foundry.applications.apps.FilePicker.implementation ?? foundry.applications.apps.FilePicker;
+  const picker = new FilePicker({
     type: "image",
     current,
-    callback: path => {
-      return this.document.update({ [field]: path });
-    }
+    callback: path => field === "img" ? setActorPicture(this.document, path) : this.document.update({ [field]: path })
   });
 
   picker.render(true);
 }
+}
+
+/**
+ * Change an actor's portrait. A token that showed the same picture (compendium monsters bring their own token art)
+ * follows it: the prototype token, this sheet's token and the actor's tokens already on scenes.
+ * @param {Actor} actor
+ * @param {string} path
+ */
+export async function setActorPicture(actor, path) {
+  const old = actor.img;
+  const tokenDoc = actor.isToken ? actor.token : null;
+  const follows = src => !src || src === old || src === CONST.DEFAULT_TOKEN;
+  const base = tokenDoc?.baseActor ?? actor;
+  await actor.update({ img: path, ...(!tokenDoc && follows(actor.prototypeToken?.texture?.src) ? { "prototypeToken.texture.src": path } : {}) });
+  if (tokenDoc) {
+    if (follows(tokenDoc.texture?.src)) await tokenDoc.update({ "texture.src": path });
+    return;
+  }
+  for (const scene of game.scenes ?? []) {
+    const tokens = scene.tokens.filter(token => token.actorId === base.id && follows(token.texture?.src));
+    if (tokens.length) await scene.updateEmbeddedDocuments("Token", tokens.map(token => ({ _id: token.id, "texture.src": path })));
+  }
 }

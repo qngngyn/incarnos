@@ -27,7 +27,7 @@ globalThis.foundry = {
   }
 };
 const { IncarnosActor } = await import("../module/documents/actor.mjs");
-const { IncarnosActorSheet } = await import("../module/sheets/actor-sheet.mjs");
+const { IncarnosActorSheet, setActorPicture } = await import("../module/sheets/actor-sheet.mjs");
 const base = JSON.parse(readFileSync(new URL("../template.json", import.meta.url))).Actor.templates.base;
 async function setup(type = "character") {
   const source = structuredClone(base);
@@ -422,4 +422,25 @@ test("generic acting Contest pays 1 AP; standalone contest saves, checks, saves 
   await contest("attack");
   assert.equal(messages.length, 6, "outside combat even an empty AP pool may act");
   assert.equal(payments.length, 1);
+});
+
+test("a new portrait takes the token picture with it when the token showed the old one (compendium monsters)", async () => {
+  globalThis.CONST = { DEFAULT_TOKEN: "default.webp" };
+  const updates = [];
+  const token = (id, src) => ({ id, actorId: "m1", texture: { src } });
+  const scene = { tokens: [token("a", "tokens/monsters/steamhound.webp"), token("b", "custom.webp")],
+    async updateEmbeddedDocuments(type, data) { updates.push(["scene", type, data]); } };
+  globalThis.game.scenes = [scene];
+  const actor = { id: "m1", img: "tokens/monsters/steamhound.webp", isToken: false, prototypeToken: { texture: { src: "tokens/monsters/steamhound.webp" } },
+    async update(data) { updates.push(["actor", data]); } };
+  await setActorPicture(actor, "pnp/new.webp");
+  assert.deepEqual(updates, [
+    ["actor", { img: "pnp/new.webp", "prototypeToken.texture.src": "pnp/new.webp" }],
+    ["scene", "Token", [{ _id: "a", "texture.src": "pnp/new.webp" }]]
+  ], "a token with its own different picture keeps it");
+  updates.length = 0;
+  const placed = { texture: { src: "tokens/monsters/steamhound.webp" }, async update(data) { updates.push(["token", data]); } };
+  const synthetic = { img: "tokens/monsters/steamhound.webp", isToken: true, token: placed, async update(data) { updates.push(["actor", data]); } };
+  await setActorPicture(synthetic, "pnp/new.webp");
+  assert.deepEqual(updates, [["actor", { img: "pnp/new.webp" }], ["token", { "texture.src": "pnp/new.webp" }]]);
 });
