@@ -115,7 +115,7 @@ test("Effects tab context follows item edits and removal without duplicating bon
   ring.system.passives.bonus.description = "A magical boost.";
   actor.items.push(ring);
   let context = await prepare();
-  assert.equal(context.effects.passive.effects[0].description, "Adds 2 to Strength. A magical boost.");
+  assert.equal(context.effects.passive.effects[0].description, "+2 Strength (A magical boost)");
   assert.equal(context.effects.passive.effects[0].name, "Ring");
   assert.equal(context.effects.passive.effects[0].sourceName, "Ring");
   assert.equal(actor.system.abilities.str.value, 7);
@@ -151,12 +151,12 @@ test("item passives share existing categories, keep item names and group descrip
   assert.equal(ring.name, "Ring");
   assert.equal(ring.itemId, "ring");
   assert.equal(ring.duration.label, "Permanent");
-  assert.equal(ring.description, "Adds 2 to Strength. Stronger grip.\nSubtracts 1 from Parry.");
+  assert.equal(ring.description, "+2 Strength (Stronger grip) · -1 Parry");
   assert.equal(context.effects.inactive.effects[0].name, "Empty Ring");
   assert.equal(context.itemPassives, undefined);
 });
 
-test("every talent and race with a Bonus shows as a passive with its rule text; conditions show their rule", async () => {
+test("every talent and race with a Bonus shows as a passive with a short tooltip; conditions show the gist of their rule", async () => {
   const { actor, prepare } = await setup();
   actor.effects.push({ id: "prone", name: "Prone", disabled: false, isTemporary: true, statuses: new Set(["prone"]), duration: { label: "1 round" } });
   actor.items.push({ id: "race", type: "race", name: "Rambystouma",
@@ -167,11 +167,11 @@ test("every talent and race with a Bonus shows as a passive with its rule text; 
   const context = await prepare();
   const row = name => context.effects.passive.effects.find(effect => effect.name === name);
   assert.equal(row("Rambystouma").sourceLabel, "Race");
-  assert.deepEqual(row("Rambystouma").lines, ["Applied: Movement ×2: You have 2x movementspeed on normal terrain, but only have 0.25x movementspeed on difficult terrain"]);
-  assert.deepEqual(row("First Aid").lines, ["At the table: +2 in First Aid Checks, can heal with bandages 1d4"]);
-  assert.deepEqual(row("Elf").lines, ["Adds 1 to Dexterity. +1 Dexterity", "At the table: Born Sailor: Elves know their ways on water"]);
+  assert.equal(row("Rambystouma").description, "Movement ×2");
+  assert.equal(row("First Aid").description, "+2 in First Aid Checks, can heal with bandages 1d4");
+  assert.equal(row("Elf").description, "+1 Dexterity · Born Sailor: Elves know their ways on water");
   const prone = context.effects.temporary.effects.find(effect => effect.name === "Prone");
-  assert.match(prone.descriptionText, /melee Parry rolls are disadvantaged/);
+  assert.equal(prone.descriptionText, "Your melee Parry rolls are disadvantaged, but your ranged P…");
 });
 
 test("legacy features become talents with Profile summaries while gear stays separate", async () => {

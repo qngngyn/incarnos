@@ -706,9 +706,5 @@
   background: var(--table-row-color-even, rgba(128, 128, 128, 0.1));
 }
 
-/* Passive and effect rows show their rule text under the name. */
-.incarnos .effects .item .effect-text { flex: 1; min-width: 0; }
-.incarnos .effects .item .effect-text .effect-description,
-.incarnos .passive-rule .effect-description { margin: 2px 0 0; font-size: 12px; line-height: 1.3; opacity: 0.85; white-space: normal; }
+/* Rules from a talent's or race's Bonus on its Passives tab. */
 .incarnos .passive-rule { margin-bottom: 8px; }
-.incarnos .effects .item .effect-name { align-items: flex-start; }

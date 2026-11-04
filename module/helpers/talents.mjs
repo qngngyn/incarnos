@@ -172,16 +172,22 @@ export function talentRuleText(bonus = "") {
     .filter(line => line && !parseTalentPassives(line).length).join("\n");
 }
 
+/** A rule cut to its gist for tooltips: the first line and sentence, at most 60 characters. */
+export function shortRule(text = "", max = 60) {
+  const first = String(text ?? "").trim().split("\n")[0].split(/(?<=[.!])\s/)[0].replace(/[.!]$/, "").trim();
+  return first.length > max ? `${first.slice(0, max - 1).trimEnd()}…` : first;
+}
+
 /**
- * Everything a talent or race does beyond its flat stat passives: rules Foundry applies, then rules for the table.
- * With getItemPassiveEntries this gives every talent or race with a Bonus at least one visible passive.
- * @returns {{label: string, description: string}[]}
+ * Everything a talent or race does beyond its flat stat passives, as short labels: what Foundry applies
+ * ("Movement ×2"), or else the gist of the Bonus for the table. Gives every talent or race with a Bonus a passive.
+ * @returns {{label: string, applied: boolean}[]}
  */
 export function talentRulePassives(bonus = "") {
+  const applied = talentRuleLabels(bonus).map(label => ({ label, applied: true }));
+  if (applied.length) return applied;
   const text = talentRuleText(bonus);
-  const applied = talentRuleLabels(bonus);
-  if (applied.length) return [{ label: `Applied: ${applied.join(" · ")}`, description: text }];
-  return text ? [{ label: "At the table", description: text }] : [];
+  return text ? [{ label: shortRule(text), applied: false }] : [];
 }
 
 /**

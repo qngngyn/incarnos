@@ -12,18 +12,8 @@
     border: none;
   }
 }
-// Passive and effect rows show their rule text under the name.
-.effects .item .effect-text,
-.passive-rule {
-  .effect-description {
-    margin: 2px 0 0;
-    font-size: 12px;
-    line-height: 1.3;
-    opacity: 0.85;
-    white-space: normal;
-  }
-}
 
+// Rules from a talent's or race's Bonus on its Passives tab.
 .passive-rule {
   margin-bottom: 8px;
 }

@@ -1,12 +1,12 @@
 import { CONDITIONS } from "../data/conditions.mjs";
-import { getItemPassiveEntries } from "./passives.mjs";
-import { BONUS_ITEM_TYPES, talentRulePassives } from "./talents.mjs";
+import { PASSIVE_STATS, getItemPassiveEntries } from "./passives.mjs";
+import { BONUS_ITEM_TYPES, shortRule, talentRulePassives } from "./talents.mjs";
 
-/** An effect's description as plain text; status conditions without one fall back to their rule from the vault. */
+/** An effect's description, cut to its gist for the tooltip; status conditions without one use their rule from the vault. */
 export function effectDescription(effect) {
   const own = String(effect?.description ?? "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
-  if (own) return own;
-  return [...(effect?.statuses ?? [])].map(id => CONDITIONS.find(condition => condition.id === id)?.description).filter(Boolean).join(" ");
+  if (own) return shortRule(own);
+  return [...(effect?.statuses ?? [])].map(id => shortRule(CONDITIONS.find(condition => condition.id === id)?.description)).filter(Boolean).join(" · ");
 }
 
 /**
@@ -89,9 +89,15 @@ export function prepareActiveEffectCategories(effects, items = []) {
     const passives = getItemPassiveEntries([item]);
     const rules = BONUS_ITEM_TYPES.includes(item.type) ? talentRulePassives(item.system?.bonus) : [];
     if (!passives.length && !rules.length) continue;
+    // Tooltip only, as short as possible: "+1 Dexterity", "Movement ×2". A hand-written passive note is kept in brackets
+    // unless it just repeats the number ("+1 Dexterity" from the importer).
     const lines = [
-      ...passives.map(passive => [passive.summary, passive.description].filter(Boolean).join(" ")),
-      ...rules.map(rule => `${rule.label}${rule.description ? `: ${rule.description.replace(/\n/g, " ")}` : ""}`)
+      ...passives.map(passive => {
+        const stat = `${passive.value < 0 ? "" : "+"}${passive.value} ${PASSIVE_STATS[passive.stat]}`;
+        const note = passive.description && !/^[+-]?\d/.test(passive.description.trim()) ? ` (${shortRule(passive.description, 40)})` : "";
+        return stat + note;
+      }),
+      ...rules.map(rule => rule.label)
     ];
     const effect = {
       isItemPassive: true,
@@ -103,8 +109,7 @@ export function prepareActiveEffectCategories(effects, items = []) {
       // Flat stat passives can be switched off on the item; the Bonus rules always apply.
       disabled: passives.length ? !passives[0].active && !rules.length : false,
       duration: { label: "Permanent" },
-      lines,
-      description: lines.join("\n")
+      description: lines.join(" · ")
     };
     categories[effect.disabled ? "inactive" : "passive"].effects.push(effect);
   }
