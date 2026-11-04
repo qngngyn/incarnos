@@ -245,6 +245,23 @@ test("Impressive Spectacle doubles the damage of a one-handed hit rolled 10+ und
   assert.match(env.updates[0].content, /isc-chip isc-crit" title="Impressive Spectacle: [^"]*">×2/);
 });
 
+test("PvP: a player's weapon hit on another player character deals half damage (rounded down); NPC targets take it all", async () => {
+  for (const [targetType, expected] of [["character", 3], ["npc", 7]]) {
+    const env = setup([3, 7]);
+    const target = { uuid: "Actor.target", type: targetType, hasPlayerOwner: targetType === "character" };
+    game.user.targets = new Set([{ name: "Target", document: { texture: { src: "t.webp" } }, actor: target }]);
+    await rollWeaponAttackAction({
+      item: { name: "Bow", actor: { items: [], type: "character", hasPlayerOwner: true }, system: { attackMode: "ranged", modifier: 0, damage: "1d8" } },
+      rollData: { abilities: { dex: { value: 10 } } },
+      speaker: {}, rollMode: "publicroll", attackId: "shoot", mode: "ranged", parryModifiers: [0]
+    });
+    const card = env.updates[0].content;
+    assert.match(card, new RegExp(`<b>${expected}</b>`));
+    if (targetType === "character") assert.match(card, /PvP ½/);
+    else assert.doesNotMatch(card, /PvP/);
+  }
+});
+
 test("Impressive Spectacle does not apply two-handed or when the margin is too small", async () => {
   const env = setup([3, 5]);
   const talents = [{ type: "feature", name: "Impressive Spectacle", system: { bonus: "one-handed weapon, and you succeed an attack by over 10, your damage is doubled" } }];

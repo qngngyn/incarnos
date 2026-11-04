@@ -3,7 +3,7 @@ import { castSpell } from "../helpers/spell-cast.mjs";
 import { payActions } from "../helpers/action-tracker.mjs";
 import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
 import { getTalentRules, getTalentSummary, isSpectacle } from "../helpers/talents.mjs";
-import { isPlayerSide, modifierForRoller } from "../helpers/modifiers.mjs";
+import { isPlayerSide, isPvpHit, modifierForRoller } from "../helpers/modifiers.mjs";
 import { conditionAdvantage, consumeHindered, parseAttackConditions } from "../helpers/conditions.mjs";
 import {
   amount as cardAmount, applyAllButton, applyButton, checkChip, chip as cardChip, criticalFailureButton, escape as escapeCard, renderRollCard, rollingChip
@@ -244,11 +244,13 @@ export async function rollWeaponAttackAction({
       conditions.push({ id, name, ...(tokenRoll ? { tokens: tokenRoll.total } : {}), ...(timed !== undefined ? { timed } : {}) });
     }
     const token = tokenFor(i);
+    // PvP rules, as for spells: a player's attack hitting another player character deals half damage.
+    const pvp = isPvpHit(item.actor, token?.actor) && Boolean(damageRoll);
     results.push({
       name: token?.name ?? (targetParryModifiers.length > 1 ? `Target ${i + 1}` : "Target"),
       img: token?.document?.texture?.src, uuid: token?.actor?.uuid,
       check: { d20: keptD20, threshold: needed, success, crit },
-      parryModifier, success, crit, damageRoll, damage: damageRoll?.total ?? 0,
+      parryModifier, success, crit, damageRoll, pvp, damage: pvp ? Math.floor(damageRoll.total / 2) : damageRoll?.total ?? 0,
       spectacle: spectacle && damageRoll ? talents.spectacle : null,
       conditions
     });
@@ -303,12 +305,13 @@ export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityV
       img: result.img, name: result.name, dim: !result.success, values,
       chips: [checkChip(result.check, { pass: "Hit", fail: "Miss", label: `${statLabel} ${abilityValue} ${formatSignedNumber(weaponModifier)} weapon${modifierText}` }),
         result.spectacle ? cardChip("×2", { tone: "crit", title: `${result.spectacle.source}: one-handed hit rolled ${result.spectacle.margin}+ under the target number, damage doubled` }) : "",
+        result.pvp ? cardChip("PvP ½", { title: "PvP rules: damage halved" }) : "",
         ...(result.conditions ?? []).map(condition => cardChip(`${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, {
           tone: "note", title: `${condition.name}${condition.tokens ? ` (${condition.tokens} tokens)` : ""}: applied to the target together with the damage (Apply)` }))]
     };
   });
   const damaged = pending ? [] : results.filter(result => result.damageRoll);
-  const notes = damaged.map(result => `<span title="${escapeCard(result.damageRoll.formula)}${result.crit ? " (crit: damage dice maxed)" : ""}"><i class="fas fa-dice"></i> ${damaged.length > 1 ? `${escapeCard(result.name)}: ` : ""}Damage ${escapeCard(result.damageRoll.result)} = <b>${result.damage}</b>${result.crit ? " · crit, max dice" : ""}</span>`)
+  const notes = damaged.map(result => `<span title="${escapeCard(result.damageRoll.formula)}${result.crit ? " (crit: damage dice maxed)" : ""}"><i class="fas fa-dice"></i> ${damaged.length > 1 ? `${escapeCard(result.name)}: ` : ""}Damage ${escapeCard(result.damageRoll.result)}${result.pvp ? ` = ${result.damageRoll.total}, PvP halved` : ""} = <b>${result.damage}</b>${result.crit ? " · crit, max dice" : ""}</span>`)
     .concat((attack.notes ?? []).map(note => `<span>${note}</span>`));
   const applicable = pending ? 0 : results.filter(result => result.damage && result.uuid).length;
   return renderRollCard({

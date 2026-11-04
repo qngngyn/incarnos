@@ -8,6 +8,10 @@
 /** Whether an actor is on the players' side: everything but NPCs (monsters are NPCs), including unowned items. */
 export const isPlayerSide = actor => actor?.type !== "npc";
 
+/** PvP rules: a player's attack or spell hitting another player character deals half damage. */
+export const isPvpHit = (attacker, target) => Boolean(attacker?.hasPlayerOwner && target?.hasPlayerOwner
+  && target.type === "character" && target !== attacker);
+
 /**
  * The modifier as it applies to the value this actor rolls under.
  * @param {number} modifier  As written (players' side).
