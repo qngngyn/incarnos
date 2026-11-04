@@ -27,6 +27,7 @@ current action list is `System Files/Listen/Actionlists/Incarnos_Actionlist_Vete
   `action-tracker.mjs` (AP segments on tokens during combat), `passives.mjs` (item stat modifiers),
   `scene-scale.mjs` (5 ft → 1.5 m scene conversion), `config.mjs`, `effects.mjs`.
 - `lang/en.json` — all UI strings go here, referenced via `game.i18n`.
+- `module/helpers/death-saves.mjs` + `death-save-rules.mjs` — character 0 HP, Dying AP cap, hidden death saves and the GM Roll/Show macro; `summon-lifecycle.mjs` keeps Summoned counters on synthetic token actors in step with turnsLeft.
 - `module/helpers/spells.mjs` — spell summary line, grouping by element, chat card, and the pure spell rules (text → automation parser read live at cast time, no stored automation fields; attack threshold `stat + 10 − Parry`, save/damage/health math).
 - `module/helpers/spell-cast.mjs` — casting flow: cost (IP; AP in combat), area placement via `canvas.regions.placeRegion` (v14 Regions replace measured templates), attack/save/damage rolls, GM-only Apply buttons.
 - `module/helpers/roll-card.mjs` — shared chat card layout for every roll (spells, weapon attacks, items, checks, saves, Parry, contests); `spell-card.mjs` builds the spell card on it. Cards post with "Rolling…" and are updated once Dice So Nice finishes (styles in `scss/global/_spell-card.scss`; `css/incarnos.css` is edited by hand to match, as no Sass compiler is installed).

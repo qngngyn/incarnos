@@ -2,6 +2,7 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { criticalFailureMacroDocuments, criticalFailuresToDocuments, parseCriticalFailureNote } from "./critical-failure-notes.mjs";
+import { deathSaveMacroDocuments } from "./death-save-macro.mjs";
 
 const lists = process.argv[2] ?? process.env.INCARNOS_VAULT_LISTS ?? "C:/Users/mfgan/IncarnosPnp/System Files/Listen";
 const NOTE = "Critical Failures.md";
@@ -17,9 +18,9 @@ function findNote(root) {
 }
 
 const tables = parseCriticalFailureNote(readFileSync(findNote(dirname(lists)), "utf8"));
-for (const [pack, documents] of [["critical-failures", criticalFailuresToDocuments(tables)], ["macros", criticalFailureMacroDocuments()]]) {
+for (const [pack, documents] of [["critical-failures", criticalFailuresToDocuments(tables)], ["macros", [...criticalFailureMacroDocuments(), ...deathSaveMacroDocuments()]]]) {
   const directory = new URL(`../packs/_source/${pack}/`, import.meta.url);
   mkdirSync(directory, { recursive: true });
   writeFileSync(new URL(`${pack}.json`, directory), JSON.stringify(documents, null, 2) + "\n");
 }
-console.log(`6 critical failure tables (${tables.map(table => `${table.name}: ${table.rows.length}`).join(", ")}) and 1 macro -> packs/_source`);
+console.log(`6 critical failure tables (${tables.map(table => `${table.name}: ${table.rows.length}`).join(", ")}) and 2 macros -> packs/_source`);

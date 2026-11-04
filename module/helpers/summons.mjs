@@ -3,7 +3,7 @@ import { getCastCost, spendCastCost, refundCastCost } from "./spell-cost.mjs";
 import { getActionState, inCombat } from "./action-tracker.mjs";
 import { renderSpellCard } from "./spell-card.mjs";
 import { escape } from "./roll-card.mjs";
-import { activeSummonGM, addSummonCombatant, removeSummonCombatants, sortSummonCombatants } from "./summon-lifecycle.mjs";
+import { activeSummonGM, addSummonCombatant, removeSummonCombatants, sortSummonCombatants, syncSummoned, registerSummonedCounterHooks } from "./summon-lifecycle.mjs";
 
 const text = (key, data = {}) => game.i18n.format(`INCARNOS.Summon.${key}`, data);
 const inFlight = new Set();
@@ -210,6 +210,7 @@ async function fulfillSummon(request) {
   try {
     [token] = await scene.createEmbeddedDocuments("Token", [tokenData]);
     if (!token) throw new Error("Summon token creation rejected");
+    await syncSummoned(token);
     const combat = [...game.combats].find(combat => combat.started
       && [...combat.combatants].some(c => c.tokenId === caster.id && c.sceneId === scene.id));
     const casterCombatant = combat && [...combat.combatants].find(c => c.tokenId === caster.id && c.sceneId === scene.id);
@@ -271,6 +272,7 @@ export async function processSummonRequest(message, userId) {
 }
 
 export function registerSummonHooks() {
+  registerSummonedCounterHooks();
   Hooks.once("init", () => {
     const BaseCombat = CONFIG.Combat.documentClass;
     CONFIG.Combat.documentClass = class extends BaseCombat {

@@ -24,7 +24,8 @@ const canEdit = actor => Boolean(actor && (game.user.isGM || actor.testUserPermi
 export function getActionState(actor) {
   const resource = actor?.system?.actionpoints ?? {};
   const maximum = Number(resource.max ?? 3);
-  const max = Number.isFinite(maximum) ? Math.max(0, Math.floor(maximum)) : 3;
+  const normalMax = Number.isFinite(maximum) ? Math.max(0, Math.floor(maximum)) : 3;
+  const max = actor?.type === "character" && actor.statuses?.has("dying") ? Math.min(1, normalMax) : normalMax;
   const current = Number(resource.value ?? max);
   return { max, value: Number.isFinite(current) ? Math.min(max, Math.max(0, Math.floor(current))) : max };
 }
@@ -357,6 +358,7 @@ export function registerActionTrackerHooks() {
     if (display) display.visible = Boolean(tokenParticipatesInCombat(token) && token.isVisible && (canEdit(token.actor) || hovered));
   });
   Hooks.on("updateActor", refreshTrackers);
+  for (const event of ["createActiveEffect", "updateActiveEffect", "deleteActiveEffect"]) Hooks.on(event, refreshTrackers);
   Hooks.on("updateToken", refreshTrackers);
   Hooks.on("updateUser", refreshTrackers);
   Hooks.on("canvasReady", () => {

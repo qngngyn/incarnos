@@ -17,6 +17,7 @@ import { CONDITIONS } from "../data/conditions.mjs";
 import { getActionState } from "./action-tracker.mjs";
 import { amount, chip, escape, renderRollCard } from "./roll-card.mjs";
 import { getHealthAfter } from "./spells.mjs";
+import { handleDyingHealth, remindDeathSave } from "./death-saves.mjs";
 
 export const DAMAGE_TOKEN_CONDITIONS = ["burn", "poisoned", "bleed"];
 export const conditionById = id => CONDITIONS.find(condition => condition.id === id);
@@ -177,7 +178,7 @@ export async function addConditionTokens(actor, id, amountOrFormula) {
 }
 
 /** The one client that writes for an actor: the first active GM, else an active owner (as the action tracker does). */
-function isWriter(actor) {
+export function isWriter(actor) {
   const gm = [...game.users].filter(user => user.active && user.isGM).sort((a, b) => a.id.localeCompare(b.id))[0];
   if (gm) return gm.id === game.user.id;
   const owner = [...game.users].filter(user => user.active && actor.testUserPermission(user, "OWNER")).sort((a, b) => a.id.localeCompare(b.id))[0];
@@ -248,7 +249,12 @@ export async function startOfTurn(actor) {
   // Burn, Poisoned and Bleed hit by themselves (no Apply button); only bleeding to 0 HP kills (other 0 HP: the table's rules).
   let bledOut = false;
   for (const entry of entries.filter(entry => AUTO_DAMAGE_CONDITIONS.includes(entry.condition) && entry.amount > 0)) {
-    await actor.update({ "system.health.value": getHealthAfter(actor.system.health, entry.amount, "damage") });
+    const before = Number(actor.system.health?.value ?? 0);
+    const after = getHealthAfter(actor.system.health, entry.amount, "damage");
+    const options = { incarnosHandledHealth: true, incarnosDamage: true,
+      incarnosDyingBefore: actor.statuses?.has("dying"), incarnosBledOut: entry.condition === "bleed" && after <= 0 };
+    await actor.update({ "system.health.value": after }, options);
+    await handleDyingHealth(actor, before, after, options);
     entry.applied = true;
     if (entry.condition === "bleed" && Number(actor.system.health?.value) <= 0) bledOut = true;
   }
@@ -256,6 +262,7 @@ export async function startOfTurn(actor) {
     await markDead(actor);
     notes.unshift(`${actor.name} bled out and is dead.`);
   }
+  await remindDeathSave(actor);
   return postHealthPrompt(actor, "Start of turn", entries, notes, infos);
 }
 
@@ -264,6 +271,7 @@ export const AUTO_DAMAGE_CONDITIONS = ["burn", "poisoned", "bleed"];
 
 /** Dead: Foundry's defeated status (skull overlay) on the actor and every combatant of it marked defeated. */
 export async function markDead(actor) {
+  await setConditionTokens(actor, "dying", 0);
   const dead = CONFIG.specialStatusEffects?.DEFEATED ?? "dead";
   if (!actor.statuses?.has(dead)) await actor.toggleStatusEffect(dead, { active: true, overlay: true });
   for (const combat of game.combats ?? []) {
@@ -315,8 +323,14 @@ export const promptApplied = (actor, key) => Boolean(actor?.getFlag("incarnos", 
 /** Apply one HP line of a chat prompt to an actor and remember it. */
 export async function applyHealthChange(actor, key, kind, amountValue, options = {}) {
   if (!actor?.system?.health || promptApplied(actor, key)) return false;
-  await actor.update({ "system.health.value": getHealthAfter(actor.system.health, amountValue, kind),
-    [`flags.incarnos.appliedPrompts.${key}`]: true }, options);
+  const before = Number(actor.system.health.value ?? 0);
+  const after = getHealthAfter(actor.system.health, amountValue, kind);
+  const handleHere = actor.type === "character" && isWriter(actor);
+  const healthOptions = { ...options, incarnosHealthBefore: before, incarnosDamage: kind === "damage" && amountValue > 0,
+    incarnosDyingBefore: actor.statuses?.has("dying"), incarnosHandledHealth: handleHere };
+  await actor.update({ "system.health.value": after,
+    [`flags.incarnos.appliedPrompts.${key}`]: true }, healthOptions);
+  if (handleHere) await handleDyingHealth(actor, before, after, healthOptions);
   return true;
 }
 
@@ -373,10 +387,21 @@ export function registerConditionHooks() {
 
   // Healing ends Bleed; damage halves sleep tokens; every action point spent while asleep removes a sleep token.
   Hooks.on("preUpdateActor", (actor, changes, options) => {
-    if (foundry.utils.hasProperty(changes, "system.health.value")) options.incarnosHealthBefore = Number(actor.system.health?.value ?? 0);
+    if (foundry.utils.hasProperty(changes, "system.health.value")) {
+      options.incarnosHealthBefore = Number(actor.system.health?.value ?? 0);
+      options.incarnosDyingBefore = actor.statuses?.has("dying") ?? false;
+    }
+    if (actor.type === "character" && actor.statuses?.has("dying") && foundry.utils.hasProperty(changes, "system.actionpoints.value")) {
+      const value = Number(foundry.utils.getProperty(changes, "system.actionpoints.value"));
+      foundry.utils.setProperty(changes, "system.actionpoints.value", Math.min(1, Math.max(0, value || 0)));
+    }
     if (foundry.utils.hasProperty(changes, "system.actionpoints.value")) options.incarnosActionsBefore = getActionState(actor).value;
   });
   Hooks.on("updateActor", (actor, changes, options, userId) => {
+    if (!options.incarnosHandledHealth && options.incarnosHealthBefore !== undefined && isWriter(actor)) {
+      void handleDyingHealth(actor, options.incarnosHealthBefore, Number(actor.system.health?.value ?? 0), options)
+        .catch(error => console.error("Incarnos | dying", error));
+    }
     if (userId !== game.user.id) return;
     if (options.incarnosHealthBefore !== undefined) {
       const after = Number(actor.system.health?.value ?? 0);

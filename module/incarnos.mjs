@@ -9,6 +9,7 @@ import { registerConditionHooks } from "./helpers/conditions.mjs";
 import { registerItemSyncHooks } from "./helpers/item-sync.mjs";
 import { syncCompendiumsFromSource } from "./helpers/compendium-sync.mjs";
 import { criticalFailure, registerCriticalFailureHooks } from "./helpers/critical-failure.mjs";
+import { deathSave, registerDeathSaveHooks } from "./helpers/death-saves.mjs";
 // Import document classes.
 import { IncarnosActor } from "./documents/actor.mjs";
 import { IncarnosItem } from "./documents/item.mjs";
@@ -30,6 +31,7 @@ registerSummonHooks();
 registerCriticalFailureHooks();
 registerTalentHooks();
 registerConditionHooks();
+registerDeathSaveHooks();
 registerItemSyncHooks(syncCompendiumsFromSource);
 registerActionTrackerHooks();
 registerSceneScaleHooks();
@@ -42,7 +44,8 @@ Hooks.once('init', async function() {
     IncarnosActor,
     IncarnosItem,
     rollItemMacro,
-    criticalFailure
+    criticalFailure,
+    deathSave
   };
 
   // Add custom constants for configuration.

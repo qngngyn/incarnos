@@ -13,5 +13,20 @@
       "default": 2
     },
     "flags": {}
+  },
+  {
+    "_id": "oZysvFQrs72lEM2z",
+    "_key": "!macros!oZysvFQrs72lEM2z",
+    "name": "Death Save",
+    "type": "script",
+    "img": "tokens/items/death-save.webp",
+    "scope": "global",
+    "command": "await game.incarnos.deathSave();",
+    "folder": null,
+    "sort": 10,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {}
   }
 ]
