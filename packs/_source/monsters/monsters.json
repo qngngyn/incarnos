@@ -9122,6 +9122,217 @@
     }
   },
   {
+    "_id": "e1V9aZmgB9i0ATXm",
+    "_key": "!actors!e1V9aZmgB9i0ATXm",
+    "name": "Steamhound",
+    "type": "npc",
+    "img": "tokens/monsters/steamhound.webp",
+    "system": {
+      "health": {
+        "value": 24,
+        "min": 0,
+        "max": 24,
+        "bonus": 0
+      },
+      "power": {
+        "value": 0,
+        "min": 0,
+        "max": 0,
+        "bonus": 0
+      },
+      "attributes": {
+        "level": {
+          "value": 3
+        },
+        "parry": {
+          "value": 12,
+          "bonus": 0
+        },
+        "movement": {
+          "value": 7.5,
+          "bonus": 0
+        }
+      },
+      "abilities": {
+        "str": {
+          "value": 12,
+          "bonus": 0
+        },
+        "dex": {
+          "value": 6,
+          "bonus": 0
+        },
+        "con": {
+          "value": 6,
+          "bonus": 0
+        },
+        "wis": {
+          "value": 6,
+          "bonus": 0
+        },
+        "prc": {
+          "value": 10,
+          "bonus": 0
+        },
+        "spd": {
+          "value": 6,
+          "bonus": 0
+        },
+        "int": {
+          "value": 4,
+          "bonus": 0
+        },
+        "cha": {
+          "value": 4,
+          "bonus": 0
+        }
+      },
+      "biography": "<p><strong>Element: Fire · Weakness: Thunder · Speed: 5 (7,5m)</strong></p><p>Aussehen: Ein massiger, bleicher Hüne mit grauer, vernarbter Haut. Beide Arme sind durch schwarze, genietete Dampfkolben-Prothesen ersetzt, über Mund und Nase sitzt eine Atemmaske mit Druckventilen, aus der zischend Dampf entweicht. Zerfetzte rostrote Arbeitshosen, grün leuchtende Schmierflecken.</p><p>Geruch: Heißes Öl, Kesselstein und Schweiß.</p><p>Hörend: Rhythmisches Zischen der Ventile, das Klacken der Kolben bei jedem Schritt.</p><p>Die **Dampfhunde** des Ferrum Konsortiums (Das Aether Syndikat) aus den Fabrikvierteln von Varkadon Prime, der Stadt der Industrie. Die Ascheschmiede bauen sie aus Arbeitern und Verurteilten: Arme raus, Kolben rein, Maske drauf. Sie jagen Schuldner und Flüchtige und treiben sie einem **Schlagknecht** zu, dem sie als Handlanger dienen. Allein sind sie stumpf und berechenbar, im Rudel und mit ihrem Brute im Rücken gefährlich.</p><p>**Balancing** (Level 3 Standard, see Monster Balancing): HP 24, Parry 12 (−2), attack −1 and 5,5 damage per hit as in the table. Strength: resistance to fire (+10 % HP), paid with the Thunder weakness. Special action: Steam Vent (save effect −1 from the ladder, Burn D4 ≈ one extra hit, every 2 rounds). A hero needs about 3,6 rounds to down it, it needs about 6,4 rounds to drop a hero.</p>"
+    },
+    "prototypeToken": {
+      "name": "Steamhound",
+      "width": 1,
+      "height": 1,
+      "texture": {
+        "src": "tokens/monsters/steamhound.webp"
+      },
+      "disposition": -1,
+      "actorLink": false
+    },
+    "items": [
+      "K5vwsEp5yRiPkgQU",
+      "DKh5aMlmASYbmP8l",
+      "HGqOnWW7kHyjrSUk"
+    ],
+    "effects": [],
+    "folder": "AhrQERzgICDZ3T6F",
+    "sort": 4500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "monster": {
+          "element": "Fire",
+          "weakness": "Thunder",
+          "level": 3
+        }
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "K5vwsEp5yRiPkgQU",
+    "_key": "!actors.items!e1V9aZmgB9i0ATXm.K5vwsEp5yRiPkgQU",
+    "name": "Piston Fist",
+    "type": "weapon",
+    "img": "icons/svg/sword.svg",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": -1,
+      "damage": "1d8+1",
+      "traits": ""
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "DKh5aMlmASYbmP8l",
+    "_key": "!actors.items!e1V9aZmgB9i0ATXm.DKh5aMlmASYbmP8l",
+    "name": "Traits",
+    "type": "feature",
+    "img": "icons/svg/aura.svg",
+    "system": {
+      "description": "<p>Steam-hardened: resistance to fire damage (halved).<br>Henchman: Steamhounds hunt in pairs or packs for a Schlagknecht (brute) of the Ferrum Konsortium.</p>",
+      "bonus": "",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "HGqOnWW7kHyjrSUk",
+    "_key": "!actors.items!e1V9aZmgB9i0ATXm.HGqOnWW7kHyjrSUk",
+    "name": "Actions",
+    "type": "feature",
+    "img": "icons/svg/aura.svg",
+    "system": {
+      "description": "<p>Steam Vent (every 2 rounds, 1 AP): The mask vents scalding steam. Every creature within 3m makes a Con save (ST Con -1); on a failed save it gets Burn D4.</p>",
+      "bonus": "",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
     "_id": "y9LLvLi7KIjyg472",
     "_key": "!actors!y9LLvLi7KIjyg472",
     "name": "Durzol, Okher's Prodigy",
@@ -9208,7 +9419,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4500000,
+    "sort": 4600000,
     "ownership": {
       "default": 0
     },
@@ -9490,7 +9701,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4600000,
+    "sort": 4700000,
     "ownership": {
       "default": 0
     },
@@ -9741,7 +9952,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4700000,
+    "sort": 4800000,
     "ownership": {
       "default": 0
     },
@@ -9992,7 +10203,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4800000,
+    "sort": 4900000,
     "ownership": {
       "default": 0
     },
@@ -10233,7 +10444,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 4900000,
+    "sort": 5000000,
     "ownership": {
       "default": 0
     },
@@ -10419,7 +10630,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 5000000,
+    "sort": 5100000,
     "ownership": {
       "default": 0
     },
@@ -10568,7 +10779,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 5100000,
+    "sort": 5200000,
     "ownership": {
       "default": 0
     },
@@ -10787,7 +10998,7 @@
     ],
     "effects": [],
     "folder": "bI10UAydTJpjK74m",
-    "sort": 5200000,
+    "sort": 5300000,
     "ownership": {
       "default": 0
     },
@@ -11005,7 +11216,7 @@
     ],
     "effects": [],
     "folder": "9ebL8pYfBcI56a29",
-    "sort": 5300000,
+    "sort": 5400000,
     "ownership": {
       "default": 0
     },
@@ -11191,7 +11402,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5400000,
+    "sort": 5500000,
     "ownership": {
       "default": 0
     },
@@ -11340,7 +11551,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5500000,
+    "sort": 5600000,
     "ownership": {
       "default": 0
     },
@@ -11543,7 +11754,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5600000,
+    "sort": 5700000,
     "ownership": {
       "default": 0
     },
@@ -11753,7 +11964,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5700000,
+    "sort": 5800000,
     "ownership": {
       "default": 0
     },
@@ -11933,7 +12144,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5800000,
+    "sort": 5900000,
     "ownership": {
       "default": 0
     },
@@ -12151,7 +12362,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 5900000,
+    "sort": 6000000,
     "ownership": {
       "default": 0
     },
@@ -12340,7 +12551,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 6000000,
+    "sort": 6100000,
     "ownership": {
       "default": 0
     },
@@ -12589,7 +12800,7 @@
     ],
     "effects": [],
     "folder": "BTNjINYxr1pvGjds",
-    "sort": 6100000,
+    "sort": 6200000,
     "ownership": {
       "default": 0
     },
