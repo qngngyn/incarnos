@@ -43,7 +43,7 @@
       "target": "Single Target",
       "check": "Attack Dex",
       "duration": "Instant",
-      "effect": "On hit:\nDeals 1d6 + (lvl * 2) water dmg\nApply 4d4 + (lvl * 2) sleep tokens, the target falls asleep\n\nAsleep: You cannot act. For every action you would act, you remove 1 sleep token. When you take damage while asleep, you half your sleep tokens (min. 2 tokens)."
+      "effect": "On hit:\nDeals 1d6 + (lvl * 2) water dmg\nApply 4d4 + (lvl * 2) sleep tokens, the target falls asleep\n\nAsleep: You cannot act. For every action you would act, you remove 1 sleep token. When you take damage while asleep, you half your sleep tokens, rounded up (min. 2 tokens)."
     },
     "effects": [],
     "folder": "ODUs29BSbefpuz0v",

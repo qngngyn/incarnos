@@ -19,7 +19,7 @@ test("asleep: every action point spent removes a token; damage halves them, not 
   assert.equal(asleepAfterActions(5, 1), 4);
   assert.equal(asleepAfterActions(2, 3), 0);
   assert.equal(asleepAfterActions(4, 0), 4);
-  assert.equal(asleepAfterDamage(9), 4);
+  assert.equal(asleepAfterDamage(9), 5);
   assert.equal(asleepAfterDamage(3), 2);
   assert.equal(asleepAfterDamage(1), 1);
 });

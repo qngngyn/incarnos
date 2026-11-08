@@ -53,8 +53,8 @@ export function proneParry(dice, advantage = 0) {
   return { melee: extra ? Math.min(...dice.slice(0, extra)) : Math.max(...dice), ranged: Math.min(...dice) };
 }
 
-/** Damage while asleep halves the sleep tokens, but not below 2 (fewer tokens stay as they are). */
-export const asleepAfterDamage = tokens => Math.max(Math.min(tokens, 2), Math.floor(tokens / 2));
+/** Damage while asleep halves the sleep tokens, rounded up, but not below 2 (fewer tokens stay as they are). */
+export const asleepAfterDamage = tokens => Math.max(Math.min(tokens, 2), Math.ceil(tokens / 2));
 
 /**
  * Advantage from conditions: +1 advantage, −1 disadvantage; they cancel.
