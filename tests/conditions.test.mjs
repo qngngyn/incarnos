@@ -50,9 +50,9 @@ test("vault condition notes give id, name, icon, text and whether they count tok
 
 test("the generated list holds every vault condition with an icon", () => {
   assert.deepEqual(CONDITIONS.map(c => c.id).sort(),
-    ["asleep", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "stunned", "summoned", "taunted", "unconscious"]);
+    ["asleep", "barrier", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "stunned", "summoned", "taunted", "unconscious"]);
   assert.ok(CONDITIONS.every(c => c.img.startsWith("icons/")));
-  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "bleed", "burn", "immobilized", "poisoned", "regenerating", "summoned"]);
+  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "barrier", "bleed", "burn", "immobilized", "poisoned", "regenerating", "summoned"]);
 });
 
 test("attack conditions: only trait lines that are just a condition count, token conditions keep their dice", () => {
@@ -355,4 +355,13 @@ test("turn start: Stunned leaves no actions, Paralyzed takes one, never below 0"
   assert.equal(actionsAfterTurnStart(3, { stunned: true, paralyzed: true }), 0);
   assert.equal(actionsAfterTurnStart(0, { paralyzed: true }), 0);
   assert.equal(actionsAfterTurnStart(3), 3);
+});
+
+test("Barrier ignores an HP loss or a damage instance at 0 HP, but not healing or a skipped check", () => {
+  const { barrierAbsorbs } = CONDITION_HELPERS;
+  assert.equal(barrierAbsorbs(10, 4, true), true);
+  assert.equal(barrierAbsorbs(0, 0, true, false, true), true, "damage at 0 HP is still the next damage instance");
+  assert.equal(barrierAbsorbs(4, 10, true), false);
+  assert.equal(barrierAbsorbs(10, 4, false), false);
+  assert.equal(barrierAbsorbs(10, 4, true, true), false);
 });

@@ -8,6 +8,13 @@ export const CONDITIONS = [
     "tokens": true
   },
   {
+    "id": "barrier",
+    "name": "Barrier",
+    "img": "icons/svg/holy-shield.svg",
+    "description": "The next damage you would take is ignored completely, then Barrier ends. Otherwise you lose 1 Barrier token at the start of each of your turns, and Barrier ends when the last one is gone. Some barriers also heal you at the start of your turn while they last (Bubblebarrier: 1d4 HP). A new Barrier does not stack: it sets the turns to the longer of the two.",
+    "tokens": true
+  },
+  {
     "id": "bleed",
     "name": "Bleed",
     "img": "icons/svg/blood.svg",

@@ -193,3 +193,10 @@ test("Stunned from a spell line, not from the reminder; self spells don't stun t
   assert.deepEqual(getSpellAutomation({ target: "Self", range: "Self", check: "Target Save Con", effect }).conditions, []);
   assert.deepEqual(getSpellAutomation({ target: "Single Enemy", check: "Attack Int / Cha", effect: "Stun removes all actions of the enemy next turn." }).conditions, []);
 });
+
+test("Bubblebarrier gives Barrier for its duration with 1d4 healing per turn, and doesn't heal on cast", () => {
+  const auto = getSpellAutomation({ target: "Single Ally", range: "Touch", check: "No Check", duration: "3 turns",
+    effect: "On enemy hit: Attack deals no damage. Bubblebarrier then disappears.\nOn begin of turn: Heals the holder for 1d4 hp." });
+  assert.equal(auto.heal, "");
+  assert.deepEqual(auto.conditions, [{ id: "barrier", name: "Barrier", formula: "3", saveNegates: false, heal: "1d4" }]);
+});

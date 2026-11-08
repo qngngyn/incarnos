@@ -38,6 +38,7 @@
   "INCARNOS.SpellOptions.summary": "{count} options: {names}",
   "INCARNOS.SpellOptions.edit": "Edit option text",
   "INCARNOS.Conditions.movementBlocked": "{name} is {condition} and cannot move.",
+  "INCARNOS.Conditions.barrierPopped": "{name}'s Barrier ignores the damage and ends.",
   "INCARNOS.SpellArea.placeRectangle": "Left-click to place {name}; use the mouse wheel to rotate (right-click cancels).",
   "INCARNOS.SpellArea.placeOrthogonal": "Left-click to place {name}; the line stays perpendicular to the caster (right-click cancels).",
   "INCARNOS.SpellArea.outOfRange": "{name}: place the area within {range} m of the caster.",

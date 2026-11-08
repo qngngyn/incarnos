@@ -136,7 +136,8 @@ export function parseSpellAutomation(system = {}) {
     // Self/ally spells (Cloak of Lightning: "On hit: Paralyzed …") describe what happens to an attacker, not the target.
     .filter(condition => offensive || !["paralyzed", "stunned"].includes(condition.id));
   const healLine = !/everything/i.test(system.category ?? "")
-    && lines.find(line => /\bheals?\b/i.test(line) && new RegExp(DICE).test(line) && !/%|beginning|end of|additional|same amount|max health/i.test(line));
+    // "On begin of turn: Heals the holder for 1d4 hp" (Bubblebarrier) heals each turn, not on cast.
+    && lines.find(line => /\bheals?\b/i.test(line) && new RegExp(DICE).test(line) && !/%|beginning|begin of|end of|additional|same amount|max health|holder/i.test(line));
   if (healLine) result.heal = toFormula(healLine.slice(healLine.search(/\bheals?\b/i)).match(new RegExp(DICE))[0]);
 
   let match;
@@ -174,7 +175,7 @@ export function parseSpellSummon(system = {}) {
   return { creature, tiers, turns, corpse: /\bcorpse\b/i.test(system.target ?? "") };
 }
 
-const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed", stunned: "Stunned" };
+const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed", stunned: "Stunned", barrier: "Barrier" };
 
 /**
  * Conditions a spell puts on its targets, from clear effect lines only:
@@ -215,6 +216,13 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
     if (/\bparaly[sz]ed\b/i.test(line)) add("paralyzed", null, line);
     // "Stunned for 1 turn" (not the reminder "Stun removes all actions …").
     if (/\bstunned\b/i.test(line)) add("stunned", null, line);
+    // Bubblebarrier: "On enemy hit: Attack deals no damage. Bubblebarrier then disappears." = Barrier for the spell's
+    // duration, with the holder's healing per turn ("On begin of turn: Heals the holder for 1d4 hp").
+    if (/\battack deals no damage\b|\bignores? the next damage\b/i.test(line)) {
+      const turns = String(duration ?? "").match(/^\s*(\d+)\s+turns?\s*$/i)?.[1] ?? "1";
+      const heal = lines.map(other => other.match(new RegExp(String.raw`\bheals? the holder for (${DICE})`, "i"))?.[1]).find(Boolean);
+      add("barrier", turns, line, heal ? { heal: toFormula(heal) } : {});
+    }
     const sleep = line.match(new RegExp(String.raw`\bapply\s+(${DICE}|\d+)\s+sleep tokens?\b`, "i"));
     if (sleep) add("asleep", toFormula(sleep[1]), line);
     for (const token of line.matchAll(/\b(Burn|Poisoned|Bleed)\s+(\d*d\d+)\b/gi)) add(token[1].toLowerCase(), token[2].toLowerCase(), line);

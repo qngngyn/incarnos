@@ -29,6 +29,10 @@ export const conditionById = id => CONDITIONS.find(condition => condition.id ===
 /** Start of turn with damage tokens: 1 damage per token, then one token less. */
 export const tickDamageTokens = tokens => ({ damage: Math.max(0, tokens), remaining: Math.max(0, tokens - 1) });
 
+/** Barrier: an HP loss is ignored completely while the creature has a Barrier (unless the update says to skip it). */
+export const barrierAbsorbs = (before, after, hasBarrier, ignore = false, damage = false) =>
+  Boolean(hasBarrier) && !ignore && (Number(after) < Number(before) || Boolean(damage));
+
 /** AP at the start of a turn: Stunned leaves none, Paralyzed takes 1. */
 export const actionsAfterTurnStart = (value, { stunned = false, paralyzed = false } = {}) =>
   stunned ? 0 : Math.max(0, Number(value) - (paralyzed ? 1 : 0));
@@ -269,14 +273,30 @@ export async function startOfTurn(actor) {
     const after = getHealthAfter(actor.system.health, entry.amount, "damage");
     const options = { incarnosHandledHealth: true, incarnosDamage: true,
       incarnosDyingBefore: actor.statuses?.has("dying"), incarnosBledOut: entry.condition === "bleed" && after <= 0 };
+    const hadBarrier = Boolean(statusEffect(actor, "barrier"));
     await actor.update({ "system.health.value": after }, options);
-    await handleDyingHealth(actor, before, after, options);
+    // A Barrier may have ignored the damage: go by the HP the actor really has now.
+    const actual = Number(actor.system.health?.value ?? 0);
+    const absorbed = hadBarrier && actual >= before;
+    await handleDyingHealth(actor, before, actual, absorbed ? { ...options, incarnosDamage: false, incarnosBledOut: false } : options);
     entry.applied = true;
+    if (absorbed) entry.text += " A Barrier ignored it.";
     if (entry.condition === "bleed" && Number(actor.system.health?.value) <= 0) bledOut = true;
   }
   if (bledOut) {
     await markDead(actor);
     notes.unshift(`${actor.name} bled out and is dead.`);
+  }
+  // Barrier (still up after this turn's damage): its source's healing per turn (Bubblebarrier 1d4), then one turn less.
+  const barrier = conditionTokens(actor, "barrier");
+  if (statusEffect(actor, "barrier") && barrier > 0) {
+    const heal = statusEffect(actor, "barrier").getFlag("incarnos", "heal");
+    if (heal) {
+      const roll = await new Roll(String(heal)).evaluate();
+      entries.push({ condition: "barrier", kind: "heal", amount: roll.total, formula: `${roll.formula} = ${roll.result}`,
+        text: `Heals ${roll.total} (${roll.formula}). ${barrier - 1 ? `${plural(barrier - 1, "turn")} left.` : "The Barrier ends."}` });
+    }
+    await setConditionTokens(actor, "barrier", barrier - 1);
   }
   await remindDeathSave(actor);
   return postHealthPrompt(actor, "Start of turn", entries, notes, infos);
@@ -344,9 +364,13 @@ export async function applyHealthChange(actor, key, kind, amountValue, options =
   const handleHere = actor.type === "character" && isWriter(actor);
   const healthOptions = { ...options, incarnosHealthBefore: before, incarnosDamage: kind === "damage" && amountValue > 0,
     incarnosDyingBefore: actor.statuses?.has("dying"), incarnosHandledHealth: handleHere };
+  const hadBarrier = healthOptions.incarnosDamage && Boolean(statusEffect(actor, "barrier"));
   await actor.update({ "system.health.value": after,
     [`flags.incarnos.appliedPrompts.${key}`]: true }, healthOptions);
-  if (handleHere) await handleDyingHealth(actor, before, after, healthOptions);
+  // A Barrier may have ignored the damage: go by the HP the actor really has now, and it isn't a death save failure.
+  const actual = Number(actor.system.health?.value ?? after);
+  const absorbed = hadBarrier && actual >= before;
+  if (handleHere) await handleDyingHealth(actor, before, actual, absorbed ? { ...healthOptions, incarnosDamage: false } : healthOptions);
   return true;
 }
 
@@ -406,6 +430,16 @@ export function registerConditionHooks() {
     if (foundry.utils.hasProperty(changes, "system.health.value")) {
       options.incarnosHealthBefore = Number(actor.system.health?.value ?? 0);
       options.incarnosDyingBefore = actor.statuses?.has("dying") ?? false;
+      // Barrier: the next HP loss is ignored completely; the Barrier ends in updateActor.
+      // (Damage at 0 HP is a damage instance too: the Apply buttons and turn damage say so with incarnosDamage.)
+      if (barrierAbsorbs(options.incarnosHealthBefore, foundry.utils.getProperty(changes, "system.health.value"),
+        statusEffect(actor, "barrier"), options.incarnosIgnoreBarrier, options.incarnosDamage)) {
+        foundry.utils.setProperty(changes, "system.health.value", options.incarnosHealthBefore);
+        // A changed flag keeps the update from being empty, so updateActor still runs and ends the Barrier.
+        foundry.utils.setProperty(changes, "flags.incarnos.barrierPopped", Date.now());
+        options.incarnosBarrierPopped = true;
+        options.incarnosDamage = false;
+      }
     }
     if (actor.type === "character" && actor.statuses?.has("dying") && foundry.utils.hasProperty(changes, "system.actionpoints.value")) {
       const value = Number(foundry.utils.getProperty(changes, "system.actionpoints.value"));
@@ -419,6 +453,13 @@ export function registerConditionHooks() {
         .catch(error => console.error("Incarnos | dying", error));
     }
     if (userId !== game.user.id) return;
+    if (options.incarnosBarrierPopped) {
+      void (async () => {
+        await setConditionTokens(actor, "barrier", 0);
+        await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
+          content: `<p>${escape(game.i18n.format("INCARNOS.Conditions.barrierPopped", { name: actor.name }))}</p>` });
+      })().catch(error => console.error("Incarnos | barrier", error));
+    }
     if (options.incarnosHealthBefore !== undefined) {
       const after = Number(actor.system.health?.value ?? 0);
       if (after > options.incarnosHealthBefore && statusEffect(actor, "bleed")) {
@@ -471,6 +512,9 @@ export async function applyAttackConditions(actor, conditions = []) {
         // An untimed source (or a hand-applied effect) lasts until removed, even alongside a timed source.
         await statusEffect(actor, id)?.setFlag("incarnos", "timed", false);
       }
+    } else if (id === "barrier") {
+      // A new Barrier doesn't stack: the longer duration wins.
+      await setConditionTokens(actor, id, Math.max(conditionTokens(actor, id), Math.max(1, Number(tokens) || 1)));
     } else if (conditionById(id).tokens) await addConditionTokens(actor, id, Math.max(1, Number(tokens) || 1));
     else if (!actor.statuses?.has(id)) await actor.toggleStatusEffect(id, { active: true });
     // Regenerating keeps the healing per turn its source fixed (the newest source wins).
