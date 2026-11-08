@@ -45,14 +45,14 @@ export const CONDITIONS = [
   {
     "id": "dying",
     "name": "Dying",
-    "img": "icons/svg/degen.svg",
+    "img": "systems/incarnos/icons/dying.svg",
     "description": "You are at 0 HP. You fall Prone and have only 1 action per turn. At the start of each of your turns the GM makes a hidden death save for you (d20): 1–10 is a success, 11–20 a failure. A natural 1 heals you 1 HP, a natural 20 counts as two failures. Taking damage while Dying counts as one failure. 3 successes: you are stabilized and no longer Dying (you stay at 0 HP, usually Unconscious). 3 failures: you die. Any healing ends Dying and resets your death saves.",
     "tokens": false
   },
   {
     "id": "grappled",
     "name": "Grappled",
-    "img": "icons/svg/net.svg",
+    "img": "systems/incarnos/icons/grappled.svg",
     "description": "You cannot use movement actions.",
     "tokens": false
   },

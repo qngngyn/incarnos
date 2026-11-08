@@ -69,8 +69,8 @@ test("HUD order: Incarnos conditions first, then Defeated and three spare status
   const sorted = [...list].sort((a, b) => a.order - b.order).map(status => status.id);
   assert.deepEqual(sorted.slice(0, CONDITIONS.length), CONDITION_HELPERS.CONDITION_ORDER, "every vault condition has its place in the fixed order");
   assert.deepEqual(sorted.slice(CONDITIONS.length), ["dead", "custom-1", "custom-2", "custom-3"]);
-  assert.equal(list.find(status => status.id === "immobilized").img, "icons/svg/net.svg", "Immobilized shares Grappled's net icon from the vault");
-  assert.equal(new Set(list.map(status => status.img)).size, list.length - 1, "other statuses have their own icons");
+  assert.equal(list.find(status => status.id === "immobilized").img, "icons/svg/net.svg", "Immobilized keeps the net icon");
+  assert.equal(new Set(list.map(status => status.img)).size, list.length, "every status has its own icon");
 });
 
 test("only status effects made entirely of unknown statuses count as old", () => {
