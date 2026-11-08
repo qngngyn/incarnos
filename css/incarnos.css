@@ -738,7 +738,11 @@
   padding: 4px 8px 6px;
   border-left: 2px solid var(--color-border-highlight, #ff6400);
   font-size: var(--font-size-13, 13px);
+  /* Same light text as the item rows above it (the list itself is dark grey). */
+  color: #b9b3a8;
 }
+.incarnos .items-list .item-summary :is(p, li, span, strong, em, div, h1, h2, h3, h4, h5, h6) { color: inherit; }
+.incarnos .items-list .item-summary strong { color: #d8d2c6; }
 .incarnos .items-list .item-summary p { margin: 2px 0; }
 .incarnos .items-list .item-summary-traits { margin: 2px 0 0; padding-left: 18px; }
 .incarnos .items-list .item-summary-empty { opacity: 0.7; font-style: italic; }
