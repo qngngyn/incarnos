@@ -185,3 +185,11 @@ test("save-gated riders: extra damage and Paralyzed on a failed save; self spell
   const plain = getSpellAutomation({ target: "Single Enemy", check: "Attack Int / Cha", effect: "On hit: Deals additional 1d6 + (lvl * 1) dmg" });
   assert.equal(plain.bonusDamage, undefined, "an 'additional' line without a save gate is not a rider");
 });
+
+test("Stunned from a spell line, not from the reminder; self spells don't stun their caster", () => {
+  const effect = "On hit: Stunned for 1 turn (none when Save succeeded)\nStun removes all actions of the enemy next turn. This does not stack.";
+  const shock = getSpellAutomation({ target: "Single Enemy", range: "Touch", check: "Target Con Save", effect });
+  assert.deepEqual(shock.conditions.map(condition => [condition.id, condition.saveNegates]), [["stunned", true]]);
+  assert.deepEqual(getSpellAutomation({ target: "Self", range: "Self", check: "Target Save Con", effect }).conditions, []);
+  assert.deepEqual(getSpellAutomation({ target: "Single Enemy", check: "Attack Int / Cha", effect: "Stun removes all actions of the enemy next turn." }).conditions, []);
+});

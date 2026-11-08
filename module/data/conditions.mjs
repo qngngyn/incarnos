@@ -99,6 +99,13 @@ export const CONDITIONS = [
     "tokens": true
   },
   {
+    "id": "stunned",
+    "name": "Stunned",
+    "img": "icons/svg/daze.svg",
+    "description": "You lose all your actions on your next turn. Stunned does not stack and ends at the start of that turn.",
+    "tokens": false
+  },
+  {
     "id": "summoned",
     "name": "Summoned",
     "img": "icons/svg/portal.svg",

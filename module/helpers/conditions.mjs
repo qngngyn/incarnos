@@ -29,6 +29,10 @@ export const conditionById = id => CONDITIONS.find(condition => condition.id ===
 /** Start of turn with damage tokens: 1 damage per token, then one token less. */
 export const tickDamageTokens = tokens => ({ damage: Math.max(0, tokens), remaining: Math.max(0, tokens - 1) });
 
+/** AP at the start of a turn: Stunned leaves none, Paralyzed takes 1. */
+export const actionsAfterTurnStart = (value, { stunned = false, paralyzed = false } = {}) =>
+  stunned ? 0 : Math.max(0, Number(value) - (paralyzed ? 1 : 0));
+
 /** Asleep: every action point spent removes one sleep token. */
 export const asleepAfterActions = (tokens, spent) => Math.max(0, tokens - Math.max(0, spent));
 
@@ -95,7 +99,7 @@ export const advantageFormula = delta => (delta > 0 ? `${delta + 1}d20kl` : delt
 
 /** Spare statuses for conditions that don't exist yet; rename the effect on the actor when you use one. */
 export const SPARE_STATUSES = [
-  { id: "custom-1", name: "Custom 1", img: "icons/svg/daze.svg" },
+  { id: "custom-1", name: "Custom 1", img: "icons/svg/card-joker.svg" },
   { id: "custom-2", name: "Custom 2", img: "icons/svg/aura.svg" },
   { id: "custom-3", name: "Custom 3", img: "icons/svg/hazard.svg" }
 ];
@@ -209,11 +213,15 @@ export async function endOfTurn(actor, turn = null) {
  */
 export async function startOfTurn(actor) {
   await consumeDodge(actor);
-  // Paralyzed: 1 action less this turn (AP were refilled at the end of the last turn), then it ends; it doesn't stack.
+  // Stunned (no actions) and Paralyzed (1 action less) take effect this turn, after the AP refill at the end of the last
+  // turn, then end; neither stacks.
   const paralyzed = statusEffect(actor, "paralyzed");
-  if (paralyzed) {
-    await actor.update({ "system.actionpoints.value": Math.max(0, getActionState(actor).value - 1) }, { incarnosParalyzed: true });
-    await paralyzed.delete();
+  const stunned = statusEffect(actor, "stunned");
+  if (paralyzed || stunned) {
+    const value = actionsAfterTurnStart(getActionState(actor).value, { stunned: Boolean(stunned), paralyzed: Boolean(paralyzed) });
+    await actor.update({ "system.actionpoints.value": value }, { incarnosParalyzed: true });
+    await stunned?.delete();
+    await paralyzed?.delete();
   }
   const entries = [];
   for (const id of DAMAGE_TOKEN_CONDITIONS) {
@@ -251,6 +259,7 @@ export async function startOfTurn(actor) {
     infos.push({ condition: condition.id, text: `${tokens ? `${plural(tokens, "token")}. ` : ""}${condition.description}` });
   }
   if (paralyzed) infos.unshift({ condition: "paralyzed", text: "You lose 1 action this turn. Paralyzed ends." });
+  if (stunned) infos.unshift({ condition: "stunned", text: "You lose all your actions this turn. Stunned ends." });
   if (!entries.length && !infos.length) return;
   const notes = statusEffect(actor, "burn") ? ["Burn: 1 AP to put out the flames (or water) removes all Burn tokens."] : [];
   // Burn, Poisoned and Bleed hit by themselves (no Apply button); only bleeding to 0 HP kills (other 0 HP: the table's rules).

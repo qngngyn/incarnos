@@ -134,7 +134,7 @@ export function parseSpellAutomation(system = {}) {
   }
   result.conditions = parseSpellConditions(lines, Boolean(result.saveStat), system.duration)
     // Self/ally spells (Cloak of Lightning: "On hit: Paralyzed …") describe what happens to an attacker, not the target.
-    .filter(condition => offensive || condition.id !== "paralyzed");
+    .filter(condition => offensive || !["paralyzed", "stunned"].includes(condition.id));
   const healLine = !/everything/i.test(system.category ?? "")
     && lines.find(line => /\bheals?\b/i.test(line) && new RegExp(DICE).test(line) && !/%|beginning|end of|additional|same amount|max health/i.test(line));
   if (healLine) result.heal = toFormula(healLine.slice(healLine.search(/\bheals?\b/i)).match(new RegExp(DICE))[0]);
@@ -174,7 +174,7 @@ export function parseSpellSummon(system = {}) {
   return { creature, tiers, turns, corpse: /\bcorpse\b/i.test(system.target ?? "") };
 }
 
-const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed" };
+const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed", stunned: "Stunned" };
 
 /**
  * Conditions a spell puts on its targets, from clear effect lines only:
@@ -213,6 +213,8 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
     if (/\b(knock(?:s|ed)?|falls?)\b[^.]*\bprone\b|^Prone targets?\b/i.test(line)) add("prone", null, line);
     // "making them paralyzed", "Paralyzed for 1 turn" (not the reminder "Paralyze removes 1 action …"); it doesn't stack.
     if (/\bparaly[sz]ed\b/i.test(line)) add("paralyzed", null, line);
+    // "Stunned for 1 turn" (not the reminder "Stun removes all actions …").
+    if (/\bstunned\b/i.test(line)) add("stunned", null, line);
     const sleep = line.match(new RegExp(String.raw`\bapply\s+(${DICE}|\d+)\s+sleep tokens?\b`, "i"));
     if (sleep) add("asleep", toFormula(sleep[1]), line);
     for (const token of line.matchAll(/\b(Burn|Poisoned|Bleed)\s+(\d*d\d+)\b/gi)) add(token[1].toLowerCase(), token[2].toLowerCase(), line);

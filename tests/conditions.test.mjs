@@ -50,7 +50,7 @@ test("vault condition notes give id, name, icon, text and whether they count tok
 
 test("the generated list holds every vault condition with an icon", () => {
   assert.deepEqual(CONDITIONS.map(c => c.id).sort(),
-    ["asleep", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "summoned", "taunted", "unconscious"]);
+    ["asleep", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "stunned", "summoned", "taunted", "unconscious"]);
   assert.ok(CONDITIONS.every(c => c.img.startsWith("icons/")));
   assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "bleed", "burn", "immobilized", "poisoned", "regenerating", "summoned"]);
 });
@@ -346,4 +346,13 @@ test("bleeding to 0 HP kills (dead status, combatant defeated); Burn or Poison a
   assert.equal(burning.actor.system.health.value, 0);
   assert.equal(burning.actor.statuses.has("dead"), false, "0 HP from Burn follows the normal rules");
   assert.doesNotMatch(burning.prompts[0].content, /dead/);
+});
+
+test("turn start: Stunned leaves no actions, Paralyzed takes one, never below 0", () => {
+  const { actionsAfterTurnStart } = CONDITION_HELPERS;
+  assert.equal(actionsAfterTurnStart(3, { stunned: true }), 0);
+  assert.equal(actionsAfterTurnStart(3, { paralyzed: true }), 2);
+  assert.equal(actionsAfterTurnStart(3, { stunned: true, paralyzed: true }), 0);
+  assert.equal(actionsAfterTurnStart(0, { paralyzed: true }), 0);
+  assert.equal(actionsAfterTurnStart(3), 3);
 });
