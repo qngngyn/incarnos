@@ -393,3 +393,42 @@ test("hidden summon request messages are not rendered in chat", () => {
   for (const callback of f.hooks.renderChatMessageHTML) callback(f.request(), html);
   assert.equal(html.style.display, "none");
 });
+
+test("a summon is remembered with its tier, and another caster's Encore copy places the same version for its cost + 2", async () => {
+  const f = setup({ tier: 20 });
+  const flagsOf = actor => { actor.flags = {}; actor.setFlag = async (scope, key, value) => { actor.flags[key] = value; };
+    actor.getFlag = (scope, key) => actor.flags[key]; };
+  flagsOf(f.actor);
+  assert.equal(await processSummonRequest(f.request(), f.player.id), true);
+  const last = f.actor.flags.lastSpell;
+  assert.deepEqual([last.name, last.uuid, last.summonIp, last.cost], [spell.name, f.item.uuid, 20, { actions: 2, mp: 40 }],
+    "the caster remembers the summon, its empower tier and what it cost");
+
+  // Drea copies it with Encore: her own token and actor, Samuel's spell item, the same tier, 2 AP and 40 + 2 IP.
+  const drea = { id: "drea", uuid: "Actor.drea", documentName: "Actor", type: "character", name: "Drea", items: [],
+    testUserPermission: user => user.id === f.player.id || user.isGM,
+    system: { power: { value: 100 }, health: { value: 30 }, actionpoints: { value: 3, max: 3 } }, writes: [],
+    async update(changes) { this.writes.push(changes); for (const [key, value] of Object.entries(changes)) {
+      const [, pool, field] = key.split("."); this.system[pool][field] = value; } } };
+  flagsOf(drea);
+  const dreaToken = { id: "drea-token", uuid: "Scene.scene.Token.drea-token", documentName: "Token", parent: f.scene, x: 600, y: 500, width: 1, height: 1, actor: drea };
+  f.scene.tokens.push(dreaToken);
+  f.documents.set(drea.uuid, drea);
+  f.documents.set(dreaToken.uuid, dreaToken);
+  const encore = cost => f.request({ casterTokenUuid: dreaToken.uuid, encore: { actorUuid: drea.uuid, cost } });
+
+  assert.equal(await validateSummonRequest(encore({ actions: 2, mp: 10 }), f.player.id), null, "a cheaper price is refused");
+  assert.equal(await validateSummonRequest(f.request({ casterTokenUuid: dreaToken.uuid, ip: 40, encore: { actorUuid: drea.uuid, cost: { actions: 2, mp: 42 } } }), f.player.id),
+    null, "a different tier is refused");
+  assert.equal(await processSummonRequest(encore({ actions: 2, mp: 42 }), f.player.id), true);
+  assert.deepEqual(drea.writes, [{ "system.power.value": 58 }], "Drea pays 40 + 2 IP (no AP outside combat)");
+  const token = f.scene.tokens.at(-1);
+  assert.equal(token.name, "Deathfire Elemental +20 IP");
+  assert.equal(token.flags.incarnos.summon.casterUuid, drea.uuid, "the copy is Drea's summon");
+  assert.match(f.cards.at(-1).content, /Encore: Death fire elemental/);
+  assert.equal(drea.flags.lastSpell.uuid, f.item.uuid, "Drea now remembers the copied summon");
+
+  // Once Samuel casts something else, his old summon can no longer be copied.
+  f.actor.flags.lastSpell = { ...last, uuid: "Actor.caster.Item.other" };
+  assert.equal(await validateSummonRequest(encore({ actions: 2, mp: 42 }), f.player.id), null);
+});

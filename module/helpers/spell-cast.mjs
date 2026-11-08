@@ -14,6 +14,8 @@ import { modifierForRoller } from "./modifiers.mjs";
 import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied } from "./conditions.mjs";
 import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
 import { createRangeRing, gridOptions, parseSpellRange, showRangeIndicator, targetInRange } from "./spell-range.mjs";
+import { encoreCost, lastSpellRecord, rememberSpell } from "./last-spell.mjs";
+export { encoreCost, lastSpellRecord };
 
 const castData = message => message.flags?.incarnos?.spellCast;
 const applying = new Set();
@@ -36,11 +38,6 @@ async function chooseSpellOption(item, options) {
 /** Encore ("Immediately copy a spell and pay the costs"): copies an ally's last spell. */
 export const isEncoreSpell = system => /\bcopy a spell\b/i.test(String(system?.effect ?? ""));
 
-/** Encore's cost for a remembered spell: its actions (X) and its IP + 2 (Y+2). */
-export const encoreCost = last => ({ actions: Math.max(0, Number(last?.cost?.actions) || 0), mp: Math.max(0, Number(last?.cost?.mp) || 0) + 2 });
-
-/** What an actor remembers of its last cast spell (flags.incarnos.lastSpell), for Encore. */
-export const lastSpellRecord = (data, cost) => ({ name: data.name, data, cost: { actions: Number(cost?.actions) || 0, mp: Math.max(Number(cost?.mp) || 0, Number(cost?.hp) || 0) }, at: Date.now() });
 
 /**
  * Cast a spell from an owned item. Spells without automation fields only pay their cost and post their card.
@@ -64,7 +61,8 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
     return ChatMessage.create({ speaker, rollMode, content: renderSpellCard({ name: item.name, img: item.img, system, option }) });
   }
 
-  if (auto.summon) return castSummon(item, auto);
+  // Summons: the GM's client places the creature and remembers the spell. An Encore copy places the same version.
+  if (auto.summon) return castSummon(item, auto, fixedCost && remember?.uuid ? { sourceItemUuid: remember.uuid, ip: remember.summonIp ?? 0, cost: fixedCost, record: remember } : null);
 
   for (const formula of [auto.damage, auto.heal].filter(Boolean)) {
     if (!Roll.validate(formula)) return ui.notifications.warn(`${item.name}: "${formula}" is not a valid roll formula.`);
@@ -116,10 +114,8 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
   const paid = await spendCastCost(actor, cost, item.name);
   if (paid === false) return;
   // Remember the spell and its own cost for Encore (an Encore copy remembers the copied spell).
-  try {
-    const data = remember?.data ?? item.toObject?.();
-    if (data) await actor.setFlag?.("incarnos", "lastSpell", lastSpellRecord(data, remember?.cost ?? cost));
-  } catch (error) { console.warn("Incarnos | could not remember the last spell", error); }
+  const data = remember?.data ?? item.toObject?.();
+  if (data) await rememberSpell(actor, lastSpellRecord(data, remember?.cost ?? cost, { uuid: remember?.uuid ?? item.uuid, summonIp: remember?.summonIp }));
 
   const rollData = actor.getRollData();
   rollData.lvl ??= Number(actor.system.attributes?.level?.value ?? 0);
@@ -275,7 +271,7 @@ async function castEncore(item) {
   delete data._id;
   data.name = `${item.name}: ${last.name}`;
   const copy = new CONFIG.Item.documentClass(data, { parent: actor });
-  const cast = () => castSpell(copy, { cost, remember: { data: last.data, cost: last.cost } });
+  const cast = () => castSpell(copy, { cost, remember: { data: last.data, cost: last.cost, uuid: last.uuid, summonIp: last.summonIp } });
   const copied = { spell: last.name, ally: ally.name, actions: cost.actions, ip: cost.mp };
 
   const { DialogV2 } = foundry.applications.api;

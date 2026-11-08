@@ -1,5 +1,6 @@
 import { getSpellAutomation, getVariableCost } from "./spells.mjs";
-import { getCastCost, spendCastCost, refundCastCost } from "./spell-cost.mjs";
+import { checkCastCost, getCastCost, spendCastCost, refundCastCost } from "./spell-cost.mjs";
+import { encoreCost, lastSpellRecord, rememberSpell } from "./last-spell.mjs";
 import { getActionState, inCombat } from "./action-tracker.mjs";
 import { renderSpellCard } from "./spell-card.mjs";
 import { escape } from "./roll-card.mjs";
@@ -75,7 +76,14 @@ export async function placeSummon(item, version, casterToken) {
   return position;
 }
 
-export async function castSummon(item, auto) {
+/**
+ * Cast a summon spell: choose the empower tier, place the creature, and let the GM's client create it.
+ * @param {Item} item
+ * @param {object} auto  The spell's automation (auto.summon).
+ * @param {{sourceItemUuid: string, ip: number, cost: {actions: number, mp: number}}|null} [encore]
+ *   An Encore copy: the copied spell item (the ally's), the empower IP the ally chose, and Encore's fixed cost.
+ */
+export async function castSummon(item, auto, encore = null) {
   const gm = activeSummonGM();
   if (!gm) return ui.notifications.warn(text("needGM"));
   const actor = item.actor;
@@ -84,7 +92,7 @@ export async function castSummon(item, auto) {
     ?? tokens.find(token => token.actor?.uuid === actor.uuid))?.document;
   if (!canvas.ready || !caster || caster.parent !== canvas.scene) return ui.notifications.warn(text("needToken"));
   const summon = auto.summon;
-  const choice = await foundry.applications.api.DialogV2.input({
+  const choice = encore ? { ip: encore.ip } : await foundry.applications.api.DialogV2.input({
     window: { title: text("choose", { name: item.name }) },
     content: `<div class="form-group"><label>${escape(text("tier"))}</label><select name="ip">${summon.tiers.map(tier =>
       `<option value="${tier.ip}">${escape(text("option", { tier: tier.ip ? `+${tier.ip} IP` : text("base"),
@@ -94,22 +102,24 @@ export async function castSummon(item, auto) {
   if (!choice) return;
   const ip = Number(choice.ip);
   if (!summon.tiers.some(tier => tier.ip === ip)) return;
-  const version = game.user.isGM ? await findSummonVersion(summon.creature, ip) : await requestSummonPreview(item, ip);
+  const encoreData = encore ? { actorUuid: actor.uuid, cost: { actions: encore.cost.actions, mp: encore.cost.mp } } : null;
+  const version = game.user.isGM ? await findSummonVersion(summon.creature, ip)
+    : await requestSummonPreview(encore ? { uuid: encore.sourceItemUuid } : item, ip, encoreData);
   if (!version) return ui.notifications.warn(text("missing", { name: summon.creature }));
-  const cost = await getCastCost(item, ip);
+  const cost = encore ? checkCastCost(item, encore.cost) : await getCastCost(item, ip);
   if (!cost) return;
   const position = await placeSummon(item, version, caster);
   if (!position) return;
   if (!activeSummonGM()) return ui.notifications.warn(text("needGM"));
   const message = await ChatMessage.create({ whisper: [...new Set([gm.id, game.user.id])], content: `<p>${escape(text("request"))}</p>`,
-    flags: { incarnos: { summonRequest: { itemUuid: item.uuid, casterTokenUuid: caster.uuid, ip,
-      selectedCost: { actions: cost.actions, mp: cost.mp - ip }, ...position } } } });
+    flags: { incarnos: { summonRequest: { itemUuid: encore ? encore.sourceItemUuid : item.uuid, casterTokenUuid: caster.uuid, ip,
+      selectedCost: { actions: cost.actions, mp: cost.mp - ip }, ...(encoreData ? { encore: encoreData } : {}), ...position } } } });
   if (activeSummonGM()?.id === game.user.id) await processSummonRequest(message, game.user.id);
   return message;
 }
 
 /** Players cannot read the private monster pack. Ask the GM for placement metadata only. */
-async function requestSummonPreview(item, ip) {
+async function requestSummonPreview(item, ip, encore = null) {
   const gm = activeSummonGM();
   if (!gm) return null;
   const nonce = foundry.utils.randomID();
@@ -124,7 +134,7 @@ async function requestSummonPreview(item, ip) {
   const timer = setTimeout(() => finish(null), 30000);
   try {
     await ChatMessage.create({ whisper: [...new Set([gm.id, game.user.id])], content: `<p>${escape(text("request"))}</p>`,
-      flags: { incarnos: { summonRequest: { kind: "preview", nonce, itemUuid: item.uuid, ip } } } });
+      flags: { incarnos: { summonRequest: { kind: "preview", nonce, itemUuid: item.uuid, ip, ...(encore ? { encore } : {}) } } } });
     const preview = await response;
     return preview?.name ? { actor: { name: preview.name, prototypeToken: { width: preview.width, height: preview.height } },
       fallback: preview.fallback, requested: preview.requested } : null;
@@ -138,14 +148,25 @@ export async function validateSummonRequest(message, userId) {
   if (!data || data.handled || !user?.active || message.author?.id !== userId
     || !Number.isFinite(message.timestamp) || Math.abs(Date.now() - message.timestamp) > 120000) return null;
   const item = typeof data.itemUuid === "string" ? await fromUuid(data.itemUuid) : null;
-  const actor = item?.actor;
-  if (item?.documentName !== "Item" || item.type !== "spell" || !actor || item.parent !== actor
-    || !(user.isGM || actor.testUserPermission(user, "OWNER"))) return null;
+  const owner = item?.actor;
+  if (item?.documentName !== "Item" || item.type !== "spell" || !owner || item.parent !== owner) return null;
+  // Encore: the requester casts as their own actor a copy of the spell the item's owner cast last, at the same tier
+  // and for exactly Encore's price (the copied spell's actions and its IP + 2).
+  let actor = owner, lastSource = null;
+  if (data.encore) {
+    const encoreActor = typeof data.encore.actorUuid === "string" ? await fromUuid(data.encore.actorUuid) : null;
+    lastSource = owner.getFlag?.("incarnos", "lastSpell");
+    const price = lastSource ? encoreCost(lastSource) : null;
+    if (encoreActor?.documentName !== "Actor" || lastSource?.uuid !== item.uuid || Number(lastSource.summonIp ?? 0) !== data.ip
+      || data.encore.cost?.actions !== price.actions || data.encore.cost?.mp !== price.mp) return null;
+    actor = encoreActor;
+  }
+  if (!(user.isGM || actor.testUserPermission(user, "OWNER"))) return null;
   const auto = getSpellAutomation(item.system);
   if (!auto.summon || !auto.summon.tiers.some(tier => tier.ip === data.ip)) return null;
   const version = await findSummonVersion(auto.summon.creature, data.ip);
   if (!version) return null;
-  if (data.kind === "preview") return { data, user, item, actor, auto, version };
+  if (data.kind === "preview") return { data, user, item, actor, auto, version, lastSource };
   if (data.kind != null) return null;
   const scene = game.scenes.get(data.sceneId);
   const caster = typeof data.casterTokenUuid === "string" ? await fromUuid(data.casterTokenUuid) : null;
@@ -159,11 +180,12 @@ export async function validateSummonRequest(message, userId) {
     || data.y + height * scene.grid.size > bounds.sceneY + bounds.sceneHeight) return null;
   if (!summonInRange(item.system, caster, data, scene) && !(user.isGM && data.rangeOverride === true)) return null;
   const variable = getVariableCost(item.system.cost);
-  if ((variable.actions || variable.mp) && (!data.selectedCost
+  if (!data.encore && (variable.actions || variable.mp) && (!data.selectedCost
     || ![data.selectedCost.actions, data.selectedCost.mp].every(value => Number.isSafeInteger(value) && value >= 0))) return null;
   // payActions runs on the GM: reject insufficient player AP before its GM override can appear.
-  if (!user.isGM && inCombat(actor) && Number(item.system.actions ?? 0) > getActionState(actor).value) return null;
-  return { data, user, item, actor, auto, scene, caster, version };
+  const actions = data.encore ? data.encore.cost.actions : Number(item.system.actions ?? 0);
+  if (!user.isGM && inCombat(actor) && actions > getActionState(actor).value) return null;
+  return { data, user, item, actor, auto, scene, caster, version, lastSource };
 }
 
 /** Import once per compendium version; add player owners without replacing existing ownership. */
@@ -198,8 +220,8 @@ export function summonTokenData(prototype, source, caster, spell, summon, positi
 }
 
 async function fulfillSummon(request) {
-  const { data, user, item, actor, auto, scene, caster, version } = request;
-  const cost = await getCastCost(item, data.ip, data.selectedCost);
+  const { data, user, item, actor, auto, scene, caster, version, lastSource } = request;
+  const cost = data.encore ? checkCastCost({ actor, name: item.name }, data.encore.cost) : await getCastCost(item, data.ip, data.selectedCost);
   if (!cost || (!user.isGM && inCombat(actor) && cost.actions > getActionState(actor).value)) return false;
   const worldActor = await summonWorldActor(version.actor, actor);
   const prototype = (await worldActor.getTokenDocument({}, { parent: scene })).toObject();
@@ -230,9 +252,13 @@ async function fulfillSummon(request) {
     await refundCastCost(actor, paid);
     throw error;
   }
+  // Remember the spell for Encore: the summon with its tier; an Encore copy remembers the copied spell.
+  await rememberSpell(actor, data.encore ? { ...lastSource, at: Date.now() }
+    : lastSpellRecord(item.toObject?.() ?? { name: item.name, type: item.type, img: item.img, system: item.system }, cost,
+      { uuid: item.uuid, summonIp: data.ip }));
   const summary = { name: version.actor.name, ...summonSize(version.actor), turns: auto.summon.turns,
     corpse: auto.summon.corpse, warning: version.fallback ? text("fallback", { requested: version.requested, name: version.actor.name }) : "" };
-  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: renderSpellCard({ name: item.name,
+  await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), content: renderSpellCard({ name: data.encore ? `Encore: ${item.name}` : item.name,
     img: item.img, system: item.system, paid, summon: summary }) });
   return true;
 }
