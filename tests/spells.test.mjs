@@ -171,3 +171,17 @@ test("spell overviews and chat show legacy costs as IP without changing the stor
     assert.equal(system.cost, "2 Actions, 12 " + unit);
   }
 });
+
+test("save-gated riders: extra damage and Paralyzed on a failed save; self spells don't paralyze their caster", () => {
+  const apes = getSpellAutomation({ target: "2 Single Enemies", range: "6m", check: "Attack Int / Cha, Target Save Con",
+    effect: "On hit: 2d4 + (lvl * 2) fire dmg\nLaunches targets into the air (none when Save succeeded), making them paralyzed and take additional 2d4 fire dmg when hit" });
+  assert.equal(apes.damage, "2d4 + (@lvl * 2)");
+  assert.deepEqual(apes.bonusDamage, { formula: "2d4", type: "fire", saveNegates: true });
+  assert.deepEqual(apes.conditions.map(condition => [condition.id, condition.saveNegates]), [["paralyzed", true]]);
+  const cloak = getSpellAutomation({ target: "Self", range: "Self", check: "Target Save Con+2",
+    effect: "When enemy touched: Deals 1d4 +  (lvl * 1) fire dmg\nOn hit: Paralyzed for 1 turn (none when Save succeeded)\nParalyze removes 1 action of the enemy next turn. This does not stack." });
+  assert.deepEqual(cloak.conditions, []);
+  assert.equal(cloak.bonusDamage, undefined);
+  const plain = getSpellAutomation({ target: "Single Enemy", check: "Attack Int / Cha", effect: "On hit: Deals additional 1d6 + (lvl * 1) dmg" });
+  assert.equal(plain.bonusDamage, undefined, "an 'additional' line without a save gate is not a rider");
+});

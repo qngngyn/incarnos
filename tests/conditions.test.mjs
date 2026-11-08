@@ -50,7 +50,7 @@ test("vault condition notes give id, name, icon, text and whether they count tok
 
 test("the generated list holds every vault condition with an icon", () => {
   assert.deepEqual(CONDITIONS.map(c => c.id).sort(),
-    ["asleep", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "poisoned", "prone", "regenerating", "summoned", "taunted", "unconscious"]);
+    ["asleep", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "summoned", "taunted", "unconscious"]);
   assert.ok(CONDITIONS.every(c => c.img.startsWith("icons/")));
   assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "bleed", "burn", "immobilized", "poisoned", "regenerating", "summoned"]);
 });

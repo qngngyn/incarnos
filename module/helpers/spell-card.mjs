@@ -50,6 +50,7 @@ export function renderSpellCard({ name, img, system = {}, option = null, auto = 
         checkChip(result.save, { pass: "Saved", fail: "Failed save", label: result.save?.advantage ? `${saveLabel} with advantage (${result.save.advantage})` : saveLabel }),
         result.save?.advantage ? chip("Adv", { title: `Advantage from ${result.save.advantage}: rolled 2d20, kept the lower` }) : "",
         result.pvp && result.damage ? chip("PvP ½", { title: "PvP rules: damage halved" }) : "",
+        result.bonusDamage ? chip(`+${result.bonusDamage.amount}`, { tone: "note", title: `Included extra damage on a failed save: ${result.bonusDamage.formula} = ${result.bonusDamage.result}${auto.bonusDamage?.type ? ` ${auto.bonusDamage.type}` : ""}` }) : "",
         ...(result.conditions ?? []).map(condition => chip(`${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, { tone: "note", title: `${condition.name}${condition.tokens ? ` (${condition.tokens} tokens)` : ""}: put on the target automatically` })),
         result.crit && result.damage && critDamage ? chip("Max dmg", { tone: "crit", title: `Critical hit: damage dice maxed (${critDamage.formula} = ${critDamage.total})` }) : ""
       ]

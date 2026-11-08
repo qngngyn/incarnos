@@ -209,6 +209,12 @@ export async function endOfTurn(actor, turn = null) {
  */
 export async function startOfTurn(actor) {
   await consumeDodge(actor);
+  // Paralyzed: 1 action less this turn (AP were refilled at the end of the last turn), then it ends; it doesn't stack.
+  const paralyzed = statusEffect(actor, "paralyzed");
+  if (paralyzed) {
+    await actor.update({ "system.actionpoints.value": Math.max(0, getActionState(actor).value - 1) }, { incarnosParalyzed: true });
+    await paralyzed.delete();
+  }
   const entries = [];
   for (const id of DAMAGE_TOKEN_CONDITIONS) {
     const tokens = conditionTokens(actor, id);
@@ -244,6 +250,7 @@ export async function startOfTurn(actor) {
       ? conditionTokens(actor, condition.id) : 0;
     infos.push({ condition: condition.id, text: `${tokens ? `${plural(tokens, "token")}. ` : ""}${condition.description}` });
   }
+  if (paralyzed) infos.unshift({ condition: "paralyzed", text: "You lose 1 action this turn. Paralyzed ends." });
   if (!entries.length && !infos.length) return;
   const notes = statusEffect(actor, "burn") ? ["Burn: 1 AP to put out the flames (or water) removes all Burn tokens."] : [];
   // Burn, Poisoned and Bleed hit by themselves (no Apply button); only bleeding to 0 HP kills (other 0 HP: the table's rules).
@@ -413,7 +420,8 @@ export function registerConditionHooks() {
       // incarnosKeepSleep: the damage of the spell that just put the target to sleep doesn't wake it.
       if (after < options.incarnosHealthBefore && sleep > 0 && !options.incarnosKeepSleep) void setConditionTokens(actor, "asleep", asleepAfterDamage(sleep));
     }
-    if (options.incarnosActionsBefore !== undefined) {
+    // The action Paralyzed takes away isn't spent, so it doesn't wake a sleeper.
+    if (options.incarnosActionsBefore !== undefined && !options.incarnosParalyzed) {
       const spent = options.incarnosActionsBefore - getActionState(actor).value;
       const sleep = conditionTokens(actor, "asleep");
       if (spent > 0 && sleep > 0) void setConditionTokens(actor, "asleep", asleepAfterActions(sleep, spent));

@@ -551,3 +551,20 @@ test("area spells never hit invisible tokens (hidden from players); visible ones
   const hit = getTokensInArea(area, [token("Seen", 50), token("Invisible", 50, true), token("Outside", 150)]);
   assert.deepEqual(hit.map(entry => entry.name), ["Seen"]);
 });
+
+test("Who let the apes out (Thunder): a hit with a failed save adds +2d4 and Paralyzed; a save or miss doesn't", async () => {
+  const system = { ...leafToss, name: "Who let the apes out? Thunder Version", element: "Thunder", check: "Attack Int / Cha, Target Save Con",
+    target: "2 Single Enemies", range: "6m", cost: "2 Actions, 10 IP", actions: 2, mp: 10,
+    effect: "On hit: 2d4 + (lvl * 2) fire dmg\nLaunches targets into the air (none when Save succeeded), making them paralyzed and take additional 2d4 fire dmg when hit" };
+  const { message, pending } = await castAttackSpell({ system, parries: [14, 14, 14], dice: [
+    { formula: "2d4 + (@lvl * 2)", total: 8 }, { formula: "2d4", total: 5 },
+    { formula: "1d20", total: 5 }, { formula: "1d20", total: 15 },
+    { formula: "1d20", total: 5 }, { formula: "1d20", total: 3 },
+    { formula: "1d20", total: 20 }
+  ] });
+  const results = message.flags.incarnos.spellCast.targets;
+  assert.deepEqual(results.map(result => result.damage), [13, 8, 0]);
+  assert.deepEqual(results.map(result => result.conditions.map(condition => condition.id)), [["paralyzed"], [], []]);
+  // The card marks the included extra damage on the target that failed its save, and only there.
+  assert.equal((message.content.match(/Included extra damage on a failed save: 2d4 = 5 fire/g) ?? []).length, 1);
+});

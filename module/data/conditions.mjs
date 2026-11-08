@@ -71,6 +71,13 @@ export const CONDITIONS = [
     "tokens": false
   },
   {
+    "id": "paralyzed",
+    "name": "Paralyzed",
+    "img": "icons/svg/paralysis.svg",
+    "description": "You lose 1 action on your next turn. Paralyzed does not stack and ends at the start of that turn.",
+    "tokens": false
+  },
+  {
     "id": "poisoned",
     "name": "Poisoned",
     "img": "icons/svg/poison.svg",

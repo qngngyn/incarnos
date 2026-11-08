@@ -123,7 +123,18 @@ export function parseSpellAutomation(system = {}) {
     if (result.saveStat && /none when save|not .* when save/i.test(damageLine)) result.saveEffect = "none";
     else if (result.saveStat && /\bhal(f|ved|fed)\b/i.test(damageLine)) result.saveEffect = "half";
   }
-  result.conditions = parseSpellConditions(lines, Boolean(result.saveStat), system.duration);
+  // A rider gated by the save: "Launches targets … (none when Save succeeded), making them … take additional 2d4 fire dmg"
+  // = extra damage for targets that are hit and fail the save.
+  const bonusLine = offensive && lines.find(line => /\b(additional|extra)\b/i.test(line) && /\b(dmg|damage)\b/i.test(line)
+    && new RegExp(DICE).test(line) && /\b(none|not \w+) when \w*\s*save/i.test(line) && !/^\s*(?:if|melee:|ranged:)/i.test(line));
+  if (bonusLine) {
+    const rest = bonusLine.slice(bonusLine.search(/\b(additional|extra)\b/i));
+    result.bonusDamage = { formula: toFormula(rest.match(new RegExp(DICE))[0]),
+      type: rest.match(DAMAGE_TYPES)?.[1].toLowerCase() ?? result.damageType, saveNegates: Boolean(result.saveStat) };
+  }
+  result.conditions = parseSpellConditions(lines, Boolean(result.saveStat), system.duration)
+    // Self/ally spells (Cloak of Lightning: "On hit: Paralyzed …") describe what happens to an attacker, not the target.
+    .filter(condition => offensive || condition.id !== "paralyzed");
   const healLine = !/everything/i.test(system.category ?? "")
     && lines.find(line => /\bheals?\b/i.test(line) && new RegExp(DICE).test(line) && !/%|beginning|end of|additional|same amount|max health/i.test(line));
   if (healLine) result.heal = toFormula(healLine.slice(healLine.search(/\bheals?\b/i)).match(new RegExp(DICE))[0]);
@@ -163,7 +174,7 @@ export function parseSpellSummon(system = {}) {
   return { creature, tiers, turns, corpse: /\bcorpse\b/i.test(system.target ?? "") };
 }
 
-const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized" };
+const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed" };
 
 /**
  * Conditions a spell puts on its targets, from clear effect lines only:
@@ -200,6 +211,8 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
       add("immobilized", formula, line, { timed: formula !== null, saveNegates: hasSave });
     }
     if (/\b(knock(?:s|ed)?|falls?)\b[^.]*\bprone\b|^Prone targets?\b/i.test(line)) add("prone", null, line);
+    // "making them paralyzed", "Paralyzed for 1 turn" (not the reminder "Paralyze removes 1 action …"); it doesn't stack.
+    if (/\bparaly[sz]ed\b/i.test(line)) add("paralyzed", null, line);
     const sleep = line.match(new RegExp(String.raw`\bapply\s+(${DICE}|\d+)\s+sleep tokens?\b`, "i"));
     if (sleep) add("asleep", toFormula(sleep[1]), line);
     for (const token of line.matchAll(/\b(Burn|Poisoned|Bleed)\s+(\d*d\d+)\b/gi)) add(token[1].toLowerCase(), token[2].toLowerCase(), line);
@@ -235,6 +248,7 @@ export function describeSpellAutomation(auto = {}) {
   if (auto.attackStat) parts.push(`Attack ${SPELL_ATTACK_STATS[auto.attackStat]}${auto.attackCount > 1 ? ` ×${auto.attackCount}` : ""}${auto.attackModifier ? ` ${auto.attackModifier > 0 ? "+" : ""}${auto.attackModifier}` : ""} vs Parry`);
   if (auto.saveStat) parts.push(`Target ${SPELL_STATS[auto.saveStat]} Save${auto.saveModifier ? ` ${auto.saveModifier > 0 ? "+" : ""}${auto.saveModifier}` : ""}${auto.saveEffect ? ` (${SPELL_SAVE_EFFECTS[auto.saveEffect].toLowerCase()} on save)` : ""}`);
   if (auto.damage) parts.push(`Damage ${auto.damage}${auto.damageType ? ` ${auto.damageType}` : ""}`);
+  if (auto.bonusDamage) parts.push(`+${auto.bonusDamage.formula}${auto.bonusDamage.type ? ` ${auto.bonusDamage.type}` : ""}${auto.bonusDamage.saveNegates ? " on a failed save" : ""}`);
   if (auto.heal) parts.push(`Heal ${auto.heal}`);
   for (const condition of auto.conditions ?? []) parts.push(`${condition.name}${condition.formula ? ` (${condition.formula} tokens${condition.heal ? `, heals ${condition.heal} each turn` : ""})` : ""}${condition.saveNegates ? " unless saved" : ""}`);
   if (auto.areaShape) parts.push(`${["line", "rect"].includes(auto.areaShape) ? `${auto.areaShape === "rect" ? "Rectangle" : "Line"} ${auto.areaSize} m × ${auto.areaWidth} m` : `Circle ${auto.areaSize} m radius`} (${auto.areaShape === "rect" ? "placed" : SPELL_AREA_ORIGINS[auto.areaOrigin]?.toLowerCase()})`);

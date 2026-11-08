@@ -86,6 +86,8 @@ export async function castSpell(item) {
   const multiAttack = Boolean(auto.attackStat && auto.attackCount > 1);
   const damageRoll = auto.damage && targets.length && !multiAttack ? await roll(auto.damage) : null;
   const healRoll = auto.heal && targets.length ? await roll(auto.heal) : null;
+  // Save-gated extra damage (Who let the apes out: "+2d4 when launched"), one roll for all targets like the damage.
+  const bonusRoll = auto.bonusDamage && targets.length ? await roll(auto.bonusDamage.formula) : null;
 
   const abilities = actor.system.abilities ?? {};
   const attackValue = auto.attackStat === "intcha"
@@ -141,6 +143,10 @@ export async function castSpell(item) {
       result.crit = attacks.some(hit => hit.crit);
       result.saved = result.hit && attacks.filter(hit => hit.hit).every(hit => hit.saved);
       result.damage = attacks.reduce((total, hit) => total + hit.damage, 0);
+    }
+    if (bonusRoll && result.hit && !(auto.bonusDamage.saveNegates && result.saved)) {
+      result.bonusDamage = { amount: getSpellDamage(bonusRoll.total, { pvp: result.pvp }), formula: bonusRoll.formula, result: bonusRoll.result };
+      result.damage = (result.damage ?? 0) + result.bonusDamage.amount;
     }
     result.heal = healRoll && result.hit ? healRoll.total : 0;
     // Conditions from the spell text (e.g. knocked prone, sleep tokens): on a hit, unless a save negates them.
