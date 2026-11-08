@@ -722,3 +722,6 @@
   height: auto;
   max-height: calc(8 * (var(--effect-size) + var(--effect-gap)) + 2 * var(--effect-gap));
 }
+
+/* Shadowform's icon is black with its own white outline: keep it as drawn (no light-theme invert). */
+#token-hud .status-effects .effect-control[data-status-id="shadowform"] { filter: none; }

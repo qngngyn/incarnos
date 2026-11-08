@@ -122,7 +122,7 @@ export const CONDITIONS = [
   {
     "id": "shadowform",
     "name": "Shadowform",
-    "img": "icons/svg/mystery-man-black.svg",
+    "img": "systems/incarnos/icons/shadowform.svg",
     "description": "You blend with the shadows: +3 Parry, and Shadowstrike deals 4d8 + (lvl * 2) shadow dmg instead of 2d8 + (lvl * 2). You lose 1 Shadowform token at the end of each of your turns.",
     "tokens": true
   },
