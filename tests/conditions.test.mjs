@@ -371,3 +371,12 @@ test("Blinded gives disadvantage on attacks, Parry and saves", () => {
   for (const kind of ["attack", "parry", "save"]) assert.deepEqual(conditionAdvantage(new Set(["blinded"]), kind), { delta: -1, sources: ["Blinded"] });
   assert.equal(conditionAdvantage(new Set(["blinded", "hidden"]), "attack").delta, 0, "Hidden and Blinded cancel");
 });
+
+test("the HUD lists the most used conditions first, the rest alphabetically, Defeated and spares last", () => {
+  const list = CONDITION_HELPERS.statusEffectList({ prone: 9, burn: 4, taunted: 4 });
+  const sorted = [...list].sort((a, b) => a.order - b.order).map(status => status.id);
+  assert.deepEqual(sorted.slice(0, 4), ["prone", "burn", "taunted", "asleep"]);
+  assert.deepEqual(sorted.slice(-4), ["dead", "custom-1", "custom-2", "custom-3"]);
+  assert.deepEqual(CONDITION_HELPERS.statusEffectList().slice(0, CONDITIONS.length).map(status => status.id), CONDITIONS.map(c => c.id),
+    "without counts the order stays alphabetical");
+});

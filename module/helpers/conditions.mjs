@@ -110,21 +110,44 @@ export const SPARE_STATUSES = [
   { id: "custom-3", name: "Custom 3", img: "icons/svg/hazard.svg" }
 ];
 
+/** Conditions sorted for the token HUD: most used first (world setting conditionUsage), then alphabetically. */
+export const sortByUsage = (conditions, usage = {}) => [...conditions].sort((a, b) =>
+  (Number(usage[b.id]) || 0) - (Number(usage[a.id]) || 0) || a.name.localeCompare(b.name));
+
 /**
  * Replace Foundry's default status effects. The token HUD sorts by `order`: the Incarnos conditions come first
- * (alphabetically), then Defeated (for the combat tracker) and the three spare statuses at the bottom.
+ * (most used first, see trackConditionUse), then Defeated (for the combat tracker) and the three spare statuses.
  */
-export function statusEffectList() {
+export function statusEffectList(usage = {}) {
   return [
-    ...CONDITIONS.map(({ id, name, img, description }, index) => ({ id, name, img, description, order: index + 1 })),
+    ...sortByUsage(CONDITIONS, usage).map(({ id, name, img, description }, index) => ({ id, name, img, description, order: index + 1 })),
     { id: "dead", name: "Defeated", img: "icons/svg/skull.svg", order: 100 },
     ...SPARE_STATUSES.map((status, index) => ({ ...status, order: 101 + index }))
   ];
 }
 
-export function configureStatusEffects() {
-  CONFIG.statusEffects = statusEffectList();
+export function configureStatusEffects(usage = {}) {
+  CONFIG.statusEffects = statusEffectList(usage);
   CONFIG.specialStatusEffects.DEFEATED = "dead";
+}
+
+/** How often each condition was put on a creature in this world (counted by the active GM, saved in batches). */
+const pendingUse = {};
+const saveUse = (globalThis.foundry?.utils?.debounce ?? (fn => fn))(async () => {
+  if (!game.settings?.get || !game.settings?.set) return;
+  const usage = { ...(game.settings.get("incarnos", "conditionUsage") ?? {}) };
+  for (const [id, count] of Object.entries(pendingUse)) { usage[id] = (Number(usage[id]) || 0) + count; delete pendingUse[id]; }
+  await game.settings.set("incarnos", "conditionUsage", usage);
+}, 2000);
+
+/** Count a new status effect's Incarnos conditions; the HUD order follows the counts from the next reload on. */
+export function trackConditionUse(effect) {
+  const gm = [...game.users].filter(user => user.active && user.isGM).sort((a, b) => a.id.localeCompare(b.id))[0];
+  if (gm?.id !== game.user.id) return;
+  const ids = [...(effect.statuses ?? [])].filter(id => conditionById(id));
+  if (!ids.length) return;
+  for (const id of ids) pendingUse[id] = (pendingUse[id] ?? 0) + 1;
+  void saveUse();
 }
 
 /** Status ids that are not in the current list (e.g. Foundry's defaults from before): effects made only of these go. */
@@ -404,8 +427,14 @@ export function registerConditionHooks() {
   Hooks.once("init", () => {
     configureStatusEffects();
     game.settings.register("incarnos", "statusEffectsMigrated", { scope: "world", config: false, type: Number, default: 0 });
+    game.settings.register("incarnos", "conditionUsage", { scope: "world", config: false, type: Object, default: {} });
   });
-  Hooks.once("ready", () => { void removeOldStatusEffects().catch(error => console.error("Incarnos | old status effects", error)); });
+  Hooks.once("ready", () => {
+    // Most used conditions first in the token HUD. The order is set once per load, so icons don't jump mid-session.
+    configureStatusEffects(game.settings.get("incarnos", "conditionUsage") ?? {});
+    void removeOldStatusEffects().catch(error => console.error("Incarnos | old status effects", error));
+  });
+  Hooks.on("createActiveEffect", effect => trackConditionUse(effect));
 
   // HP prompts: the actor's owners (and GMs) apply each line themselves.
   Hooks.on("renderChatMessageHTML", (message, html) => {

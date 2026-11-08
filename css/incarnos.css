@@ -713,3 +713,12 @@
 
 /* Rules from a talent's or race's Bonus on its Passives tab. */
 .incarnos .passive-rule { margin-bottom: 8px; }
+
+/* Token HUD conditions: 7 per row and only as many rows as there are conditions (Foundry reserves 8 rows of 5). */
+#token-hud .status-effects {
+  --effect-columns: 7;
+  --effect-size: 28px;
+  --effect-gap: 2px;
+  height: auto;
+  max-height: calc(8 * (var(--effect-size) + var(--effect-gap)) + 2 * var(--effect-gap));
+}
