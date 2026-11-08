@@ -1,6 +1,9 @@
 import { getItemPassiveModifiers, applyItemPassiveModifiers } from "../helpers/passives.mjs";
 import { applyTalentRules, getTalentRules } from "../helpers/talents.mjs";
 
+/** Parry bonus of the Shadowform condition. */
+export const SHADOWFORM_PARRY = 3;
+
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -31,6 +34,10 @@ export class IncarnosActor extends Actor {
     applyTalentRules(this.system, talentRules, "saves");
     applyItemPassiveModifiers(this.system, modifiers, false);
     applyTalentRules(this.system, talentRules, "resources");
+    // Shadowform: +3 Parry while it lasts.
+    if (this.statuses?.has("shadowform") && this.system.attributes?.parry) {
+      this.system.attributes.parry.value = Number(this.system.attributes.parry.value ?? 0) + SHADOWFORM_PARRY;
+    }
   }
 
   /**

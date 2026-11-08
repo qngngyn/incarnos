@@ -134,7 +134,10 @@ export function parseSpellAutomation(system = {}) {
   }
   result.conditions = parseSpellConditions(lines, Boolean(result.saveStat), system.duration)
     // Self/ally spells (Cloak of Lightning: "On hit: Paralyzed …") describe what happens to an attacker, not the target.
-    .filter(condition => offensive || !["paralyzed", "stunned"].includes(condition.id));
+    .filter(condition => offensive || !["paralyzed", "stunned", "taunted"].includes(condition.id));
+  // "In Shadowform: Deals 4d8 + (lvl *2) shadow dmg" (Shadowstrike): the damage while the caster is in Shadowform.
+  const formLine = offensive && lines.find(line => /^In Shadowform:/i.test(line) && new RegExp(DICE).test(line));
+  if (formLine) result.shadowformDamage = toFormula(formLine.match(new RegExp(DICE))[0]);
   const healLine = !/everything/i.test(system.category ?? "")
     // "On begin of turn: Heals the holder for 1d4 hp" (Bubblebarrier) heals each turn, not on cast.
     && lines.find(line => /\bheals?\b/i.test(line) && new RegExp(DICE).test(line) && !/%|beginning|begin of|end of|additional|same amount|max health|holder/i.test(line));
@@ -175,7 +178,8 @@ export function parseSpellSummon(system = {}) {
   return { creature, tiers, turns, corpse: /\bcorpse\b/i.test(system.target ?? "") };
 }
 
-const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed", stunned: "Stunned", barrier: "Barrier" };
+const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed", stunned: "Stunned", barrier: "Barrier", taunted: "Taunted",
+  blinded: "Blinded", shadowmarked: "Shadowmarked", shadowform: "Shadowform", charged: "Charged" };
 
 /**
  * Conditions a spell puts on its targets, from clear effect lines only:
@@ -193,7 +197,8 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
   if (lines.some(line => /of your choice|pick a card/i.test(line))) return found;
   const add = (id, formula, line, extra = {}) => {
     if (found.some(condition => condition.id === id)) return;
-    found.push({ id, name: CONDITION_NAMES[id], formula, saveNegates: hasSave && /\b(none|not \w+) when \w*\s*save/i.test(line), ...extra });
+    // "(none when Save succeeded)", also written "(none, when save succeeded)".
+    found.push({ id, name: CONDITION_NAMES[id], formula, saveNegates: hasSave && /\b(none|not \w+),? when \w*\s*save/i.test(line), ...extra });
   };
   let deferred = false;
   for (const line of lines) {
@@ -203,9 +208,16 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
     // Regenerating names when it heals ("at the beginning of the target's turn"), so it comes before the conditional-line check.
     const regen = line.match(new RegExp(String.raw`\bRegenerating\s+(\d+)\b[^\n]*?\bheals?\b[^\d]*(${DICE})`, "i"));
     if (regen) { add("regenerating", regen[1], line, { heal: toFormula(regen[2]) }); continue; }
+    // Chains of deathfire: "… Otherwise, the target cannot move …" sits in a line that also says "If the user moves …".
+    if (/\bthe target cannot move\b/i.test(line)) {
+      const turns = String(duration ?? "").match(/^\s*(\d+)\s+turns?\s*$/i)?.[1] ?? null;
+      add("immobilized", turns, line, { timed: turns !== null, saveNegates: hasSave });
+    }
     // Conditional lines, and rule reminders like "Asleep: You cannot act …", are not effects of the cast.
     if (/\bif\b|beginning of|after \d+ turns?/i.test(line) || (/^[A-Z][a-z]+:/.test(line) && !/^On (hit|cast):/i.test(line))) continue;
-    const immobilized = line.match(/\bImmobilized(?:\s+(\d+))?\b/i);
+    const turns = String(duration ?? "").match(/^\s*(\d+)\s+turns?\s*$/i)?.[1] ?? null;
+    // "Target is held in place" (Stoneprison), "the target cannot move" (Chains of deathfire) = Immobilized.
+    const immobilized = line.match(/\bImmobilized(?:\s+(\d+))?\b/i) ?? line.match(/\bheld in place\b|\bcannot move\b/i);
     if (immobilized) {
       const formula = immobilized[1]
         ?? String(duration ?? "").match(/^\s*(\d+)\s+turns?\s*$/i)?.[1] ?? null;
@@ -223,6 +235,19 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
       const heal = lines.map(other => other.match(new RegExp(String.raw`\bheals? the holder for (${DICE})`, "i"))?.[1]).find(Boolean);
       add("barrier", turns, line, heal ? { heal: toFormula(heal) } : {});
     }
+    // "Targets must attack the user", "goaded to attack the user", "taunts all enemies", "Target is taunted" = Taunted
+    // (until the end of the target's next turn). "When succeeded, the target must attack …" (Death Grip) stays manual.
+    if (/\bmust attack the user\b|\bgoaded to attack\b|\btaunt(?:s|ed)\b/i.test(line) && !/^when succeeded\b/i.test(line)) add("taunted", null, line);
+    // "Blinds the target", "is blinded" = Blinded for the spell's duration (1 turn if instant).
+    if (/\bblind(?:s|ed)\b/i.test(line)) add("blinded", turns ?? "1", line);
+    // "Marks enemies with mark of shadows for 2 turns".
+    const mark = line.match(/\bmarks?\b[^.]*\bmark of shadows for (\d+) turns?\b/i);
+    if (mark) add("shadowmarked", mark[1], line);
+    // Shadowform: "Attacks are easier dodged (+3 Parry)" on the caster for the spell's duration.
+    if (/^Attacks are easier dodged \(\+\d+ Parry\)/i.test(line)) add("shadowform", turns ?? "1", line);
+    // Inner Focus: "Give yourself the charging status 2x".
+    const charged = line.match(/\bcharg(?:ing|ed) status (\d+)\s*x\b/i);
+    if (charged) add("charged", charged[1], line);
     const sleep = line.match(new RegExp(String.raw`\bapply\s+(${DICE}|\d+)\s+sleep tokens?\b`, "i"));
     if (sleep) add("asleep", toFormula(sleep[1]), line);
     for (const token of line.matchAll(/\b(Burn|Poisoned|Bleed)\s+(\d*d\d+)\b/gi)) add(token[1].toLowerCase(), token[2].toLowerCase(), line);

@@ -69,6 +69,8 @@ export function conditionAdvantage(statuses, kind, against = null, { dodge = fal
   if (has("hidden")) { delta += 1; sources.push("Hidden"); }
   if (kind === "parry" && dodge) { delta += 1; sources.push("Dodge"); }
   if (kind === "attack" && has("hindered")) { delta -= 1; sources.push("Hindered"); }
+  // Blinded: disadvantage on attacks, Parry rolls and saving throws.
+  if (["attack", "parry", "save"].includes(kind) && has("blinded")) { delta -= 1; sources.push("Blinded"); }
   if (kind === "parry" && has("prone") && against) { delta += against === "ranged" ? 1 : -1; sources.push("Prone"); }
   return { delta, sources };
 }
@@ -207,7 +209,16 @@ export async function endOfTurn(actor, turn = null) {
   if (statusEffect(actor, "immobilized")?.getFlag("incarnos", "timed") === true) {
     await setConditionTokens(actor, "immobilized", conditionTokens(actor, "immobilized") - 1);
   }
+  // Blinded, Shadowmarked, Shadowform count their turns down at the end of the holder's turn.
+  for (const id of TURN_COUNTDOWN_CONDITIONS) {
+    if (statusEffect(actor, id)) await setConditionTokens(actor, id, conditionTokens(actor, id) - 1);
+  }
+  // Charged's extra action lasts only for the turn it was gained in.
+  if (actor.getFlag?.("incarnos", "extraActions")) await actor.unsetFlag("incarnos", "extraActions");
 }
+
+/** Conditions whose tokens are turns, counted down at the end of the holder's turn; a new source keeps the longer one. */
+export const TURN_COUNTDOWN_CONDITIONS = ["blinded", "shadowmarked", "shadowform"];
 
 /**
  * Start of a combatant's turn, as one private chat window (owners and GMs):
@@ -219,6 +230,13 @@ export async function startOfTurn(actor) {
   await consumeDodge(actor);
   // Stunned (no actions) and Paralyzed (1 action less) take effect this turn, after the AP refill at the end of the last
   // turn, then end; neither stacks.
+  // Charged: one token gives 1 additional action this turn (the AP maximum rises for this turn only).
+  const charged = conditionTokens(actor, "charged");
+  if (statusEffect(actor, "charged") && charged > 0) {
+    await actor.setFlag("incarnos", "extraActions", 1);
+    await actor.update({ "system.actionpoints.value": getActionState(actor).value + 1 }, { incarnosParalyzed: true });
+    await setConditionTokens(actor, "charged", charged - 1);
+  }
   const paralyzed = statusEffect(actor, "paralyzed");
   const stunned = statusEffect(actor, "stunned");
   if (paralyzed || stunned) {
@@ -264,6 +282,12 @@ export async function startOfTurn(actor) {
   }
   if (paralyzed) infos.unshift({ condition: "paralyzed", text: "You lose 1 action this turn. Paralyzed ends." });
   if (stunned) infos.unshift({ condition: "stunned", text: "You lose all your actions this turn. Stunned ends." });
+  if (charged > 0) infos.splice(0, infos.length, ...infos.filter(info => info.condition !== "charged"));
+  if (charged > 0) infos.unshift({ condition: "charged", text: `You have 1 additional action this turn. ${charged - 1 ? `${plural(charged - 1, "token")} left.` : "Charged ends."}` });
+  // Taunted names its taunter when a spell put it on.
+  const taunter = statusEffect(actor, "taunted")?.getFlag("incarnos", "by");
+  const taunted = infos.find(info => info.condition === "taunted");
+  if (taunted && taunter) taunted.text = `Your attacks must be targeted against ${taunter}. Ends at the end of this turn.`;
   if (!entries.length && !infos.length) return;
   const notes = statusEffect(actor, "burn") ? ["Burn: 1 AP to put out the flames (or water) removes all Burn tokens."] : [];
   // Burn, Poisoned and Bleed hit by themselves (no Apply button); only bleeding to 0 HP kills (other 0 HP: the table's rules).
@@ -494,8 +518,22 @@ export function registerConditionHooks() {
  * @param {{id: string, tokens?: number, timed?: boolean, heal?: string}[]} conditions  Immobilized durations explicitly carry timed: true.
  */
 export async function applyAttackConditions(actor, conditions = []) {
-  for (const { id, tokens, heal, timed, damage } of conditions) {
+  for (const { id, tokens, heal, timed, damage, by } of conditions) {
     if (!conditionById(id)) continue;
+    if (id === "taunted" && by) {
+      // A spell's Taunted names the caster and ends at the end of the target's next turn; one put on by hand
+      // (no timer) stays until removed.
+      const existing = statusEffect(actor, id);
+      if (!existing) await actor.toggleStatusEffect(id, { active: true });
+      const effect = statusEffect(actor, id);
+      await effect?.setFlag("incarnos", "by", by);
+      if (!existing || existing.getFlag("incarnos", "untilEndOfTurn") === true) await effect?.setFlag("incarnos", "untilEndOfTurn", true);
+      continue;
+    }
+    if (TURN_COUNTDOWN_CONDITIONS.includes(id)) {
+      await setConditionTokens(actor, id, Math.max(conditionTokens(actor, id), Math.max(1, Number(tokens) || 1)));
+      continue;
+    }
     if (damage && DAMAGE_TOKEN_CONDITIONS.includes(id)) {
       // Bloody Claws: tokens count the turns and each turn rolls the source's damage; a new source refreshes the turns.
       await setConditionTokens(actor, id, Math.max(conditionTokens(actor, id), Math.max(1, Number(tokens) || 1)));

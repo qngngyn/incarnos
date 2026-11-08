@@ -339,7 +339,8 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       const statuses = this.actor.statuses ?? new Set();
       const proneParryRoll = dataset.check === "parry" && statuses.has("prone");
       const dodging = dataset.check === "parry" && hasDodge(this.actor);
-      const conditionAdv = dataset.check === "parry" ? conditionAdvantage(statuses, "parry", null, { dodge: dodging }) : { delta: 0, sources: [] };
+      const conditionAdv = dataset.check === "parry" ? conditionAdvantage(statuses, "parry", null, { dodge: dodging })
+        : dataset.check === "save" ? conditionAdvantage(statuses, "save") : { delta: 0, sources: [] };
       const advantageDelta = (advantageSource ? 1 : 0) + conditionAdv.delta;
       const advantageSources = [advantageSource, ...conditionAdv.sources].filter(Boolean).join(", ");
       const formula = proneParryRoll ? `${conditionAdv.delta + 2}d20` : advantageDelta ? advantageFormula(advantageDelta) : dataset.roll;

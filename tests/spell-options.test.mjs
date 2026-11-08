@@ -104,7 +104,8 @@ test("every Shadow Play option keeps the Perception save; only Flower Bouquet ro
   assert.deepEqual(values.map(auto => auto.saveStat), ["prc", "prc", "prc"]);
   assert.deepEqual(values.map(auto => auto.damage), ["", "", "4d4"]);
   assert.equal(values[2].damageType, "fire");
-  assert.deepEqual(values.map(auto => auto.conditions), [[], [], []], "source-dependent conditions stay as rules text");
+  // Taunted now records its taunter (the caster), so the Taunt card applies it; the others stay as rules text.
+  assert.deepEqual(values.map(auto => auto.conditions.map(condition => condition.id)), [["taunted"], [], []]);
 });
 
 test("Transmuting Strike automates each circle and save; beginning-of-turn conditions stay manual", () => {

@@ -401,3 +401,10 @@ test("persistent HTML buttons accept clicks, follow tokens, and hide while the r
   drawPersistentActionHUD(token); assert(controls.removed);
   globalThis.canvas = undefined;
 });
+
+test("Charged's extra action raises the AP maximum for that turn only", () => {
+  const actor = { type: "character", statuses: new Set(), system: { actionpoints: { value: 4, max: 3 } }, flags: { incarnos: { extraActions: 1 } } };
+  assert.deepEqual(getActionState(actor), { max: 4, value: 4 });
+  actor.flags.incarnos.extraActions = 0;
+  assert.deepEqual(getActionState(actor), { max: 3, value: 3 });
+});

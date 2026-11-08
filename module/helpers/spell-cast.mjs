@@ -42,7 +42,9 @@ export async function castSpell(item) {
   const option = options.length ? await chooseSpellOption(item, options) : null;
   if (options.length && !option) return;
   const system = getSpellOptionSystem(item.system, option);
-  const auto = getSpellAutomation(item.system, option);
+  let auto = getSpellAutomation(item.system, option);
+  // Shadowstrike: "In Shadowform: Deals 4d8 + (lvl *2)" replaces the damage while the caster is in Shadowform.
+  if (auto.shadowformDamage && actor?.statuses?.has("shadowform")) auto = { ...auto, damage: auto.shadowformDamage };
   const speaker = ChatMessage.getSpeaker({ actor });
   const rollMode = game.settings.get("core", "messageMode");
   if (!actor) {
@@ -75,13 +77,15 @@ export async function castSpell(item) {
     targets = targetRule.kind === "all" ? filterBySide(targetRule, getTokensInArea(area), caster)
       : getTokensInArea(area).filter(token => auto.areaShape === "rect" || healOnly || token !== casterToken);
   } else if (resolves) {
-    targets = [...game.user.targets];
+    // A Self spell (Shadowform, Inner Focus) always lands on the caster, whatever else is targeted.
+    targets = targetRule.kind === "self" && casterToken ? [casterToken] : [...game.user.targets];
     if (!targets.length && casterToken && (/^self\b/i.test(system.target ?? "") || healOnly)) targets = [casterToken];
     if (!targets.length) return ui.notifications.warn(`Target the tokens ${item.name} affects first.`);
     const radius = pickInRadius && casterToken ? Number(auto.areaSize) * canvas.dimensions.distancePixels : 0;
     const problem = checkSpellTargets(targetRule, targets.map(token => ({
       relation: relationTo(caster, token),
       asleep: Boolean(token.actor?.statuses?.has("asleep")),
+      shadowmarked: Boolean(token.actor?.statuses?.has("shadowmarked")),
       downed: Number(token.actor?.system?.health?.value) <= 0 || ["dying", "unconscious"].some(id => token.actor?.statuses?.has(id)),
       ...(radius ? { inRange: Math.hypot(token.center.x - casterToken.center.x, token.center.y - casterToken.center.y) <= radius + 1e-6 } : {})
     })));
@@ -134,11 +138,15 @@ export async function castSpell(item) {
       if (auto.saveStat && hit.hit) {
         const ability = target.system.abilities?.[auto.saveStat] ?? {};
         // Talents such as Cold-Hearted give the target advantage on this save: 2d20, keep the lower.
-        const advantage = getTalentRules(target.items).saveAdvantage[auto.saveStat] ?? null;
-        const d20 = (await roll(advantage ? "2d20kl" : "1d20")).total;
+        const talentAdvantage = getTalentRules(target.items).saveAdvantage[auto.saveStat] ?? null;
+        // Blinded targets save with disadvantage; it cancels a talent's advantage.
+        const saveCondition = conditionAdvantage(target.statuses ?? new Set(), "save");
+        const saveDelta = (talentAdvantage ? 1 : 0) + saveCondition.delta;
+        const advantage = saveDelta > 0 ? talentAdvantage : null;
+        const d20 = (await roll(advantageFormula(saveDelta))).total;
         // "Target Save Wil+4" helps the players: a monster target saves at −4, a player character at +4.
         const threshold = Number(ability.save ?? ability.value ?? 0) + modifierForRoller(auto.saveModifier, target);
-        hit.save = { d20, threshold, advantage };
+        hit.save = { d20, threshold, advantage, ...(saveDelta < 0 ? { disadvantage: saveCondition.sources.join(", ") } : {}) };
         hit.saved = rollUnderSucceeds(d20, threshold);
       }
       let hitDamage = damageRoll;
@@ -177,7 +185,9 @@ export async function castSpell(item) {
         ...(fixed !== null ? { tokens: fixed } : {}),
         ...(tokenRoll ? { tokens: tokenRoll.total, roll: { formula: tokenRoll.formula, result: tokenRoll.result } } : {}),
         // Healing per turn (Regenerating) is fixed with the caster's level now: "1d6 + (@lvl * 1)" -> "1d6 + (2 * 1)".
-        ...(condition.heal ? { heal: Roll.replaceFormulaData(condition.heal, rollData) } : {}) });
+        ...(condition.heal ? { heal: Roll.replaceFormulaData(condition.heal, rollData) } : {}),
+        // Taunted remembers its taunter.
+        ...(condition.id === "taunted" ? { by: actor.name } : {}) });
     }
     results.push(result);
   }

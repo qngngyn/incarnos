@@ -14,7 +14,7 @@ test("Target lines from the vault become side, count and self rules", () => {
   assert.deepEqual(rule("One/Two Enemies"), ["pick", "enemy", 1, 2, false, null]);
   assert.deepEqual(rule("Up to 5 Enemies"), ["pick", "enemy", 1, 5, false, null]);
   assert.deepEqual(rule("Enemies"), ["all", "enemy", 1, Infinity, false, null]);
-  assert.deepEqual(rule("Shadowmarked Enemies"), ["all", "enemy", 1, Infinity, false, null]);
+  assert.deepEqual(rule("Shadowmarked Enemies"), ["all", "enemy", 1, Infinity, false, "shadowmarked"]);
   assert.deepEqual(rule("Allies"), ["all", "ally", 1, Infinity, false, null]);
   assert.deepEqual(rule("Friendlies"), ["all", "friendly", 1, Infinity, true, null]);
   assert.deepEqual(rule("Asleep Single Target"), ["pick", "any", 1, 1, true, "asleep"]);
@@ -66,4 +66,9 @@ test("warnings name the rule in plain words", () => {
   assert.equal(describeSpellTargets(parseSpellTargets("Single Ally")), "1 ally (not yourself)");
   assert.equal(describeSpellTargets(parseSpellTargets("Single downed Target")), "1 target who is downed (0 HP)");
   assert.equal(describeSpellTargets(parseSpellTargets("Self + Single Target")), "1 target other than yourself");
+});
+
+test("Shadowbomb only hits shadowmarked enemies", () => {
+  assert.equal(pick("Shadowmarked Enemies", { relation: "enemy", shadowmarked: true }), null);
+  assert.equal(pick("Shadowmarked Enemies", { relation: "enemy", shadowmarked: false }), "shadowmarked");
 });

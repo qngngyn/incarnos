@@ -22,10 +22,24 @@ export const CONDITIONS = [
     "tokens": true
   },
   {
+    "id": "blinded",
+    "name": "Blinded",
+    "img": "icons/svg/blind.svg",
+    "description": "You have disadvantage on attacks, Parry rolls and saving throws. You lose 1 Blinded token at the end of each of your turns.",
+    "tokens": true
+  },
+  {
     "id": "burn",
     "name": "Burn",
     "img": "icons/svg/fire.svg",
     "description": "You get that many Burn tokens. At the start of your turn you take 1 damage per Burn token, then remove 1 token. Spending 1 AP to put out the flames, or being doused with water, removes all Burn tokens.",
+    "tokens": true
+  },
+  {
+    "id": "charged",
+    "name": "Charged",
+    "img": "icons/svg/lightning.svg",
+    "description": "At the start of your turn, if you have a Charged token, you get 1 additional action this turn and lose 1 Charged token.",
     "tokens": true
   },
   {
@@ -106,6 +120,20 @@ export const CONDITIONS = [
     "tokens": true
   },
   {
+    "id": "shadowform",
+    "name": "Shadowform",
+    "img": "icons/svg/mystery-man-black.svg",
+    "description": "You blend with the shadows: +3 Parry, and Shadowstrike deals 4d8 + (lvl * 2) shadow dmg instead of 2d8 + (lvl * 2). You lose 1 Shadowform token at the end of each of your turns.",
+    "tokens": true
+  },
+  {
+    "id": "shadowmarked",
+    "name": "Shadowmarked",
+    "img": "icons/svg/eye.svg",
+    "description": "You carry the mark of shadows. Some shadow spells (Shadowbomb) can only hit marked creatures. You lose 1 Shadowmarked token at the end of each of your turns.",
+    "tokens": true
+  },
+  {
     "id": "stunned",
     "name": "Stunned",
     "img": "icons/svg/daze.svg",
@@ -123,7 +151,7 @@ export const CONDITIONS = [
     "id": "taunted",
     "name": "Taunted",
     "img": "icons/svg/target.svg",
-    "description": "Your attacks must be targeted against the taunter.",
+    "description": "Your attacks must be targeted against the taunter. Taunted from a spell ends at the end of your next turn.",
     "tokens": false
   },
   {

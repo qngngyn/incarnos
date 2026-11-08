@@ -24,7 +24,9 @@ const canEdit = actor => Boolean(actor && (game.user.isGM || actor.testUserPermi
 export function getActionState(actor) {
   const resource = actor?.system?.actionpoints ?? {};
   const maximum = Number(resource.max ?? 3);
-  const normalMax = Number.isFinite(maximum) ? Math.max(0, Math.floor(maximum)) : 3;
+  // Charged gives 1 additional action for the current turn (flags.incarnos.extraActions, cleared at its end).
+  const extra = Math.max(0, Number(actor?.flags?.incarnos?.extraActions ?? 0) || 0);
+  const normalMax = (Number.isFinite(maximum) ? Math.max(0, Math.floor(maximum)) : 3) + extra;
   const max = actor?.type === "character" && actor.statuses?.has("dying") ? Math.min(1, normalMax) : normalMax;
   const current = Number(resource.value ?? max);
   return { max, value: Number.isFinite(current) ? Math.min(max, Math.max(0, Math.floor(current))) : max };

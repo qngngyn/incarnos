@@ -50,9 +50,9 @@ test("vault condition notes give id, name, icon, text and whether they count tok
 
 test("the generated list holds every vault condition with an icon", () => {
   assert.deepEqual(CONDITIONS.map(c => c.id).sort(),
-    ["asleep", "barrier", "bleed", "burn", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "stunned", "summoned", "taunted", "unconscious"]);
+    ["asleep", "barrier", "bleed", "blinded", "burn", "charged", "dying", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "shadowform", "shadowmarked", "stunned", "summoned", "taunted", "unconscious"]);
   assert.ok(CONDITIONS.every(c => c.img.startsWith("icons/")));
-  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "barrier", "bleed", "burn", "immobilized", "poisoned", "regenerating", "summoned"]);
+  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "barrier", "bleed", "blinded", "burn", "charged", "immobilized", "poisoned", "regenerating", "shadowform", "shadowmarked", "summoned"]);
 });
 
 test("attack conditions: only trait lines that are just a condition count, token conditions keep their dice", () => {
@@ -364,4 +364,10 @@ test("Barrier ignores an HP loss or a damage instance at 0 HP, but not healing o
   assert.equal(barrierAbsorbs(4, 10, true), false);
   assert.equal(barrierAbsorbs(10, 4, false), false);
   assert.equal(barrierAbsorbs(10, 4, true, true), false);
+});
+
+test("Blinded gives disadvantage on attacks, Parry and saves", () => {
+  const { conditionAdvantage } = CONDITION_HELPERS;
+  for (const kind of ["attack", "parry", "save"]) assert.deepEqual(conditionAdvantage(new Set(["blinded"]), kind), { delta: -1, sources: ["Blinded"] });
+  assert.equal(conditionAdvantage(new Set(["blinded", "hidden"]), "attack").delta, 0, "Hidden and Blinded cancel");
 });

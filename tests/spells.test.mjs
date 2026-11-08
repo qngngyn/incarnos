@@ -200,3 +200,20 @@ test("Bubblebarrier gives Barrier for its duration with 1d4 healing per turn, an
   assert.equal(auto.heal, "");
   assert.deepEqual(auto.conditions, [{ id: "barrier", name: "Barrier", formula: "3", saveNegates: false, heal: "1d4" }]);
 });
+
+test("spells put on Taunted, Immobilized, Blinded, Shadowmarked, Shadowform and Charged from their own lines", () => {
+  const ids = system => getSpellAutomation(system).conditions.map(({ id, formula, saveNegates }) => [id, formula, saveNegates]);
+  const enemy = { target: "Single Enemy", check: "Attack Int / Cha, Target Save Wil" };
+  assert.deepEqual(ids({ ...enemy, effect: "On Hit: Targets must attack the user (none, when Save succeeded)" }), [["taunted", null, true]]);
+  assert.deepEqual(ids({ ...enemy, effect: "On cast: Draws the target towards the user (none when Save succeeded)\nWhen succeeded, the target must attack the user next turn" }), [], "Death Grip's taunt stays manual");
+  assert.deepEqual(ids({ target: "Self", check: "No Check", effect: "On cast: / Move 3m\nCreates a crystal image in former position and taunts all enemies in melee" }), [], "a self spell taunts with an image, not its targets");
+  assert.deepEqual(ids({ ...enemy, effect: "On hit: Deals 4d6 + (lvl * 2) earth dmg\nTarget is held in place (none when Save succeeded)" }), [["immobilized", null, true]]);
+  assert.deepEqual(ids({ ...enemy, duration: "7 turns", effect: "On cast: \nPull the target toward the user. On a successful save, the target is not moved. Otherwise, the target cannot move and takes 1d6 fire damage. If the user moves, the target moves with them." }), [["immobilized", "7", true]]);
+  assert.deepEqual(ids({ target: "Single Enemy", check: "Attack Int / Cha", duration: "2 turns", effect: "On hit: Blinds the target" }), [["blinded", "2", false]]);
+  assert.deepEqual(ids({ target: "Ground Circle", check: "Target Prc Save", duration: "1 turn", effect: "On hit: \nBlinds all targets (none when Save succeeded)\nBlinded creatues have disadvantage at attacks, parries and saving throws" }), [["blinded", "1", true]]);
+  assert.deepEqual(ids({ ...enemy, effect: "On hit: Deals 2d8 + (lvl * 2) shadow dmg\nMarks target with mark of shadows for 4 turns" }), [["shadowmarked", "4", false]]);
+  assert.deepEqual(ids({ target: "Self", check: "No Check", duration: "2 turns", effect: "On enemy attack: \nAttacks are easier dodged (+3 Parry)" }), [["shadowform", "2", false]]);
+  assert.deepEqual(ids({ target: "Self", check: "No Check", duration: "2 turns", effect: "On enemy attack: \nMelee: Attacker takes additional 1d6 + (lvl * 2) fire dmg\nRanged: Attacks are easier dodged (-3 Parry)" }), [], "Heataura is not Shadowform");
+  assert.deepEqual(ids({ target: "Self", check: "No Check", duration: "1 turn", effect: "On cast: \nGive yourself the charging status 2x\nCharged creatures have an additional action when they have this status at the beginning of their turn" }), [["charged", "2", false]]);
+  assert.equal(getSpellAutomation({ ...enemy, effect: "On hit: Deals 2d8 + (lvl * 2) shadow dmg\nIn Shadowform: Deals 4d8 + (lvl *2) shadow dmg" }).shadowformDamage, "4d8 + (@lvl *2)");
+});

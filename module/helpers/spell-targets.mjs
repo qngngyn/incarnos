@@ -7,7 +7,7 @@
 /**
  * @param {string} target  The spell's (or chosen option's) Target line.
  * @returns {{kind: "self"|"pick"|"all"|"free", side: "enemy"|"ally"|"friendly"|"any", min: number, max: number,
- *   self: boolean, requires: "asleep"|"downed"|null}}
+ *   self: boolean, requires: "asleep"|"downed"|"shadowmarked"|null}}
  */
 export function parseSpellTargets(target = "") {
   const text = String(target ?? "").trim().replace(/\s+/g, " ");
@@ -23,6 +23,7 @@ export function parseSpellTargets(target = "") {
   if ((match = text.match(/^(\d+) single enem(?:y|ies)$/i))) return rule("pick", "enemy", 1, Number(match[1]));
   if (/^one\s*\/\s*two enemies$/i.test(text)) return rule("pick", "enemy", 1, 2);
   if ((match = text.match(/^up to (\d+) enemies$/i))) return rule("pick", "enemy", 1, Number(match[1]));
+  if (/^shadowmarked enemies$/i.test(text)) return rule("all", "enemy", 1, Infinity, { requires: "shadowmarked" });
   if (/^(?:\w+ )?enemies$/i.test(text)) return rule("all", "enemy", 1, Infinity);
   if (/^allies$/i.test(text)) return rule("all", "ally", 1, Infinity);
   if (/^friendlies$/i.test(text)) return rule("all", "friendly", 1, Infinity);
@@ -57,7 +58,8 @@ export function describeSpellTargets(rule) {
   const noun = { enemy: ["enemy", "enemies"], ally: ["ally", "allies"], friendly: ["friendly creature", "friendly creatures"], any: ["target", "targets"] }[rule.side];
   const count = rule.max === Infinity ? `any number of ${noun[1]}`
     : rule.min === rule.max ? plural(rule.max, ...noun) : `${rule.min}–${rule.max} ${noun[1]}`;
-  const extra = rule.requires === "asleep" ? " who is asleep" : rule.requires === "downed" ? " who is downed (0 HP)" : "";
+  const extra = rule.requires === "asleep" ? " who is asleep" : rule.requires === "downed" ? " who is downed (0 HP)"
+    : rule.requires === "shadowmarked" ? " marked with the mark of shadows" : "";
   const self = rule.side === "ally" ? " (not yourself)" : rule.side === "enemy" || rule.self ? "" : " other than yourself";
   return count + extra + self;
 }
@@ -66,7 +68,7 @@ export function describeSpellTargets(rule) {
  * Check chosen targets against the rule.
  * @param {object} rule  From parseSpellTargets.
  * @param {{relation: string, asleep?: boolean, downed?: boolean, inRange?: boolean}[]} entries
- * @returns {string|null}  A problem ("count", "side", "asleep", "downed", "range") or null when they fit.
+ * @returns {string|null}  A problem ("count", "side", "asleep", "downed", "shadowmarked", "range") or null when they fit.
  */
 export function checkSpellTargets(rule, entries) {
   if (rule.kind === "free" || rule.kind === "self") return null;
@@ -74,6 +76,7 @@ export function checkSpellTargets(rule, entries) {
   if (entries.some(entry => !sideAllows(rule.side, entry.relation, rule.self))) return "side";
   if (rule.requires === "asleep" && entries.some(entry => !entry.asleep)) return "asleep";
   if (rule.requires === "downed" && entries.some(entry => !entry.downed)) return "downed";
+  if (rule.requires === "shadowmarked" && entries.some(entry => !entry.shadowmarked)) return "shadowmarked";
   if (entries.some(entry => entry.inRange === false)) return "range";
   return null;
 }
