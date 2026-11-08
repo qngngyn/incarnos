@@ -4,7 +4,7 @@ import { payActions } from "../helpers/action-tracker.mjs";
 import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
 import { getTalentRules, getTalentSummary, isSpectacle, isUnarmedWeapon, unarmedConditionLabel } from "../helpers/talents.mjs";
 import { isPlayerSide, isPvpHit, modifierForRoller } from "../helpers/modifiers.mjs";
-import { conditionAdvantage, consumeHindered, parseAttackConditions } from "../helpers/conditions.mjs";
+import { conditionAdvantage, consumeHindered, parseAttackConditions, shadowcloneCheck } from "../helpers/conditions.mjs";
 import {
   amount as cardAmount, applyAllButton, applyButton, checkChip, chip as cardChip, criticalFailureButton, escape as escapeCard, renderRollCard, rollingChip
 } from "../helpers/roll-card.mjs";
@@ -225,7 +225,17 @@ export async function rollWeaponAttackAction({
     const threshold = abilityValue + weaponModifier;
     // d20 + modifier ≤ threshold is the same as d20 ≤ threshold − modifier: show what the die needed.
     const needed = threshold - parryModifier;
-    const { success, crit } = getTraitHit(keptD20, needed, rules);
+    const traitHit = getTraitHit(keptD20, needed, rules);
+    // Shadowclone: on a d20 of 9 or lower the clone is attacked instead; the target takes nothing from this attack.
+    const token = tokenFor(i);
+    const cloneCheck = await shadowcloneCheck(token?.actor, async formula => {
+      const cloneRoll = await new Roll(formula).evaluate();
+      rolls.push(cloneRoll);
+      return cloneRoll;
+    });
+    const clone = cloneCheck ? { d20: cloneCheck.d20, diverted: cloneCheck.diverted } : null;
+    const success = traitHit.success && !clone?.diverted;
+    const crit = traitHit.crit && !clone?.diverted;
 
     // Impressive Spectacle (talent): a one-handed hit rolled far enough under the target number doubles the damage.
     const spectacle = isSpectacle(talents.spectacle, { success, d20: keptD20, needed, oneHanded: !useTwoHands && Number(item.system?.hands ?? 1) <= 1 });
@@ -246,7 +256,6 @@ export async function rollWeaponAttackAction({
     // Bloody Claws (talent): unarmed hits put a condition that rolls its damage each turn, tokens = turns.
     const unarmed = talents.unarmedCondition && isUnarmedWeapon(item) ? talents.unarmedCondition : null;
     if (success && unarmed) conditions.push({ id: unarmed.id, name: unarmedConditionLabel(unarmed), tokens: unarmed.turns, damage: unarmed.damage, label: true });
-    const token = tokenFor(i);
     // PvP rules, as for spells: a player's attack hitting another player character deals half damage.
     const pvp = isPvpHit(item.actor, token?.actor) && Boolean(damageRoll);
     results.push({
@@ -255,7 +264,7 @@ export async function rollWeaponAttackAction({
       check: { d20: keptD20, threshold: needed, success, crit },
       parryModifier, success, crit, damageRoll, pvp, damage: pvp ? Math.floor(damageRoll.total / 2) : damageRoll?.total ?? 0,
       spectacle: spectacle && damageRoll ? talents.spectacle : null,
-      conditions
+      conditions, clone
     });
   }
   // Attack: Crazed: the attacker takes the same damage it dealt, as its own row with Apply (and Apply all).
@@ -326,6 +335,8 @@ export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityV
       chips: [checkChip(result.check, { pass: "Hit", fail: "Miss", label: `${statLabel} ${abilityValue} ${formatSignedNumber(weaponModifier)} weapon${modifierText}` }),
         result.spectacle ? cardChip("×2", { tone: "crit", title: `${result.spectacle.source}: one-handed hit rolled ${result.spectacle.margin}+ under the target number, damage doubled` }) : "",
         result.pvp ? cardChip("PvP ½", { title: "PvP rules: damage halved" }) : "",
+        result.clone ? cardChip(result.clone.diverted ? "Clone hit" : "Clone missed", { tone: result.clone.diverted ? "good" : "note",
+          title: `Shadowclone: d20 ${result.clone.d20} (${result.clone.diverted ? "9 or lower: the clone takes the attack" : "above 9: the attack goes to the target"})` }) : "",
         ...(result.conditions ?? []).map(condition => cardChip(condition.label ? condition.name : `${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, {
           tone: "note", title: `${condition.name}${condition.tokens && !condition.label ? ` (${condition.tokens} tokens)` : ""}: applied to the target together with the damage (Apply)` }))]
     };

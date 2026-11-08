@@ -11,7 +11,7 @@ import { escape } from "./roll-card.mjs";
 import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
-import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied } from "./conditions.mjs";
+import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied, shadowcloneCheck } from "./conditions.mjs";
 import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
 import { createRangeRing, gridOptions, parseSpellRange, showRangeIndicator, targetInRange } from "./spell-range.mjs";
 import { encoreCost, lastSpellRecord, rememberSpell } from "./last-spell.mjs";
@@ -88,8 +88,12 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
     targets = targetRule.kind === "all" ? filterBySide(targetRule, getTokensInArea(area), caster)
       : getTokensInArea(area).filter(token => auto.areaShape === "rect" || healOnly || token !== casterToken);
   } else if (resolves) {
-    // A Self spell (Shadowform, Inner Focus) always lands on the caster, whatever else is targeted.
-    targets = targetRule.kind === "self" && casterToken ? [casterToken] : [...game.user.targets];
+    // A Self spell (Shadowform, Inner Focus) always lands on the caster, whatever else is targeted. "Sight" spells
+    // for a whole side (Shadowclones: "All allies in sight") take every visible token of that side on the scene.
+    targets = targetRule.kind === "self" && casterToken ? [casterToken]
+      : targetRule.kind === "all" && /\bsight\b/i.test(system.range ?? "") && canvas?.ready
+        ? filterBySide(targetRule, (canvas.tokens?.placeables ?? []).filter(token => token.actor && !token.document.hidden), caster)
+        : [...game.user.targets];
     if (!targets.length && casterToken && (/^self\b/i.test(system.target ?? "") || healOnly)) targets = [casterToken];
     if (!targets.length) return ui.notifications.warn(`Target the tokens ${item.name} affects first.`);
     const problem = checkSpellTargets(targetRule, targets.map(token => ({
@@ -156,6 +160,12 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
         hit.attack = { d20, threshold };
         hit.hit = rollUnderSucceeds(d20, threshold);
         hit.crit = d20 === 1;
+        // Shadowclone: on a d20 of 9 or lower the clone is attacked instead; the target takes nothing from this attack.
+        const clone = await shadowcloneCheck(target, roll);
+        if (clone) {
+          hit.clone = { d20: clone.d20, diverted: clone.diverted };
+          if (clone.diverted) { hit.hit = false; hit.crit = false; }
+        }
       }
       if (auto.saveStat && hit.hit) {
         const ability = target.system.abilities?.[auto.saveStat] ?? {};
@@ -189,6 +199,9 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
       result.crit = attacks.some(hit => hit.crit);
       result.saved = result.hit && attacks.filter(hit => hit.hit).every(hit => hit.saved);
       result.damage = attacks.reduce((total, hit) => total + hit.damage, 0);
+      // The card shows the clone once: diverted if any of the attacks went to the clone.
+      const clones = attacks.filter(hit => hit.clone);
+      if (clones.length) result.clone = clones.find(hit => hit.clone.diverted)?.clone ?? clones[0].clone;
     }
     if (bonusRoll && result.hit && !(auto.bonusDamage.saveNegates && result.saved)) {
       result.bonusDamage = { amount: getSpellDamage(bonusRoll.total, { pvp: result.pvp }), formula: bonusRoll.formula, result: bonusRoll.result };

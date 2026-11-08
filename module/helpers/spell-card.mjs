@@ -51,6 +51,8 @@ export function renderSpellCard({ name, img, system = {}, option = null, auto = 
         result.save?.advantage ? chip("Adv", { title: `Advantage from ${result.save.advantage}: rolled 2d20, kept the lower` }) : "",
         result.save?.disadvantage ? chip("Dis", { title: `Disadvantage from ${result.save.disadvantage}: rolled 2d20, kept the higher` }) : "",
         result.pvp && result.damage ? chip("PvP ½", { title: "PvP rules: damage halved" }) : "",
+        result.clone ? chip(result.clone.diverted ? "Clone hit" : "Clone missed", { tone: result.clone.diverted ? "good" : "note",
+          title: `Shadowclone: d20 ${result.clone.d20} (${result.clone.diverted ? "9 or lower: the clone takes the attack" : "above 9: the attack goes to the target"})` }) : "",
         result.bonusDamage ? chip(`+${result.bonusDamage.amount}`, { tone: "note", title: `Included extra damage on a failed save: ${result.bonusDamage.formula} = ${result.bonusDamage.result}${auto.bonusDamage?.type ? ` ${auto.bonusDamage.type}` : ""}` }) : "",
         ...(result.conditions ?? []).map(condition => chip(`${condition.name}${condition.tokens ? ` ${condition.tokens}` : ""}`, { tone: "note", title: `${condition.name}${condition.tokens ? ` (${condition.tokens} tokens)` : ""}: put on the target automatically` })),
         result.crit && result.damage && critDamage ? chip("Max dmg", { tone: "crit", title: `Critical hit: damage dice maxed (${critDamage.formula} = ${critDamage.total})` }) : ""

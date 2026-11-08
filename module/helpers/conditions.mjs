@@ -112,14 +112,14 @@ export const SPARE_STATUSES = [
 
 /**
  * Fixed order of the conditions in the token HUD, one group per row of 7 (css/incarnos.css):
- * 1. position, movement and sight · 2. mind and actions · 3. over time, protection and summons · 4. down
+ * 1. position, movement and sight · 2. mind and actions · 3. over time and protection · 4. summoned and down
  * (then Defeated and the spare statuses). A condition missing here (new in the vault) follows alphabetically.
  */
 export const CONDITION_ORDER = [
   "prone", "grappled", "immobilized", "mounted", "hidden", "hindered", "blinded",
   "taunted", "intimidated", "asleep", "paralyzed", "stunned", "charged", "shadowmarked",
-  "burn", "poisoned", "bleed", "regenerating", "barrier", "shadowform", "summoned",
-  "dying", "unconscious"
+  "burn", "poisoned", "bleed", "regenerating", "barrier", "shadowform", "shadowclone",
+  "summoned", "dying", "unconscious"
 ];
 
 export const sortConditions = conditions => [...conditions].sort((a, b) => {
@@ -235,7 +235,28 @@ export async function endOfTurn(actor, turn = null) {
 }
 
 /** Conditions whose tokens are turns, counted down at the end of the holder's turn; a new source keeps the longer one. */
-export const TURN_COUNTDOWN_CONDITIONS = ["blinded", "shadowmarked", "shadowform"];
+export const TURN_COUNTDOWN_CONDITIONS = ["blinded", "shadowmarked", "shadowform", "shadowclone"];
+
+/** Shadowclone: an attack against the holder hits the clone instead on a d20 of this or lower. */
+export const SHADOWCLONE_DIVERT = 9;
+
+/**
+ * Shadowclone check for an attack against an actor: a d20, and whether the clone takes the attack.
+ * @param {Actor} actor  The attacked creature.
+ * @param {Function} [roll]  formula => evaluated Roll (the attack's own roller, so the die shows with the attack).
+ * @returns {Promise<{d20: number, diverted: boolean, roll: Roll}|null>}  null when the actor has no clone.
+ */
+export async function shadowcloneCheck(actor, roll = formula => new Roll(formula).evaluate()) {
+  if (!actor?.statuses?.has("shadowclone")) return null;
+  const result = await roll("1d20");
+  return { d20: result.total, diverted: result.total <= SHADOWCLONE_DIVERT, roll: result };
+}
+
+/** Add actions for this turn only (Charged, Shadowclone): the AP maximum rises with them until the turn ends. */
+export async function grantExtraAction(actor, count = 1) {
+  await actor.setFlag("incarnos", "extraActions", (Number(actor.getFlag("incarnos", "extraActions")) || 0) + count);
+  await actor.update({ "system.actionpoints.value": getActionState(actor).value + count }, { incarnosParalyzed: true });
+}
 
 /**
  * Start of a combatant's turn, as one private chat window (owners and GMs):
@@ -250,8 +271,7 @@ export async function startOfTurn(actor) {
   // Charged: one token gives 1 additional action this turn (the AP maximum rises for this turn only).
   const charged = conditionTokens(actor, "charged");
   if (statusEffect(actor, "charged") && charged > 0) {
-    await actor.setFlag("incarnos", "extraActions", 1);
-    await actor.update({ "system.actionpoints.value": getActionState(actor).value + 1 }, { incarnosParalyzed: true });
+    await grantExtraAction(actor, 1);
     await setConditionTokens(actor, "charged", charged - 1);
   }
   const paralyzed = statusEffect(actor, "paralyzed");
@@ -548,7 +568,10 @@ export async function applyAttackConditions(actor, conditions = []) {
       continue;
     }
     if (TURN_COUNTDOWN_CONDITIONS.includes(id)) {
+      // A new Shadowclone also gives its extra action (a refreshed clone doesn't give another).
+      const fresh = id === "shadowclone" && !statusEffect(actor, id);
       await setConditionTokens(actor, id, Math.max(conditionTokens(actor, id), Math.max(1, Number(tokens) || 1)));
+      if (fresh) await grantExtraAction(actor, 1);
       continue;
     }
     if (damage && DAMAGE_TOKEN_CONDITIONS.includes(id)) {
