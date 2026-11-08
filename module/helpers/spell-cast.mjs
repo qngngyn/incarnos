@@ -13,6 +13,7 @@ import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
 import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied } from "./conditions.mjs";
 import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
+import { createRangeRing, gridOptions, parseSpellRange, showRangeIndicator, targetInRange } from "./spell-range.mjs";
 
 const castData = message => message.flags?.incarnos?.spellCast;
 const applying = new Set();
@@ -81,15 +82,23 @@ export async function castSpell(item) {
     targets = targetRule.kind === "self" && casterToken ? [casterToken] : [...game.user.targets];
     if (!targets.length && casterToken && (/^self\b/i.test(system.target ?? "") || healOnly)) targets = [casterToken];
     if (!targets.length) return ui.notifications.warn(`Target the tokens ${item.name} affects first.`);
-    const radius = pickInRadius && casterToken ? Number(auto.areaSize) * canvas.dimensions.distancePixels : 0;
     const problem = checkSpellTargets(targetRule, targets.map(token => ({
       relation: relationTo(caster, token),
       asleep: Boolean(token.actor?.statuses?.has("asleep")),
       shadowmarked: Boolean(token.actor?.statuses?.has("shadowmarked")),
-      downed: Number(token.actor?.system?.health?.value) <= 0 || ["dying", "unconscious"].some(id => token.actor?.statuses?.has(id)),
-      ...(radius ? { inRange: Math.hypot(token.center.x - casterToken.center.x, token.center.y - casterToken.center.y) <= radius + 1e-6 } : {})
+      downed: Number(token.actor?.system?.health?.value) <= 0 || ["dying", "unconscious"].some(id => token.actor?.statuses?.has(id))
     })));
-    if (problem && !(await allowWrongTargets(item, targetRule, problem, pickInRadius ? auto.areaSize : 0))) return;
+    if (problem && !(await allowWrongTargets(item, targetRule, problem))) return;
+    // Range ("12m", "Touch"; "Up to 5 Enemies" in "Self (6m radius)": the radius): a ring around the caster and a
+    // green/red ring around each target. A target out of range stops a player's cast; the GM may cast anyway.
+    const range = pickInRadius ? { meters: Number(auto.areaSize), touch: false } : parseSpellRange(system.range);
+    if (range && casterToken && canvas?.ready) {
+      const options = gridOptions();
+      const checked = targets.filter(token => token !== casterToken)
+        .map(token => ({ token, ok: targetInRange(range, casterToken, token, options) }));
+      showRangeIndicator(casterToken, range, checked);
+      if (checked.some(entry => !entry.ok) && !(await allowOutOfRange(item, range))) return;
+    }
   }
 
   const paid = await spendCastCost(actor, cost, item.name);
@@ -223,6 +232,18 @@ export async function castSpell(item) {
 }
 
 /** The caster's token on this scene (linked or not), preferring a controlled one. */
+/** A target out of range: players are stopped (nothing paid); the GM may cast anyway. */
+async function allowOutOfRange(item, range) {
+  const message = game.i18n.format("INCARNOS.SpellRange.out", { name: item.name,
+    range: range.touch ? game.i18n.localize("INCARNOS.SpellRange.touch") : `${range.meters} m` });
+  if (!game.user.isGM) { ui.notifications.warn(message); return false; }
+  return Boolean(await foundry.applications.api.DialogV2.confirm({
+    window: { title: game.i18n.localize("INCARNOS.SpellTargets.castAnyway") },
+    content: `<p>${escape(message)}</p>`,
+    yes: { label: game.i18n.localize("INCARNOS.SpellTargets.castAnyway") }, no: { label: game.i18n.localize("Cancel") }
+  }));
+}
+
 /** Wrong targets: players are stopped (nothing paid); the GM may cast anyway. */
 async function allowWrongTargets(item, rule, problem, range = 0) {
   const message = game.i18n.format(problem === "range" ? "INCARNOS.SpellTargets.range" : "INCARNOS.SpellTargets.wrong",
@@ -273,15 +294,23 @@ async function placeSpellArea(item, auto, casterToken, system = item.system) {
     : fromCaster && shape.type === "line"
       ? `Point ${item.name} with the mouse and left-click to cast (right-click cancels).`
       : `Left-click to place ${item.name} (right-click cancels).`);
+  // The placed point (a line's middle for orthogonal lines) must lie within range of the caster's centre.
+  const placedInRange = placed => {
+    const angle = (placed.rotation ?? 0) * Math.PI / 180;
+    const offset = orthogonal ? Number(placed.length) / 2 : 0;
+    const x = placed.x + Math.cos(angle) * offset;
+    const y = placed.y + Math.sin(angle) * offset;
+    return Math.hypot(x - casterToken.center.x, y - casterToken.center.y) <= range * unit + 1e-6;
+  };
+  // While placing: a ring around the caster shows the range, green while the area is in range, red when not.
+  const ring = range > 0 ? createRangeRing(casterToken, { meters: range, touch: false }, { fromCenter: true }) : null;
+  ring?.setOk(placedInRange(shape));
   const preview = await canvas.regions.placeRegion(data, {
     create: false,
     allowRotation: shape.type === "line" && !fromCaster && !orthogonal,
+    onChange: ring ? ({ shape: placed }) => ring.setOk(placedInRange(placed)) : undefined,
     preConfirm: range > 0 ? ({ shape: placed }) => {
-      const angle = (placed.rotation ?? 0) * Math.PI / 180;
-      const offset = orthogonal ? Number(placed.length) / 2 : 0;
-      const x = placed.x + Math.cos(angle) * offset;
-      const y = placed.y + Math.sin(angle) * offset;
-      if (Math.hypot(x - casterToken.center.x, y - casterToken.center.y) <= range * unit + 1e-6) return;
+      if (placedInRange(placed)) return;
       ui.notifications.warn(game.i18n.format("INCARNOS.SpellArea.outOfRange", { name: item.name, range }));
       return false;
     } : undefined,
@@ -298,6 +327,7 @@ async function placeSpellArea(item, auto, casterToken, system = item.system) {
       return false;
     } : undefined
   });
+  ring?.destroy();
   canvas.tokens.activate();
   if (!preview) return null;
   if (preview.canUserModify(game.user, "create") && (game.user.isGM || !game.paused)) {

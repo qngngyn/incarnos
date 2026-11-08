@@ -45,6 +45,8 @@
   "INCARNOS.SpellTargets.wrong": "{name} targets {targets}. Change your targets (T key) and cast again.",
   "INCARNOS.SpellTargets.range": "{name} targets {targets} within {range} m of the caster.",
   "INCARNOS.SpellTargets.castAnyway": "Cast anyway",
+  "INCARNOS.SpellRange.out": "{name}: a target is out of range ({range}). Move closer or change your targets.",
+  "INCARNOS.SpellRange.touch": "touch: next to the caster",
   "INCARNOS.CompendiumSync.updated": "Incarnos: compendiums updated from vault: {summary}",
   "INCARNOS.ItemSync.synced": "Synced with compendium",
   "INCARNOS.ItemSync.customized": "Customized – not synced",
