@@ -1,5 +1,5 @@
 /** Spell casting: pay the cost, place the area, roll attacks/saves/damage, and let the GM apply the results. */
-import { getCastCost, spendCastCost } from "./spell-cost.mjs";
+import { checkCastCost, getCastCost, spendCastCost } from "./spell-cost.mjs";
 import { castSummon } from "./summons.mjs";
 import { waitForContestAnimations } from "./contest-requests.mjs";
 import {
@@ -33,12 +33,24 @@ async function chooseSpellOption(item, options) {
   return options[Number(data.option)] ?? null;
 }
 
+/** Encore ("Immediately copy a spell and pay the costs"): copies an ally's last spell. */
+export const isEncoreSpell = system => /\bcopy a spell\b/i.test(String(system?.effect ?? ""));
+
+/** Encore's cost for a remembered spell: its actions (X) and its IP + 2 (Y+2). */
+export const encoreCost = last => ({ actions: Math.max(0, Number(last?.cost?.actions) || 0), mp: Math.max(0, Number(last?.cost?.mp) || 0) + 2 });
+
+/** What an actor remembers of its last cast spell (flags.incarnos.lastSpell), for Encore. */
+export const lastSpellRecord = (data, cost) => ({ name: data.name, data, cost: { actions: Number(cost?.actions) || 0, mp: Math.max(Number(cost?.mp) || 0, Number(cost?.hp) || 0) }, at: Date.now() });
+
 /**
  * Cast a spell from an owned item. Spells without automation fields only pay their cost and post their card.
  * @param {Item} item
+ * @param {{cost?: {actions: number, mp: number}, remember?: object}} [options]
+ *   `cost`: a fixed cost instead of the spell's own (Encore); `remember`: the spell data to remember instead of the item's.
  */
-export async function castSpell(item) {
+export async function castSpell(item, { cost: fixedCost = null, remember = null } = {}) {
   const actor = item.actor;
+  if (!fixedCost && actor && isEncoreSpell(item.system)) return castEncore(item);
   const options = getSpellOptions(item.system);
   const option = options.length ? await chooseSpellOption(item, options) : null;
   if (options.length && !option) return;
@@ -57,7 +69,7 @@ export async function castSpell(item) {
   for (const formula of [auto.damage, auto.heal].filter(Boolean)) {
     if (!Roll.validate(formula)) return ui.notifications.warn(`${item.name}: "${formula}" is not a valid roll formula.`);
   }
-  const cost = await getCastCost(item);
+  const cost = fixedCost ? checkCastCost(item, fixedCost) : await getCastCost(item);
   if (!cost) return;
 
   const casterToken = getCasterToken(actor);
@@ -103,6 +115,11 @@ export async function castSpell(item) {
 
   const paid = await spendCastCost(actor, cost, item.name);
   if (paid === false) return;
+  // Remember the spell and its own cost for Encore (an Encore copy remembers the copied spell).
+  try {
+    const data = remember?.data ?? item.toObject?.();
+    if (data) await actor.setFlag?.("incarnos", "lastSpell", lastSpellRecord(data, remember?.cost ?? cost));
+  } catch (error) { console.warn("Incarnos | could not remember the last spell", error); }
 
   const rollData = actor.getRollData();
   rollData.lvl ??= Number(actor.system.attributes?.level?.value ?? 0);
@@ -232,6 +249,41 @@ export async function castSpell(item) {
 }
 
 /** The caster's token on this scene (linked or not), preferring a controlled one. */
+/**
+ * Encore: target one ally within range; copy the spell that ally cast last, then target what the copy should hit.
+ * The copy is cast by the Encore caster (own stats) for the copied spell's actions and its IP + 2.
+ */
+async function castEncore(item) {
+  const actor = item.actor;
+  const casterToken = getCasterToken(actor);
+  const rule = parseSpellTargets(item.system.target);
+  const allies = [...game.user.targets];
+  const problem = checkSpellTargets(rule, allies.map(token => ({ relation: relationTo({ actor, token: casterToken }, token) })));
+  if (problem && !(await allowWrongTargets(item, rule, problem))) return;
+  const range = parseSpellRange(item.system.range);
+  if (range && casterToken && canvas?.ready && allies.length) {
+    const checked = allies.map(token => ({ token, ok: targetInRange(range, casterToken, token, gridOptions()) }));
+    showRangeIndicator(casterToken, range, checked);
+    if (checked.some(entry => !entry.ok) && !(await allowOutOfRange(item, range))) return;
+  }
+  const ally = allies[0]?.actor;
+  if (!ally) return ui.notifications.warn(game.i18n.format("INCARNOS.Encore.noAlly", { name: item.name }));
+  const last = ally.getFlag?.("incarnos", "lastSpell");
+  if (!last?.data) return ui.notifications.warn(game.i18n.format("INCARNOS.Encore.nothing", { ally: ally.name }));
+  const cost = encoreCost(last);
+  const go = await foundry.applications.api.DialogV2.confirm({
+    window: { title: item.name },
+    content: `<p>${escape(game.i18n.format("INCARNOS.Encore.prompt", { ally: ally.name, spell: last.name, actions: cost.actions, ip: cost.mp }))}</p>`,
+    yes: { label: game.i18n.localize("INCARNOS.Encore.cast") }, no: { label: game.i18n.localize("Cancel") }, rejectClose: false
+  });
+  if (!go) return;
+  const data = foundry.utils.deepClone(last.data);
+  delete data._id;
+  data.name = `${item.name}: ${last.name}`;
+  const copy = new CONFIG.Item.documentClass(data, { parent: actor });
+  return castSpell(copy, { cost, remember: { data: last.data, cost: last.cost } });
+}
+
 /** A target out of range: players are stopped (nothing paid); the GM may cast anyway. */
 async function allowOutOfRange(item, range) {
   const message = game.i18n.format("INCARNOS.SpellRange.out", { name: item.name,

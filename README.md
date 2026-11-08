@@ -24,6 +24,10 @@ In a started combat, the summon joins immediately after its caster at the same i
 
 Spells, weapons and items, talents and the race: **click the picture** to cast or roll, **click the name** to open the full text under the row (spell: the card text with effect and description; weapon: range, hands, damage and each trait; talent/race: bonus and description; item: description), click again to close it. Open texts stay open when the sheet redraws. **Drag a row** onto another row of the same list to sort it; the order is saved on the items (`sort`) and every list follows it (spells stay grouped by element, the race stays first). `module/helpers/item-summary.mjs`.
 
+## Encore (copying a spell)
+
+Every successful cast remembers on the caster which spell it was and its own cost (`flags.incarnos.lastSpell`, replaced by the next cast; summons are not remembered). **Encore** ("Immediately copy a spell and pay the costs") is cast on one ally within its range: a dialog names that ally's last spell and the price (its actions, its IP + 2); target what the copy should hit and press *Cast*. The copy is cast by the Encore caster with their own stats, as *Encore: <spell>*, with the usual target and range checks, and becomes the Encore caster's own last spell. No remembered spell: a warning and nothing is paid.
+
 ## Item passives
 
 Open an item, weapon, talent, or spell and select **Passives**. Click **Add passive**, choose a stat, and enter a signed modifier (for example, Strength +2 or Parry -1). Changes save automatically.

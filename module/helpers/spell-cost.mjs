@@ -22,6 +22,13 @@ export async function getCastCost(item, extraMp = 0, selected = null) {
     cost = { actions: variable.actions ? Math.max(0, Number(data.actions) || 0) : cost.actions, mp: variable.mp ? Math.max(0, Number(data.mp) || 0) : cost.mp };
   }
   cost.mp += extraMp;
+  return checkCastCost(item, cost);
+}
+
+/** Check a fixed cost against the caster's IP (HP for Abomination). Returns the cost to pay, or null. */
+export function checkCastCost(item, cost) {
+  const { actor } = item;
+  cost = { actions: Number(cost.actions ?? 0), mp: Number(cost.mp ?? 0) };
   if (![cost.actions, cost.mp].every(value => Number.isSafeInteger(value) && value >= 0)) return null;
   // Abomination: no IP, spells take their IP cost from HP instead.
   const hpMagic = getTalentRules(actor.items).hpMagic;
