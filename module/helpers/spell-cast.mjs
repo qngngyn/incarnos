@@ -3,7 +3,7 @@ import { checkCastCost, getCastCost, spendCastCost } from "./spell-cost.mjs";
 import { castSummon } from "./summons.mjs";
 import { waitForContestAnimations } from "./contest-requests.mjs";
 import {
-  SPELL_STATS, getSpellAttackThreshold, getSpellAutomation, getSpellDamage, getSpellOptions, getSpellOptionSystem,
+  SPELL_STATS, getSpellAttackThreshold, getSpellAutomation, getSpellChatContent, getSpellDamage, getSpellOptions, getSpellOptionSystem,
   rollUnderSucceeds
 } from "./spells.mjs";
 import { renderSpellCard } from "./spell-card.mjs";
@@ -278,21 +278,34 @@ async function castEncore(item) {
   const cast = () => castSpell(copy, { cost, remember: { data: last.data, cost: last.cost } });
   const copied = { spell: last.name, ally: ally.name, actions: cost.actions, ip: cost.mp };
 
-  // Self spells and areas without picked targets need no targeting: cast the copy right away (areas go to placement).
-  if (!encoreNeedsTargets(data.system)) {
-    ui.notifications.info(game.i18n.format("INCARNOS.Encore.copiedNow", copied));
-    return cast();
-  }
-  // Otherwise: clear the ally's target, switch on Foundry's targeting tool and let the caster pick the copy's targets.
-  canvas?.tokens?.setTargets?.([]);
-  await ui.controls?.activate?.({ control: "tokens", tool: "target" })?.catch?.(() => {});
-  const go = await foundry.applications.api.DialogV2.confirm({
+  const { DialogV2 } = foundry.applications.api;
+
+  // 1. "Spell copied": cast it?
+  const want = await DialogV2.confirm({
     window: { title: game.i18n.localize("INCARNOS.Encore.copiedTitle") },
-    content: `<p>${escape(game.i18n.format("INCARNOS.Encore.copied", copied))}</p>`,
+    content: `<p>${escape(game.i18n.format("INCARNOS.Encore.copied", copied))}</p><p>${escape(game.i18n.localize("INCARNOS.Encore.castIt"))}</p>`,
+    yes: { label: game.i18n.localize("Yes") }, no: { label: game.i18n.localize("No") }, rejectClose: false
+  });
+  if (!want) return;
+
+  // 2. The spell itself with its price; targeting starts here as for any cast (the ally's target is cleared and the
+  // targeting tool switched on). Self and area spells need no targets: Cast casts them or starts the area placement.
+  const needsTargets = encoreNeedsTargets(data.system);
+  if (needsTargets) {
+    canvas?.tokens?.setTargets?.([]);
+    await ui.controls?.activate?.({ control: "tokens", tool: "target" })?.catch?.(() => {});
+  }
+  const go = await DialogV2.confirm({
+    window: { title: data.name },
+    position: { width: 420 },
+    content: `<p class="encore-cost"><strong>${escape(game.i18n.format("INCARNOS.Encore.cost", copied))}</strong></p>`
+      + getSpellChatContent(data.system)
+      + (needsTargets ? `<p class="encore-hint">${escape(game.i18n.format("INCARNOS.Encore.targetHint", copied))}</p>` : ""),
     yes: { label: game.i18n.localize("INCARNOS.Encore.cast") }, no: { label: game.i18n.localize("Cancel") }, rejectClose: false
   });
-  await ui.controls?.activate?.({ control: "tokens", tool: "select" })?.catch?.(() => {});
+  if (needsTargets) await ui.controls?.activate?.({ control: "tokens", tool: "select" })?.catch?.(() => {});
   if (!go) return;
+  // 3. Cast: the copy runs like any cast (cast choices, area placement, target and range checks, rolls).
   return cast();
 }
 

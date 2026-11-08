@@ -45,7 +45,10 @@ test("Encore copies the ally's last spell, clears targets for the targeting tool
   globalThis.ChatMessage = { getSpeaker: () => ({}), applyMode: () => {}, async create(data) { cards.push(data); return data; } };
 
   await castSpell({ name: "Encore", img: "encore.webp", actor: caster, system: encore });
-  assert.match(prompts[0], /Copied Song of Deceit from Ally \(2 AP, 10 IP\)\. Target what Song of Deceit should hit/);
+  assert.match(prompts[0], /Song of Deceit copied from Ally\..*Do you want to cast it\?/s, "1. spell copied: cast it?");
+  assert.match(prompts[1], /Cost: 2 AP · 10 IP/, "2. the spell with its price");
+  assert.match(prompts[1], /Target becomes a friend to the user/, "with its description");
+  assert.match(prompts[1], /Target what Song of Deceit should hit, then press Cast/);
   assert.deepEqual(targetCalls, [[]], "the ally's target is cleared");
   assert.deepEqual(tools, ["target", "select"], "targeting tool on while choosing, select tool after");
   assert.deepEqual(caster.writes, [{ "system.power.value": 20 }], "IP 8 + 2 paid (no AP outside combat)");
@@ -53,12 +56,15 @@ test("Encore copies the ally's last spell, clears targets for the targeting tool
   assert.equal(flags.lastSpell.name, "Song of Deceit", "the Encore caster now remembers the copied spell");
   assert.deepEqual(flags.lastSpell.cost, { actions: 2, mp: 8 }, "with the copied spell's own cost, not Encore's");
 
-  // A Self spell needs no targets: no window, the copy is cast at once.
+  // A Self spell needs no targets: both windows, no targeting tool, Cast casts it.
   ally.getFlag = () => lastSpellRecord({ ...song, name: "Shadowform", system: { ...song.system, range: "Self", target: "Self" } }, { actions: 1, mp: 6 });
   prompts.length = 0;
+  tools.length = 0;
   await castSpell({ name: "Encore", img: "encore.webp", actor: caster, system: encore });
-  assert.equal(prompts.length, 0);
-  assert.match(infos.at(-1), /Spell copied: Shadowform from Ally \(1 AP, 8 IP\)/);
+  assert.equal(prompts.length, 2);
+  assert.match(prompts[1], /Cost: 1 AP · 8 IP/);
+  assert.doesNotMatch(prompts[1], /Target what/);
+  assert.deepEqual(tools, [], "no targeting tool for a Self spell");
   assert.match(cards.at(-1).content, /Encore: Shadowform/);
 
   // An ally who hasn't cast anything yet: a warning, nothing paid.
@@ -71,4 +77,19 @@ test("Encore copies the ally's last spell, clears targets for the targeting tool
   assert.match(warnings[0], /Ally has not cast a spell yet/);
   assert.deepEqual(caster.writes, []);
   assert.equal(cards.length, before);
+});
+
+test("answering No in the first window, or Cancel in the second, casts nothing and pays nothing", async () => {
+  for (const answers of [[false], [true, false]]) {
+    const queue = [...answers];
+    foundry.applications.api.DialogV2.confirm = async () => queue.shift();
+    const writes = [], cards = [];
+    const caster = { uuid: "Actor.c", name: "C", type: "character", items: [], statuses: new Set(), system: { power: { value: 30 }, actionpoints: { value: 3, max: 3 } },
+      getRollData: () => ({}), async update(changes) { writes.push(changes); }, async setFlag() {} };
+    const ally = { name: "Ally", getFlag: () => lastSpellRecord({ name: "Song", type: "spell", system: { target: "Single Enemy", range: "9m", effect: "On cast: x" } }, { actions: 1, mp: 4 }) };
+    game.user.targets = new Set([{ actor: ally, name: "Ally", document: {} }]);
+    ChatMessage.create = async data => cards.push(data);
+    await castSpell({ name: "Encore", img: "e.webp", actor: caster, system: encore });
+    assert.deepEqual([writes, cards], [[], []], `answers ${answers}`);
+  }
 });
