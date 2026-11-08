@@ -165,7 +165,7 @@ test("Apply at clamped zero and negative HP edits count once; replay and zero da
   assert.match(notes[0].content, /Damage while Dying/);
 });
 
-test("start-of-turn Burn causes Dying and a GM reminder; Bleed kills without Dying", async () => {
+test("start-of-turn Burn causes Dying and a GM-only reminder in the same card; Bleed kills without Dying", async () => {
   const f = setup(), actor = f.actor({ hp: 2 });
   await setConditionTokens(actor, "burn", 2);
   await startOfTurn(actor); await flush();
@@ -173,7 +173,10 @@ test("start-of-turn Burn causes Dying and a GM reminder; Bleed kills without Dyi
   const reminder = [...game.messages.values()].find(message => message.flags?.incarnos?.deathSaveReminder);
   assert.match(reminder.content, /is dying: roll a death save/);
   assert.match(reminder.content, /data-incarnos-death-roll/);
-  assert.deepEqual(reminder.whisper, [f.gm.id, f.other.id]);
+  // One start-of-turn card for owners and GMs; the reminder is a section only GMs see.
+  assert.ok([f.gm.id, f.other.id].every(id => reminder.whisper.includes(id)));
+  assert.match(reminder.content, /data-incarnos-gm-only[^>]*>[^]*data-incarnos-death-roll/);
+  assert.equal([...game.messages.values()].filter(message => message.flags?.incarnos?.deathSaveReminder).length, 1, "a single message");
   assert.equal(actor.getFlag("incarnos", "deathSaves").rolls.length, 0, "reminder does not roll");
   const bleeding = f.actor({ hp: 2 }); await setConditionTokens(bleeding, "bleed", 2);
   await startOfTurn(bleeding); await flush();

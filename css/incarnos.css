@@ -764,3 +764,8 @@
 .incarnos-encore .encore-text :is(p, span, em, li, div) { color: inherit; }
 .incarnos-encore .encore-text strong { color: #d8d2c6; }
 .incarnos-encore .encore-hint { margin: 2px 0 0; font-style: italic; opacity: 0.85; }
+
+/* Start-of-turn card: the GM's reminders (death save, Frenzied), shown to GMs only. */
+.incarnos-spell-card .isc-gm-only { margin: 6px 8px 4px; padding: 4px 8px; border: 1px dashed rgba(201, 149, 46, 0.7); border-radius: 4px; background: rgba(201, 149, 46, 0.08); }
+.incarnos-spell-card .isc-gm-only p { margin: 2px 0; }
+.incarnos-spell-card .isc-gm-only + .isc-gm-only { margin-top: 0; }

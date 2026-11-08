@@ -88,6 +88,13 @@ export async function rollDeathSave(actor) {
   });
 }
 
+/** The death save reminder as a GM-only section of the start-of-turn card ("" when the actor can't roll one). */
+export function deathSaveReminderHTML(actor) {
+  if (!canDeathSave(actor)) return "";
+  return `<p class="isc-gm-title"><i class="fas fa-dice-d20"></i> ${escape(t("reminder", { actor: actor.name }))}</p>`
+    + `<button type="button" data-incarnos-death-roll>${escape(t("rollHidden"))}</button>`;
+}
+
 export async function remindDeathSave(actor) {
   if (!canDeathSave(actor)) return;
   return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: gms(), blind: true,

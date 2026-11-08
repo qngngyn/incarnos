@@ -18,7 +18,7 @@ import { getActionState } from "./action-tracker.mjs";
 import { amount, chip, escape, renderRollCard } from "./roll-card.mjs";
 import { getHealthAfter } from "./spells.mjs";
 import { gridOptions, squaresBetween, tokenDistance } from "./spell-range.mjs";
-import { handleDyingHealth, remindDeathSave } from "./death-saves.mjs";
+import { deathSaveReminderHTML, handleDyingHealth } from "./death-saves.mjs";
 
 export const DAMAGE_TOKEN_CONDITIONS = ["burn", "poisoned", "bleed"];
 export const conditionById = id => CONDITIONS.find(condition => condition.id === id);
@@ -251,8 +251,8 @@ export function frenziedPlan(inReach, actions, nearest = null, random = Math.ran
   return { attacks: Array.from({ length: Math.max(0, actions) }, () => inReach[Math.floor(random() * inReach.length)].name), moveTo: null };
 }
 
-/** GM-only reminder at the start of a Frenzied creature's turn: whom each action attacks. */
-async function remindFrenzied(actor) {
+/** GM-only section of the start-of-turn card for a Frenzied creature: whom each action attacks. */
+function frenziedReminderHTML(actor) {
   const token = actor.getActiveTokens?.()[0];
   const others = (globalThis.canvas?.tokens?.placeables ?? []).filter(other => other !== token && other.actor && !other.document.hidden);
   const options = gridOptions();
@@ -263,8 +263,7 @@ async function remindFrenzied(actor) {
   const text = plan.attacks.length
     ? game.i18n.format("INCARNOS.Conditions.frenziedAttacks", { name: actor.name, list: plan.attacks.map((name, index) => `${index + 1}. ${name}`).join(", ") })
     : game.i18n.format(plan.moveTo ? "INCARNOS.Conditions.frenziedMove" : "INCARNOS.Conditions.frenziedNobody", { name: actor.name, target: plan.moveTo ?? "" });
-  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: game.users.filter(user => user.isGM).map(user => user.id),
-    content: `<p><strong>${escape(game.i18n.localize("INCARNOS.Conditions.frenziedTitle"))}</strong> ${escape(text)}</p>` });
+  return `<p><strong>${escape(game.i18n.localize("INCARNOS.Conditions.frenziedTitle"))}</strong> ${escape(text)}</p>`;
 }
 
 /** Shadowclone: an attack against the holder hits the clone instead on a d20 of this or lower. */
@@ -389,9 +388,10 @@ export async function startOfTurn(actor) {
     }
     await setConditionTokens(actor, "barrier", barrier - 1);
   }
-  await remindDeathSave(actor);
-  if (statusEffect(actor, "frenzied")) await remindFrenzied(actor);
-  return postHealthPrompt(actor, "Start of turn", entries, notes, infos);
+  // Everything for this turn goes into one card; the GM's reminders (death save, Frenzied) are sections only GMs see.
+  const deathSave = deathSaveReminderHTML(actor);
+  const gmOnly = [deathSave, statusEffect(actor, "frenzied") ? frenziedReminderHTML(actor) : ""].filter(Boolean);
+  return postHealthPrompt(actor, "Start of turn", entries, notes, infos, { gmOnly, deathSaveReminder: deathSave ? actor.uuid : null });
 }
 
 /** Damage-over-time conditions whose damage is dealt at once at the start of the turn instead of offered with Apply. */
@@ -419,8 +419,10 @@ const promptRecipients = actor => [...game.users].filter(user => user.isGM || ac
  * @param {{kind: "damage"|"heal", amount: number, text: string, condition?: string, formula?: string}[]} entries
  * @param {string[]} [notes]
  * @param {{condition: string, text: string}[]} [infos]  Other active conditions, listed without a button.
+ * @param {{gmOnly?: string[], deathSaveReminder?: string|null}} [extra]  HTML sections only GMs see (removed for others
+ *   when the card is shown), and the actor whose death save the reminder's button rolls.
  */
-export async function postHealthPrompt(actor, title, entries, notes = [], infos = []) {
+export async function postHealthPrompt(actor, title, entries, notes = [], infos = [], { gmOnly = [], deathSaveReminder = null } = {}) {
   const content = renderRollCard({
     icon: "fa-hourglass-start", title: escape(title), tags: escape(actor.name),
     rows: [
@@ -434,11 +436,12 @@ export async function postHealthPrompt(actor, title, entries, notes = [], infos 
       })),
       ...infos.map(info => ({ img: conditionById(info.condition)?.img, name: conditionById(info.condition)?.name ?? info.condition, detail: info.text, values: [] }))
     ],
-    notes: notes.map(note => `<span>${escape(note)}</span>`)
+    notes: notes.map(note => `<span>${escape(note)}</span>`),
+    action: gmOnly.map(html => `<div class="isc-gm-only" data-incarnos-gm-only>${html}</div>`).join("")
   });
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor }), content, whisper: promptRecipients(actor),
-    flags: { incarnos: { healthPrompt: { actorUuid: actor.uuid, entries } } }
+    flags: { incarnos: { healthPrompt: { actorUuid: actor.uuid, entries }, ...(deathSaveReminder ? { deathSaveReminder } : {}) } }
   });
 }
 
@@ -479,6 +482,8 @@ export function registerConditionHooks() {
   Hooks.on("renderChatMessageHTML", (message, html) => {
     const prompt = message.flags?.incarnos?.healthPrompt;
     if (!prompt) return;
+    // The GM's reminders in a start-of-turn card are for GMs only.
+    if (!game.user.isGM) for (const section of html.querySelectorAll("[data-incarnos-gm-only]")) section.remove();
     const actor = fromUuidSync(prompt.actorUuid);
     for (const button of html.querySelectorAll("[data-incarnos-health-apply]")) {
       if (!actor || !(game.user.isGM || actor.isOwner)) { button.remove(); continue; }
