@@ -17,6 +17,7 @@ import { CONDITIONS } from "../data/conditions.mjs";
 import { getActionState } from "./action-tracker.mjs";
 import { amount, chip, escape, renderRollCard } from "./roll-card.mjs";
 import { getHealthAfter } from "./spells.mjs";
+import { gridOptions, squaresBetween, tokenDistance } from "./spell-range.mjs";
 import { handleDyingHealth, remindDeathSave } from "./death-saves.mjs";
 
 export const DAMAGE_TOKEN_CONDITIONS = ["burn", "poisoned", "bleed"];
@@ -117,7 +118,7 @@ export const SPARE_STATUSES = [
  */
 export const CONDITION_ORDER = [
   "prone", "grappled", "immobilized", "mounted", "hidden", "hindered", "blinded",
-  "taunted", "intimidated", "asleep", "paralyzed", "stunned", "charged", "shadowmarked",
+  "taunted", "frenzied", "intimidated", "asleep", "paralyzed", "stunned", "charged", "shadowmarked",
   "burn", "poisoned", "bleed", "regenerating", "barrier", "shadowform", "shadowclone",
   "summoned", "dying", "unconscious"
 ];
@@ -236,6 +237,35 @@ export async function endOfTurn(actor, turn = null) {
 
 /** Conditions whose tokens are turns, counted down at the end of the holder's turn; a new source keeps the longer one. */
 export const TURN_COUNTDOWN_CONDITIONS = ["blinded", "shadowmarked", "shadowform", "shadowclone"];
+
+/**
+ * Frenzied: for each action, a random creature within reach to attack; nobody in reach → the nearest to move to.
+ * @param {{name: string}[]} inReach  Creatures within reach (not the frenzied one).
+ * @param {number} actions  Actions this turn.
+ * @param {{name: string}|null} nearest  The nearest creature when nobody is in reach.
+ * @param {() => number} [random]
+ * @returns {{attacks: string[], moveTo: string|null}}
+ */
+export function frenziedPlan(inReach, actions, nearest = null, random = Math.random) {
+  if (!inReach.length) return { attacks: [], moveTo: nearest?.name ?? null };
+  return { attacks: Array.from({ length: Math.max(0, actions) }, () => inReach[Math.floor(random() * inReach.length)].name), moveTo: null };
+}
+
+/** GM-only reminder at the start of a Frenzied creature's turn: whom each action attacks. */
+async function remindFrenzied(actor) {
+  const token = actor.getActiveTokens?.()[0];
+  const others = (globalThis.canvas?.tokens?.placeables ?? []).filter(other => other !== token && other.actor && !other.document.hidden);
+  const options = gridOptions();
+  const inReach = token ? others.filter(other => squaresBetween(token, other, options.gridSize) <= 0) : [];
+  const nearest = token && others.length
+    ? others.map(other => ({ other, d: tokenDistance(token, other, options) })).sort((a, b) => a.d - b.d)[0].other : null;
+  const plan = frenziedPlan(inReach, getActionState(actor).value, nearest);
+  const text = plan.attacks.length
+    ? game.i18n.format("INCARNOS.Conditions.frenziedAttacks", { name: actor.name, list: plan.attacks.map((name, index) => `${index + 1}. ${name}`).join(", ") })
+    : game.i18n.format(plan.moveTo ? "INCARNOS.Conditions.frenziedMove" : "INCARNOS.Conditions.frenziedNobody", { name: actor.name, target: plan.moveTo ?? "" });
+  return ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }), whisper: game.users.filter(user => user.isGM).map(user => user.id),
+    content: `<p><strong>${escape(game.i18n.localize("INCARNOS.Conditions.frenziedTitle"))}</strong> ${escape(text)}</p>` });
+}
 
 /** Shadowclone: an attack against the holder hits the clone instead on a d20 of this or lower. */
 export const SHADOWCLONE_DIVERT = 9;
@@ -360,6 +390,7 @@ export async function startOfTurn(actor) {
     await setConditionTokens(actor, "barrier", barrier - 1);
   }
   await remindDeathSave(actor);
+  if (statusEffect(actor, "frenzied")) await remindFrenzied(actor);
   return postHealthPrompt(actor, "Start of turn", entries, notes, infos);
 }
 
@@ -557,7 +588,7 @@ export function registerConditionHooks() {
 export async function applyAttackConditions(actor, conditions = []) {
   for (const { id, tokens, heal, timed, damage, by } of conditions) {
     if (!conditionById(id)) continue;
-    if (id === "taunted" && by) {
+    if ((id === "taunted" || id === "frenzied") && by) {
       // A spell's Taunted names the caster and ends at the end of the target's next turn; one put on by hand
       // (no timer) stays until removed.
       const existing = statusEffect(actor, id);

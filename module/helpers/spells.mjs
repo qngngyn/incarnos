@@ -179,7 +179,7 @@ export function parseSpellSummon(system = {}) {
 }
 
 const CONDITION_NAMES = { prone: "Prone", asleep: "Asleep", burn: "Burn", poisoned: "Poisoned", bleed: "Bleed", regenerating: "Regenerating", immobilized: "Immobilized", paralyzed: "Paralyzed", stunned: "Stunned", barrier: "Barrier", taunted: "Taunted",
-  blinded: "Blinded", shadowmarked: "Shadowmarked", shadowform: "Shadowform", charged: "Charged", shadowclone: "Shadowclone" };
+  blinded: "Blinded", shadowmarked: "Shadowmarked", shadowform: "Shadowform", charged: "Charged", shadowclone: "Shadowclone", frenzied: "Frenzied" };
 
 /**
  * Conditions a spell puts on its targets, from clear effect lines only:
@@ -247,6 +247,8 @@ export function parseSpellConditions(lines, hasSave, duration = "") {
     if (/^Attacks are easier dodged \(\+\d+ Parry\)/i.test(line)) add("shadowform", turns ?? "1", line);
     // Shadowclones: "All allies in sight receive a shadow clone" = Shadowclone for the spell's duration.
     if (/\breceives? a shadow ?clone\b/i.test(line)) add("shadowclone", turns ?? "1", line);
+    // You're a fucking Nightmare: "Forces your target to spend his next actions randomly attacking targets around him".
+    if (/\bnext actions? randomly attacking\b/i.test(line)) add("frenzied", null, line);
     // Inner Focus: "Give yourself the charging status 2x".
     const charged = line.match(/\bcharg(?:ing|ed) status (\d+)\s*x\b/i);
     if (charged) add("charged", charged[1], line);

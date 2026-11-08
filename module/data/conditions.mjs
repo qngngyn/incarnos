@@ -50,6 +50,13 @@ export const CONDITIONS = [
     "tokens": false
   },
   {
+    "id": "frenzied",
+    "name": "Frenzied",
+    "img": "icons/svg/explosion.svg",
+    "description": "On your next turn you must spend your actions attacking creatures within your reach, friend or foe: each attack goes to a randomly chosen creature within reach. If nobody is in reach, you move toward the nearest creature. You lash out even while Asleep (Asleep's rule for actions you spend still applies). Frenzied ends at the end of that turn.",
+    "tokens": false
+  },
+  {
     "id": "grappled",
     "name": "Grappled",
     "img": "systems/incarnos/icons/grappled.svg",

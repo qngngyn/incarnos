@@ -48,3 +48,17 @@ test("receiving a clone gives 1 extra action this turn; refreshing it doesn't gi
   await applyAttackConditions(actor, [{ id: "shadowclone", tokens: 1 }]);
   assert.deepEqual(getActionState(actor), { max: 4, value: 4 });
 });
+
+test("You're a fucking Nightmare makes its target Frenzied", () => {
+  const auto = getSpellAutomation({ target: "Asleep Single Target", range: "9m", check: "No Check",
+    effect: "On cast:\nForces your target to spend his next actions randomly attacking targets around him." });
+  assert.deepEqual(auto.conditions.map(condition => condition.id), ["frenzied"]);
+});
+
+test("Frenzied plan: one random creature in reach per action, or the nearest to move to", async () => {
+  const { frenziedPlan } = await import("../module/helpers/conditions.mjs");
+  const picks = [0, 0.6, 0.99];
+  assert.deepEqual(frenziedPlan([{ name: "Drea" }, { name: "Goblin" }], 3, null, () => picks.shift()), { attacks: ["Drea", "Goblin", "Goblin"], moveTo: null });
+  assert.deepEqual(frenziedPlan([], 3, { name: "Piet" }), { attacks: [], moveTo: "Piet" });
+  assert.deepEqual(frenziedPlan([], 3, null), { attacks: [], moveTo: null });
+});

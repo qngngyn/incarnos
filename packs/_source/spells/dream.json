@@ -166,7 +166,7 @@
       "actionType": "action",
       "mp": 8,
       "range": "9m",
-      "target": "Single Target",
+      "target": "Asleep Single Target",
       "check": "No Check",
       "duration": "Instant",
       "effect": "On cast:\nForces your target to spend his next actions randomly attacking targets around him."
