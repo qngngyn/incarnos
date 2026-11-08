@@ -123,7 +123,7 @@ export const CONDITIONS = [
     "id": "shadowclone",
     "name": "Shadowclone",
     "img": "icons/svg/cowled.svg",
-    "description": "A shadow clone stands with you. You get 1 additional action. When an enemy attacks you, roll a d20: on 9 or lower the clone is attacked instead and the attack does nothing to you. You lose 1 Shadowclone token at the end of each of your turns.",
+    "description": "A shadow clone stands with you. You get 1 additional action. When an enemy attacks you, roll a d20: on 9 or lower the clone is attacked instead and the attack does nothing to you. The clone stays until Shadowclone ends, however often it is attacked. You lose 1 Shadowclone token at the end of each of your turns.",
     "tokens": true
   },
   {
