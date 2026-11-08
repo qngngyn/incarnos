@@ -250,7 +250,7 @@
       "actionType": "action",
       "mp": 5,
       "range": "Self (1,5m radius)",
-      "target": "Friendly Targets",
+      "target": "Friendlies",
       "check": "No Check",
       "duration": "2 turns",
       "effect": "On cast: \nThe next saving throw is rolled with advantage"

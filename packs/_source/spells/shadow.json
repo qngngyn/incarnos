@@ -81,7 +81,7 @@
       "actions": 2,
       "actionType": "action",
       "mp": 10,
-      "range": "6m radius from user",
+      "range": "Self (6m radius)",
       "target": "Up to 5 Enemies",
       "check": "Target Save Dex",
       "duration": "Instant",

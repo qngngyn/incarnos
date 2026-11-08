@@ -12,6 +12,7 @@ import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
 import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied } from "./conditions.mjs";
+import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
 
 const castData = message => message.flags?.incarnos?.spellCast;
 const applying = new Set();
@@ -59,17 +60,32 @@ export async function castSpell(item) {
   const casterToken = getCasterToken(actor);
   const healOnly = Boolean(auto.heal) && !auto.damage && !auto.attackStat;
   const resolves = Boolean(auto.attackStat || auto.saveStat || auto.damage || auto.heal || auto.conditions?.length);
+  // Who the spell may hit (Target line): side, how many, and whether the caster counts.
+  const targetRule = parseSpellTargets(system.target);
+  const caster = { actor, token: casterToken };
+  // "Up to 5 Enemies" with "Self (6m radius)": the radius is the range for picked targets, not an area hitting everyone.
+  const pickInRadius = targetRule.kind === "pick" && auto.areaShape === "circle" && auto.areaOrigin === "self";
   let targets = [];
-  if (auto.areaShape && Number(auto.areaSize) > 0) {
+  if (auto.areaShape && Number(auto.areaSize) > 0 && !pickInRadius) {
     if (!canvas.ready) return ui.notifications.warn("Open a scene to place the spell's area.");
     if (auto.areaOrigin === "self" && !casterToken) return ui.notifications.warn(`${actor.name} needs a token on this scene to cast ${item.name}.`);
     const area = await placeSpellArea(item, auto, casterToken, system);
     if (!area) return;
-    targets = getTokensInArea(area).filter(token => auto.areaShape === "rect" || healOnly || token !== casterToken);
+    // "Enemies" / "Friendlies" / "Allies": everyone of that side in the area; otherwise everyone inside.
+    targets = targetRule.kind === "all" ? filterBySide(targetRule, getTokensInArea(area), caster)
+      : getTokensInArea(area).filter(token => auto.areaShape === "rect" || healOnly || token !== casterToken);
   } else if (resolves) {
     targets = [...game.user.targets];
     if (!targets.length && casterToken && (/^self\b/i.test(system.target ?? "") || healOnly)) targets = [casterToken];
     if (!targets.length) return ui.notifications.warn(`Target the tokens ${item.name} affects first.`);
+    const radius = pickInRadius && casterToken ? Number(auto.areaSize) * canvas.dimensions.distancePixels : 0;
+    const problem = checkSpellTargets(targetRule, targets.map(token => ({
+      relation: relationTo(caster, token),
+      asleep: Boolean(token.actor?.statuses?.has("asleep")),
+      downed: Number(token.actor?.system?.health?.value) <= 0 || ["dying", "unconscious"].some(id => token.actor?.statuses?.has(id)),
+      ...(radius ? { inRange: Math.hypot(token.center.x - casterToken.center.x, token.center.y - casterToken.center.y) <= radius + 1e-6 } : {})
+    })));
+    if (problem && !(await allowWrongTargets(item, targetRule, problem, pickInRadius ? auto.areaSize : 0))) return;
   }
 
   const paid = await spendCastCost(actor, cost, item.name);
@@ -197,6 +213,18 @@ export async function castSpell(item) {
 }
 
 /** The caster's token on this scene (linked or not), preferring a controlled one. */
+/** Wrong targets: players are stopped (nothing paid); the GM may cast anyway. */
+async function allowWrongTargets(item, rule, problem, range = 0) {
+  const message = game.i18n.format(problem === "range" ? "INCARNOS.SpellTargets.range" : "INCARNOS.SpellTargets.wrong",
+    { name: item.name, targets: describeSpellTargets(rule), range });
+  if (!game.user.isGM) { ui.notifications.warn(message); return false; }
+  return Boolean(await foundry.applications.api.DialogV2.confirm({
+    window: { title: game.i18n.localize("INCARNOS.SpellTargets.castAnyway") },
+    content: `<p>${escape(message)}</p>`,
+    yes: { label: game.i18n.localize("INCARNOS.SpellTargets.castAnyway") }, no: { label: game.i18n.localize("Cancel") }
+  }));
+}
+
 function getCasterToken(actor) {
   if (actor.token?.object) return actor.token.object;
   const tokens = canvas.tokens?.placeables.filter(token => token.actor === actor || token.document.actorId === actor.id) ?? [];

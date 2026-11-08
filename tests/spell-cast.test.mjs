@@ -132,7 +132,7 @@ test("without statuscounter, new and existing token counts are saved and zero re
 });
 
 const leafToss = {
-  element: "Plants", category: "Attack", check: "Attack Int / Cha (3x)", target: "Single Enemy", range: "9m",
+  element: "Plants", category: "Attack", check: "Attack Int / Cha (3x)", target: "Enemies" /* several targets per test; counts are tested in spell-targets.test.mjs */, range: "9m",
   duration: "Instant", cost: "2 Actions, 12 IP", actions: 2, mp: 12,
   effect: "On cast:\nFor each successful attack, deal 3d4 + (lvl * 1) earth dmg"
 };
@@ -554,7 +554,7 @@ test("area spells never hit invisible tokens (hidden from players); visible ones
 
 test("Who let the apes out (Thunder): a hit with a failed save adds +2d4 and Paralyzed; a save or miss doesn't", async () => {
   const system = { ...leafToss, name: "Who let the apes out? Thunder Version", element: "Thunder", check: "Attack Int / Cha, Target Save Con",
-    target: "2 Single Enemies", range: "6m", cost: "2 Actions, 10 IP", actions: 2, mp: 10,
+    target: "Up to 3 Enemies", range: "6m", cost: "2 Actions, 10 IP", actions: 2, mp: 10,
     effect: "On hit: 2d4 + (lvl * 2) fire dmg\nLaunches targets into the air (none when Save succeeded), making them paralyzed and take additional 2d4 fire dmg when hit" };
   const { message, pending } = await castAttackSpell({ system, parries: [14, 14, 14], dice: [
     { formula: "2d4 + (@lvl * 2)", total: 8 }, { formula: "2d4", total: 5 },
