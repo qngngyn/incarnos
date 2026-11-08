@@ -295,11 +295,14 @@ async function castEncore(item) {
     canvas?.tokens?.setTargets?.([]);
     await ui.controls?.activate?.({ control: "tokens", tool: "target" })?.catch?.(() => {});
   }
+  // Laid out like the spell's row and opened text on the character sheet (heading font, orange-edged text box).
   const go = await DialogV2.confirm({
     window: { title: data.name },
-    position: { width: 420 },
-    content: `<p class="encore-cost"><strong>${escape(game.i18n.format("INCARNOS.Encore.cost", copied))}</strong></p>`
-      + getSpellChatContent(data.system)
+    classes: ["incarnos-encore"],
+    position: { width: 460 },
+    content: `<div class="encore-head"><img src="${escape(data.img ?? "")}" alt="" width="32" height="32">`
+      + `<h4>${escape(last.name)}</h4><span class="encore-cost">${escape(game.i18n.format("INCARNOS.Encore.cost", copied))}</span></div>`
+      + `<div class="encore-text">${getSpellChatContent(data.system)}</div>`
       + (needsTargets ? `<p class="encore-hint">${escape(game.i18n.format("INCARNOS.Encore.targetHint", copied))}</p>` : ""),
     yes: { label: game.i18n.localize("INCARNOS.Encore.cast") }, no: { label: game.i18n.localize("Cancel") }, rejectClose: false
   });

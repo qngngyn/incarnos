@@ -746,3 +746,21 @@
 .incarnos .items-list .item-summary p { margin: 2px 0; }
 .incarnos .items-list .item-summary-traits { margin: 2px 0 0; padding-left: 18px; }
 .incarnos .items-list .item-summary-empty { opacity: 0.7; font-style: italic; }
+
+/* Encore's spell window: like the spell's row and opened text on the character sheet. */
+.incarnos-encore .window-content { gap: 6px; }
+.incarnos-encore .encore-head { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(201, 199, 184, 0.35); }
+.incarnos-encore .encore-head img { flex: 0 0 32px; border: none; border-radius: 3px; }
+.incarnos-encore .encore-head h4 { flex: 1; margin: 0; font-family: var(--font-h4, "Modesto Condensed", serif); font-size: 1.5em; text-transform: uppercase; letter-spacing: 0.02em; }
+.incarnos-encore .encore-cost { flex: 0 0 auto; font-weight: bold; color: #d8d2c6; white-space: nowrap; }
+.incarnos-encore .encore-text {
+  margin: 0 0 0 6px;
+  padding: 4px 8px 6px;
+  border-left: 2px solid var(--color-border-highlight, #ff6400);
+  font-size: var(--font-size-13, 13px);
+  color: #b9b3a8;
+}
+.incarnos-encore .encore-text p { margin: 2px 0; }
+.incarnos-encore .encore-text :is(p, span, em, li, div) { color: inherit; }
+.incarnos-encore .encore-text strong { color: #d8d2c6; }
+.incarnos-encore .encore-hint { margin: 2px 0 0; font-style: italic; opacity: 0.85; }
