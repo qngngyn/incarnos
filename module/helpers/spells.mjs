@@ -132,6 +132,11 @@ export function parseSpellAutomation(system = {}) {
     result.bonusDamage = { formula: toFormula(rest.match(new RegExp(DICE))[0]),
       type: rest.match(DAMAGE_TYPES)?.[1].toLowerCase() ?? result.damageType, saveNegates: Boolean(result.saveStat) };
   }
+  // Rise and Shine: "+ (number of sleep tokens)" adds the target's sleep tokens; "If you would wake up the target …,
+  // you deal 8d6 + (lvl * 2) instead" replaces the damage when this hit wakes the target.
+  if (damageLine && /number of sleep tokens/i.test(damageLine)) result.plusSleepTokens = true;
+  const wake = offensive && lines.join(" ").match(new RegExp(String.raw`\bif you would wake up the target\b[^.]*?\byou deal (${DICE})[^.]*?\binstead\b`, "i"));
+  if (wake) result.wakeDamage = toFormula(wake[1]);
   result.conditions = parseSpellConditions(lines, Boolean(result.saveStat), system.duration)
     // Self/ally spells (Cloak of Lightning: "On hit: Paralyzed …") describe what happens to an attacker, not the target.
     .filter(condition => offensive || !["paralyzed", "stunned", "taunted"].includes(condition.id));

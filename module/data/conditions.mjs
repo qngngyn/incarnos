@@ -4,7 +4,7 @@ export const CONDITIONS = [
     "id": "asleep",
     "name": "Asleep",
     "img": "icons/svg/sleep.svg",
-    "description": "You cannot act. For every action you would act, you remove 1 sleep token. When you take damage while asleep, you half your sleep tokens, rounded up (min. 2 tokens).",
+    "description": "You cannot act. For every action you would act, you remove 1 sleep token. When you take damage while asleep, you lose half your sleep tokens, rounded down, but at least 2 tokens.",
     "tokens": true
   },
   {

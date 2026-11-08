@@ -138,7 +138,7 @@ const leafToss = {
 };
 
 /** Deterministic casting through the public flow, with no world documents. */
-async function castAttackSpell({ system = leafToss, statuses = [], parries = [14], playerTarget = false, stat = 14, dice, area = false, cancel = false, choice }) {
+async function castAttackSpell({ system = leafToss, statuses = [], parries = [14], playerTarget = false, stat = 14, dice, area = false, cancel = false, choice, asleep = [] }) {
   const casterWrites = [];
   const consumed = [];
   const caster = { uuid: "Actor.caster", name: "Caster", type: "character", hasPlayerOwner: true, items: [], statuses: new Set(statuses),
@@ -164,6 +164,8 @@ async function castAttackSpell({ system = leafToss, statuses = [], parries = [14
         if (key.startsWith("flags.incarnos.appliedPrompts.")) this.appliedPrompts[key.slice("flags.incarnos.appliedPrompts.".length)] = value;
       }
     } }));
+  // Sleep tokens per target (Rise and Shine): an Asleep status effect with its counter.
+  asleep.forEach((tokens, index) => { if (tokens) targets[index].effects.push({ statuses: new Set(["asleep"]), getFlag: (scope, key) => (scope === "statuscounter" && key === "value" ? tokens : undefined) }); });
   globalThis.game = { user: { id: "gm", isGM: true, targets: new Set(targets.map(actor => ({ actor, name: actor.name, document: { texture: {} } }))) },
     combats: [{ started: true, combatants: [{ actor: caster }] }], settings: { get: () => "publicroll" } };
   globalThis.canvas = { tokens: { placeables: [] } };
@@ -567,4 +569,21 @@ test("Who let the apes out (Thunder): a hit with a failed save adds +2d4 and Par
   assert.deepEqual(results.map(result => result.conditions.map(condition => condition.id)), [["paralyzed"], [], []]);
   // The card marks the included extra damage on the target that failed its save, and only there.
   assert.equal((message.content.match(/Included extra damage on a failed save: 2d4 = 5 fire/g) ?? []).length, 1);
+});
+
+test("Rise and Shine adds the sleep tokens, or deals its wake-up damage instead when the hit takes the last tokens", async () => {
+  const system = { ...leafToss, name: "Rise and Shine", element: "Dream", check: "Attack Int / Cha", target: "Enemies", range: "9m",
+    cost: "2 Actions, 8 IP", actions: 2, mp: 8,
+    effect: "On Hit:\nDeal 3d6 + (lvl * 2) + (number of sleep tokens) water dmg\nIf you would wake up the target in the process, \nyou deal 8d6 + (lvl * 2) instead." };
+  const { message } = await castAttackSpell({ system, parries: [14, 14, 14], asleep: [9, 2, 0], dice: [
+    { formula: "3d6 + (@lvl * 2)", total: 10 },
+    { formula: "1d20", total: 5 },
+    { formula: "1d20", total: 5 }, { formula: "8d6 + (@lvl * 2)", total: 30 },
+    { formula: "1d20", total: 20 }
+  ] });
+  const results = message.flags.incarnos.spellCast.targets;
+  assert.deepEqual(results.map(result => result.damage), [19, 30, 0],
+    "9 tokens: 10 + 9 (9 → 4 doesn't wake); 2 tokens: the hit wakes it, 8d6 + (lvl * 2) instead; a miss deals nothing");
+  assert.match(message.content, /Wakes up/);
+  assert.match(message.content, /\+9 sleep/);
 });

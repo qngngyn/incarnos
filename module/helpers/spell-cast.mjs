@@ -11,7 +11,7 @@ import { escape } from "./roll-card.mjs";
 import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
-import { advantageFormula, applyAttackConditions, applyHealthChange, conditionAdvantage, consumeHindered, promptApplied, shadowcloneCheck } from "./conditions.mjs";
+import { advantageFormula, applyAttackConditions, applyHealthChange, asleepAfterDamage, conditionAdvantage, conditionTokens, consumeHindered, promptApplied, shadowcloneCheck } from "./conditions.mjs";
 import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
 import { createRangeRing, gridOptions, parseSpellRange, showRangeIndicator, targetInRange } from "./spell-range.mjs";
 import { encoreCost, lastSpellRecord, rememberSpell } from "./last-spell.mjs";
@@ -192,6 +192,17 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
       hit.damage = hitDamage
         ? getSpellDamage(hitDamage.total, { hit: hit.hit, saved: hit.saved, saveEffect: auto.saveEffect, pvp: result.pvp })
         : 0;
+      // Rise and Shine: the target's sleep tokens add to the damage; a hit that wakes it (the damage takes its last
+      // tokens) deals the wake-up damage instead.
+      const sleep = conditionTokens(target, "asleep");
+      if (hit.hit && hitDamage && sleep > 0 && auto.wakeDamage && asleepAfterDamage(sleep) === 0) {
+        const wakeRoll = await roll(auto.wakeDamage, hit.crit ? { maximize: true } : undefined);
+        hit.damage = getSpellDamage(wakeRoll.total, { hit: true, saved: hit.saved, saveEffect: auto.saveEffect, pvp: result.pvp });
+        hit.wake = { formula: wakeRoll.formula, result: wakeRoll.result, total: wakeRoll.total };
+      } else if (hit.hit && hitDamage && sleep > 0 && auto.plusSleepTokens) {
+        hit.damage += getSpellDamage(sleep, { hit: true, saved: hit.saved, saveEffect: auto.saveEffect, pvp: result.pvp });
+        hit.sleepBonus = sleep;
+      }
     }
     if (multiAttack) {
       result.attacks = attacks;
