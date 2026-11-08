@@ -271,17 +271,39 @@ async function castEncore(item) {
   const last = ally.getFlag?.("incarnos", "lastSpell");
   if (!last?.data) return ui.notifications.warn(game.i18n.format("INCARNOS.Encore.nothing", { ally: ally.name }));
   const cost = encoreCost(last);
-  const go = await foundry.applications.api.DialogV2.confirm({
-    window: { title: item.name },
-    content: `<p>${escape(game.i18n.format("INCARNOS.Encore.prompt", { ally: ally.name, spell: last.name, actions: cost.actions, ip: cost.mp }))}</p>`,
-    yes: { label: game.i18n.localize("INCARNOS.Encore.cast") }, no: { label: game.i18n.localize("Cancel") }, rejectClose: false
-  });
-  if (!go) return;
   const data = foundry.utils.deepClone(last.data);
   delete data._id;
   data.name = `${item.name}: ${last.name}`;
   const copy = new CONFIG.Item.documentClass(data, { parent: actor });
-  return castSpell(copy, { cost, remember: { data: last.data, cost: last.cost } });
+  const cast = () => castSpell(copy, { cost, remember: { data: last.data, cost: last.cost } });
+  const copied = { spell: last.name, ally: ally.name, actions: cost.actions, ip: cost.mp };
+
+  // Self spells and areas without picked targets need no targeting: cast the copy right away (areas go to placement).
+  if (!encoreNeedsTargets(data.system)) {
+    ui.notifications.info(game.i18n.format("INCARNOS.Encore.copiedNow", copied));
+    return cast();
+  }
+  // Otherwise: clear the ally's target, switch on Foundry's targeting tool and let the caster pick the copy's targets.
+  canvas?.tokens?.setTargets?.([]);
+  await ui.controls?.activate?.({ control: "tokens", tool: "target" })?.catch?.(() => {});
+  const go = await foundry.applications.api.DialogV2.confirm({
+    window: { title: game.i18n.localize("INCARNOS.Encore.copiedTitle") },
+    content: `<p>${escape(game.i18n.format("INCARNOS.Encore.copied", copied))}</p>`,
+    yes: { label: game.i18n.localize("INCARNOS.Encore.cast") }, no: { label: game.i18n.localize("Cancel") }, rejectClose: false
+  });
+  await ui.controls?.activate?.({ control: "tokens", tool: "select" })?.catch?.(() => {});
+  if (!go) return;
+  return cast();
+}
+
+/** Whether Encore's copy needs targets picked first: targeted spells and spells with cast choices; not Self or areas. */
+export function encoreNeedsTargets(system = {}) {
+  if (getSpellOptions(system).length) return true;
+  const rule = parseSpellTargets(system.target);
+  if (rule.kind !== "pick" && rule.kind !== "all") return false;
+  const auto = getSpellAutomation(system);
+  const radiusRange = rule.kind === "pick" && auto.areaShape === "circle" && auto.areaOrigin === "self";
+  return !(auto.areaShape && Number(auto.areaSize) > 0 && !radiusRange);
 }
 
 /** A target out of range: players are stopped (nothing paid); the GM may cast anyway. */

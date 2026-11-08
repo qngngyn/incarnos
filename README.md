@@ -26,7 +26,7 @@ Spells, weapons and items, talents and the race: **click the picture** to cast o
 
 ## Encore (copying a spell)
 
-Every successful cast remembers on the caster which spell it was and its own cost (`flags.incarnos.lastSpell`, replaced by the next cast; summons are not remembered). **Encore** ("Immediately copy a spell and pay the costs") is cast on one ally within its range: a dialog names that ally's last spell and the price (its actions, its IP + 2); target what the copy should hit and press *Cast*. The copy is cast by the Encore caster with their own stats, as *Encore: <spell>*, with the usual target and range checks, and becomes the Encore caster's own last spell. No remembered spell: a warning and nothing is paid.
+Every successful cast remembers on the caster which spell it was and its own cost (`flags.incarnos.lastSpell`, replaced by the next cast; summons are not remembered). **Encore** ("Immediately copy a spell and pay the costs"): target the ally whose spell you copy (within Encore's range) and cast it. A *Spell copied* window names the spell and the price (its actions, its IP + 2); at the same moment the ally's target is cleared and Foundry's targeting tool is switched on, so you click what the copy should hit and press *Cast* (the select tool comes back afterwards). Self spells are cast at once and area spells go straight to placing the area. The copy is cast by the Encore caster with their own stats, as *Encore: <spell>*, with the usual target and range checks, and becomes the Encore caster's own last spell. No remembered spell: a warning and nothing is paid.
 
 ## Item passives
 
