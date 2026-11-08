@@ -14,7 +14,7 @@
           <div class="item-image">
             <a class="rollable" data-action="roll" data-roll-type="item"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/></a>
           </div>
-          <h4 data-tooltip="{{item.system.effect}}">{{item.name}} {{> "systems/incarnos/templates/item/item-sync-marker.html" item}}</h4>
+          <h4 class="item-toggle" data-action="itemToggle" data-tooltip="{{localize 'INCARNOS.ItemSummary.toggle'}}">{{item.name}} {{> "systems/incarnos/templates/item/item-sync-marker.html" item}}</h4>
         </div>
         <div class="spell-summary item-prop" data-tooltip="{{item.system.effect}}">{{item.spellSummary}}</div>
         <div class="item-controls">

@@ -12,7 +12,7 @@
         <div class="item-image">
           <a class="rollable" data-action="roll" data-roll-type="item"><img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/></a>
         </div>
-        <h4>{{item.name}}{{#if item.isRace}} <span class="race-tag">Race</span>{{/if}} {{> "systems/incarnos/templates/item/item-sync-marker.html" item}}</h4>
+        <h4 class="item-toggle" data-action="itemToggle" data-tooltip="{{localize 'INCARNOS.ItemSummary.toggle'}}">{{item.name}}{{#if item.isRace}} <span class="race-tag">Race</span>{{/if}} {{> "systems/incarnos/templates/item/item-sync-marker.html" item}}</h4>
       </div>
       <div class="talent-description item-prop">{{{item.descriptionHTML}}}</div>
       <div class="item-controls">

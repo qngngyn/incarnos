@@ -47,6 +47,8 @@
   "INCARNOS.SpellTargets.castAnyway": "Cast anyway",
   "INCARNOS.SpellRange.out": "{name}: a target is out of range ({range}). Move closer or change your targets.",
   "INCARNOS.SpellRange.touch": "touch: next to the caster",
+  "INCARNOS.ItemSummary.toggle": "Click to show or hide the full text; drag the row to sort",
+  "INCARNOS.ItemSummary.empty": "No description yet.",
   "INCARNOS.CompendiumSync.updated": "Incarnos: compendiums updated from vault: {summary}",
   "INCARNOS.ItemSync.synced": "Synced with compendium",
   "INCARNOS.ItemSync.customized": "Customized – not synced",

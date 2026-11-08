@@ -20,6 +20,10 @@ An active GM and a caster token on the scene are required. Click to place the gr
 
 In a started combat, the summon joins immediately after its caster at the same initiative. `Duration: N turns` counts down at the end of each caster turn; at zero, its token and combatant disappear and chat announces it fading. Outside combat, remove summons manually. Cards show the version, size, duration and a corpse reminder when appropriate; choosing the corpse remains a table call. Reload every client with **F5** after updating.
 
+## Item lists on the actor sheet
+
+Spells, weapons and items, talents and the race: **click the picture** to cast or roll, **click the name** to open the full text under the row (spell: the card text with effect and description; weapon: range, hands, damage and each trait; talent/race: bonus and description; item: description), click again to close it. Open texts stay open when the sheet redraws. **Drag a row** onto another row of the same list to sort it; the order is saved on the items (`sort`) and every list follows it (spells stay grouped by element, the race stays first). `module/helpers/item-summary.mjs`.
+
 ## Item passives
 
 Open an item, weapon, talent, or spell and select **Passives**. Click **Add passive**, choose a stat, and enter a signed modifier (for example, Strength +2 or Parry -1). Changes save automatically.

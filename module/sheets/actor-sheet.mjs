@@ -4,7 +4,8 @@ import { changeActions, payActions, actorParticipatesInCombat } from "../helpers
 import { CONTEST_STATS, getContestDefender, requestDefenderContest, getContestDie, renderNewContestBoard, rollBoardSide, showContestDialog, waitForContestAnimations } from "../helpers/contest-requests.mjs";
 import { renderCheckCard } from "../helpers/roll-card.mjs";
 import { getTalentRules, getTalentSummary } from "../helpers/talents.mjs";
-import { getParryModifier, getSpellSummary, groupSpellsByElement } from "../helpers/spells.mjs";
+import { getParryModifier, getSpellChatContent, getSpellSummary, groupSpellsByElement } from "../helpers/spells.mjs";
+import { itemSummaryParts, sortItems } from "../helpers/item-summary.mjs";
 import { PASSIVE_STATS } from "../helpers/passives.mjs";
 import { itemSyncStatus } from "../helpers/item-sync.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
@@ -55,6 +56,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       itemCreate: IncarnosActorSheet.#onItemCreate,
       itemEdit: IncarnosActorSheet.#onItemEdit,
       itemDelete: IncarnosActorSheet.#onItemDelete,
+      itemToggle: IncarnosActorSheet.#onItemToggle,
       effectCreate: IncarnosActorSheet.#onEffectControl,
       effectEdit: IncarnosActorSheet.#onEffectControl,
       effectDelete: IncarnosActorSheet.#onEffectControl,
@@ -173,6 +175,12 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   /** @inheritDoc */
   async _onRender(context, options) {
     await super._onRender(context, options);
+    // Re-open the item texts that were open before this render; forget items that are gone.
+    for (const id of [...this.#expandedItems]) {
+      const row = this.element.querySelector(`li.item[data-item-id="${id}"]`);
+      if (row) await this.#showItemSummary(row);
+      else if (!this.actor.items.has(id)) this.#expandedItems.delete(id);
+    }
 
     const fields = 'input:not([type]), input[type="text"], input[type="number"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"], textarea';
     for (const input of this.element.querySelectorAll(fields)) {
@@ -217,7 +225,8 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const talents = [];
     const spells = [];
 
-    for (const item of context.items) {
+    // Lists follow the order the owner dragged them into (Item sort), so drag-and-drop sorting shows.
+    for (const item of sortItems(context.items)) {
       item.syncCustomized = itemSyncStatus(item)?.customized ?? false;
       item.img = item.img || CONST.DEFAULT_TOKEN;
 
@@ -240,7 +249,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }
 
     context.gear = gear;
-    context.talents = talents.sort((a, b) => Number(b.isRace) - Number(a.isRace));
+    context.talents = talents.sort((a, b) => Number(b.isRace) - Number(a.isRace) || (a.sort ?? 0) - (b.sort ?? 0));
     context.spells = groupSpellsByElement(spells);
   }
 
@@ -275,6 +284,43 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     const item = this.actor.items.get(itemId);
     item?.sheet.render({ force: true });
+  }
+
+  /** Items whose full text is open under their row (kept across re-renders). */
+  #expandedItems = new Set();
+
+  /**
+   * Click on an item's name: show or hide its full text under the row (spell effect, weapon traits, description).
+   * @this {IncarnosActorSheet}
+   */
+  static async #onItemToggle(event, target) {
+    event.preventDefault();
+    const row = target.closest("[data-item-id]");
+    const id = row?.dataset.itemId;
+    if (!id) return;
+    if (this.#expandedItems.has(id)) {
+      this.#expandedItems.delete(id);
+      row.nextElementSibling?.classList.contains("item-summary") && row.nextElementSibling.remove();
+      row.classList.remove("expanded");
+    } else {
+      this.#expandedItems.add(id);
+      await this.#showItemSummary(row);
+    }
+  }
+
+  /** Insert the summary row after an item row. */
+  async #showItemSummary(row) {
+    const item = this.actor.items.get(row.dataset.itemId);
+    if (!item || row.nextElementSibling?.classList.contains("item-summary")) return;
+    const parts = itemSummaryParts(item, { spellContent: getSpellChatContent });
+    const description = parts.description ? await TextEditor.enrichHTML(parts.description, {
+      secrets: item.isOwner, relativeTo: item, rollData: item.getRollData?.() ?? {}
+    }) : "";
+    const summary = document.createElement("li");
+    summary.className = "item-summary";
+    summary.innerHTML = (parts.html || "") + description || `<p class="item-summary-empty">${game.i18n.localize("INCARNOS.ItemSummary.empty")}</p>`;
+    row.after(summary);
+    row.classList.add("expanded");
   }
 
   /**
