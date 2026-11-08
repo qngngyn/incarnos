@@ -291,7 +291,7 @@
       "actions": 2,
       "actionType": "action",
       "mp": 12,
-      "range": "3m radius from user",
+      "range": "Self (3m radius)",
       "target": "Ground Circle",
       "check": "Attack Int / Cha",
       "duration": "Instant",

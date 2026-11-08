@@ -291,7 +291,7 @@
       "actions": 3,
       "actionType": "action",
       "mp": 20,
-      "range": "18m radius from user",
+      "range": "Self (18m radius)",
       "target": "Ground Circle",
       "check": "Target Save Wil+4",
       "duration": "2 turns",

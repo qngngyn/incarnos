@@ -81,7 +81,7 @@
       "actions": 1,
       "actionType": "action",
       "mp": 5,
-      "range": "3m radius from user",
+      "range": "Self (3m radius)",
       "target": "Ground Circle",
       "check": "Attack Weapon-4",
       "duration": "Instant",

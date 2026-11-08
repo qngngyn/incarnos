@@ -123,7 +123,7 @@
       "actions": 2,
       "actionType": "action",
       "mp": 14,
-      "range": "12m radius from user",
+      "range": "Self (12m radius)",
       "target": "Ground Circle",
       "check": "No Check",
       "duration": "Instant",
