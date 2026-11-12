@@ -1,6 +1,7 @@
 /**
  * Who a spell may target, from its Target line (rules: Incarnos Rules section 7, "Targets").
- * Enemy = another token disposition than the caster's. Ally = same disposition, never the caster.
+ * Enemy = another side than the caster's (sideDisposition: player-owned = friendly, else the token disposition).
+ * Ally = same side, never the caster.
  * Target = anyone, the caster included. Friendlies = same disposition, the caster included.
  */
 
@@ -31,13 +32,30 @@ export function parseSpellTargets(target = "") {
   return rule("free", "any", 0, Infinity);
 }
 
-/** How a token stands to the caster: "self", "ally" (same disposition) or "enemy". */
+/** A token's (or actor's) disposition: the token's own, else the actor's prototype token. */
+const dispositionOf = (token, actor = token?.actor) =>
+  token?.document?.disposition ?? token?.disposition ?? actor?.prototypeToken?.disposition;
+
+/**
+ * The dispositions two sides are compared by. Most player tokens in the worlds are set to Hostile (Foundry's
+ * default), like the monsters, so against a creature no player owns, a player-owned actor counts as Friendly.
+ * Two player-owned actors (the tournament's PvP) or two monsters compare their own token dispositions.
+ */
+export function sideDispositions(a, aActor = a?.actor, b, bActor = b?.actor) {
+  const aPlayer = Boolean(aActor?.hasPlayerOwner), bPlayer = Boolean(bActor?.hasPlayerOwner);
+  const FRIENDLY = 1;
+  return [aPlayer && !bPlayer ? FRIENDLY : dispositionOf(a, aActor), bPlayer && !aPlayer ? FRIENDLY : dispositionOf(b, bActor)];
+}
+
+/** One side's disposition as seen by a creature no player owns (player-owned actors count as Friendly). */
+export const sideDisposition = (token, actor = token?.actor) => sideDispositions(token, actor, null, null)[0];
+
+/** How a token stands to the caster: "self", "ally" (same side) or "enemy". */
 export function relationTo(caster, token) {
   if (!token) return "enemy";
   if (caster?.token && (token === caster.token || token.id === caster.token.id)) return "self";
   if (caster?.actor && token.actor === caster.actor && !caster.token) return "self";
-  const mine = caster?.token?.document?.disposition ?? caster?.actor?.prototypeToken?.disposition;
-  const theirs = token.document?.disposition;
+  const [mine, theirs] = sideDispositions(caster?.token, caster?.actor ?? caster?.token?.actor, token, token.actor);
   // Unknown dispositions (no token data): "unknown" fits any side, so missing data never blocks a cast.
   if (mine == null || theirs == null) return "unknown";
   return theirs === mine ? "ally" : "enemy";

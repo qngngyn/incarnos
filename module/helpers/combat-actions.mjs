@@ -4,6 +4,7 @@ import { activeActionGM, ownsActionActor, requestCombatAction, actionChat } from
 import { applyDodge, applyActionCondition } from "./conditions.mjs";
 import { renderCheckCard, escape } from "./roll-card.mjs";
 import { rollUnderSucceeds } from "./spells.mjs";
+import { sideDispositions } from "./spell-targets.mjs";
 import { payActions } from "./action-tracker.mjs";
 
 /** Misc actions affect the actual targeted token actor, including unlinked NPC tokens. */
@@ -13,8 +14,8 @@ export function getActionTarget(actor, { enemy = false } = {}) {
   const token = targets[0];
   if (!token?.actor || token.actor.uuid === actor.uuid) return { error: enemy
     ? game.i18n.localize("INCARNOS.Actions.enemy") : game.i18n.localize("INCARNOS.Actions.targetRequired") };
-  const disposition = token.document?.disposition;
-  const sourceDisposition = actor.token?.disposition ?? actor.getActiveTokens?.()[0]?.document?.disposition ?? (actor.type === "character" ? 1 : null);
+  const [sourceSide, disposition] = sideDispositions(actor.token ?? actor.getActiveTokens?.()[0], actor, token, token.actor);
+  const sourceDisposition = sourceSide ?? (actor.type === "character" ? 1 : null);
   if (enemy && disposition && disposition === sourceDisposition) return { error: game.i18n.localize("INCARNOS.Actions.enemy") };
   return { actor: token.actor };
 }

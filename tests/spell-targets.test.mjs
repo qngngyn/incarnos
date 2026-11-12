@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "../module/helpers/spell-targets.mjs";
+import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo, sideDisposition } from "../module/helpers/spell-targets.mjs";
 
 const pick = (target, ...entries) => checkSpellTargets(parseSpellTargets(target), entries.map(relation => (typeof relation === "string" ? { relation } : relation)));
 
@@ -58,6 +58,22 @@ test("relation comes from token disposition; unknown dispositions never block", 
   assert.equal(relationTo(caster, { id: "n", document: { disposition: 0 } }), "enemy");
   assert.equal(relationTo(caster, { id: "x", document: {} }), "unknown");
   assert.equal(pick("Single Ally", "unknown"), null);
+});
+
+test("player-owned characters are friendly even when their token is set to Hostile", () => {
+  const silver = { hasPlayerOwner: true };
+  const caster = { actor: silver, token: { id: "c", actor: silver, document: { disposition: -1 } } };
+  const monster = { id: "m", actor: { hasPlayerOwner: false }, document: { disposition: -1 } };
+  const friend = { id: "f", actor: { hasPlayerOwner: true }, document: { disposition: -1 } };
+  assert.equal(relationTo(caster, monster), "enemy");
+  assert.equal(relationTo(caster, friend), "ally");
+  assert.equal(checkSpellTargets(parseSpellTargets("Single Enemy"), [{ relation: relationTo(caster, monster) }]), null);
+  // A monster casting sees the hostile-set player token as an enemy too.
+  assert.equal(relationTo({ actor: monster.actor, token: monster }, caster.token), "enemy");
+  assert.equal(sideDisposition(friend), 1);
+  // PvP: two player characters compare their own token dispositions.
+  const rival = { id: "r", actor: { hasPlayerOwner: true }, document: { disposition: 1 } };
+  assert.equal(relationTo(caster, rival), "enemy");
 });
 
 test("warnings name the rule in plain words", () => {
