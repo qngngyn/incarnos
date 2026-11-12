@@ -4,6 +4,7 @@ import { payActions } from "../helpers/action-tracker.mjs";
 import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits, splitCurveHits } from "../helpers/weapons.mjs";
 import { getTalentRules, getTalentSummary, isSpectacle, isUnarmedWeapon, unarmedConditionLabel } from "../helpers/talents.mjs";
 import { isPlayerSide, isPvpHit, modifierForRoller } from "../helpers/modifiers.mjs";
+import { itemAttackBonus } from "../helpers/passives.mjs";
 import { applyHealthChange, conditionAdvantage, consumeHindered, parseAttackConditions, shadowcloneCheck } from "../helpers/conditions.mjs";
 import { drinkPotion, isPotion } from "../helpers/potions.mjs";
 import {
@@ -209,7 +210,9 @@ export async function rollWeaponAttackAction({
   const abilityValue = getAbilityValue(rollData, selectedStat);
   // Two-Hand: −2 hitrate and the trait's damage die. A monster's weapon modifier is written for the heroes
   // ("Melee -2" = −2 for heroes), so the monster itself rolls with the opposite sign.
-  const weaponModifier = modifierForRoller(item.system?.modifier, item.actor) - (useTwoHands ? 2 : 0);
+  // Items with "+1 Attack" (Incarna Weapon Modifier) add to every weapon attack the actor rolls.
+  const itemBonus = itemAttackBonus(item.actor?.items ?? []);
+  const weaponModifier = modifierForRoller(item.system?.modifier, item.actor) - (useTwoHands ? 2 : 0) + itemBonus;
   const hitFormula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
   const damageFormula = getAttackDamageFormula(item, attack, rules);
 
@@ -295,7 +298,7 @@ export async function rollWeaponAttackAction({
   const statLabel = selectedStat.charAt(0).toUpperCase() + selectedStat.slice(1);
   const advantageDice = /^(\d+)d20k([lh])$/.exec(hitFormula);
   const card = pending => renderWeaponAttackCard({
-    item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending, rules, twoHanded: useTwoHands, paidActions,
+    item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending, rules, twoHanded: useTwoHands, paidActions, itemBonus,
     criticalFailureLabel: game.i18n?.localize("INCARNOS.CriticalFailure.title")
   });
   const chatData = {
@@ -326,14 +329,14 @@ function upgradedBy(item) {
 }
 
 /** Weapon attack chat card on the shared roll card layout. */
-export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending = false, rules = getWeaponRules(item.system), twoHanded = false, criticalFailureLabel, paidActions = 0 }) {
+export function renderWeaponAttackCard({ item, attack, mode, statLabel, abilityValue, weaponModifier, advantageDice, results, pending = false, rules = getWeaponRules(item.system), twoHanded = false, criticalFailureLabel, paidActions = 0, itemBonus = 0 }) {
   const advantage = advantageDice
     ? `${advantageDice[2] === "l" ? "Advantage" : "Disadvantage"} ${formatSignedNumber((Number(advantageDice[1]) - 1) * (advantageDice[2] === "l" ? 1 : -1))}`
     : "";
   // A monster's weapon shows the modifier as written for the heroes next to what the monster rolls with.
   const forHeroes = item.actor && !isPlayerSide(item.actor) ? ` (${formatSignedNumber(Number(item.system?.modifier ?? 0))} for heroes)` : "";
   const facts = [paidActions ? game.i18n.format("INCARNOS.Actions.paid", { cost: paidActions }) : "",
-    `Weapon ${formatSignedNumber(weaponModifier)}${forHeroes}`, twoHanded ? "Two-handed" : "", advantage,
+    `Weapon ${formatSignedNumber(weaponModifier)}${forHeroes}`, itemBonus ? `incl. items ${formatSignedNumber(itemBonus)}` : "", twoHanded ? "Two-handed" : "", advantage,
     attack.parry?.apply === false ? "Ignores Parry" : "", rules.poorPrecision ? "Poor Precision" : "", upgradedBy(item)]
     .filter(Boolean).map(escapeCard).join(" · ");
   const rows = results.map((result, index) => {
@@ -541,7 +544,8 @@ function getWeaponAttackPreview(item, rollData, { attackId, mode, enemyParryModi
   if (!stat) return "This attack needs a valid attack stat.";
 
   const ability = getAbilityValue(rollData, stat);
-  const weaponModifier = modifierForRoller(item.system?.modifier, item.actor) - (twoHanded && getWeaponRules(item.system).twoHand ? 2 : 0);
+  const weaponModifier = modifierForRoller(item.system?.modifier, item.actor) - (twoHanded && getWeaponRules(item.system).twoHand ? 2 : 0)
+    + itemAttackBonus(item.actor?.items ?? []);
   const formula = calculateHitFormula(advantageType, advantageCount, attack.roll?.advantageDelta ?? 0, attack.roll?.allowAdvantage !== false);
   const modifiers = attack.multiTarget ? enemyParryModifiers : [enemyParryModifiers[0] ?? 0];
   const lines = modifiers.map(modifier => {

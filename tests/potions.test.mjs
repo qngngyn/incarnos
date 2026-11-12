@@ -88,3 +88,17 @@ test("no AP left: nothing is drunk", async () => {
   assert.deepEqual(f.heals, []);
   assert.equal(f.item.system.quantity, 2);
 });
+
+test("Incarna Weapon Modifier: a Typ: Item note with Bonus +1 Attack becomes an Equipment item with an attack passive", async () => {
+  const { itemAttackBonus } = await import("../module/helpers/passives.mjs");
+  const markdown = "```ad-note\ntitle:### Incarna Weapon Modifier\n```\n```ad-check\ntitle: ### Stat Beschreibung:\nTyp: Item\n"
+    + "Icon: icons/commodities/gems/gem-faceted-cushion-teal.webp\nEffect: Your weapon attacks get +1.\nBonus:\n+1 Attack\n```\n";
+  const { item, warnings } = parseItemNote(markdown, "Incarna Weapon Modifier");
+  assert.deepEqual(warnings, []);
+  const docs = itemsToDocuments([item]);
+  assert.equal(docs[0].name, "Equipment");
+  assert.deepEqual(docs[1].system.passives, { bonus1: { stat: "attack", value: 1, description: "+1 Attack" } });
+  assert.equal(isPotion(docs[1]), false);
+  assert.equal(itemAttackBonus([{ id: "m", name: "Mod", system: docs[1].system }]), 1);
+  assert.equal(itemAttackBonus([{ id: "m", name: "Mod", system: { ...docs[1].system, passivesEnabled: false } }]), 0, "switched off");
+});

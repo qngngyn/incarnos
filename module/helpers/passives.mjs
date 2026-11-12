@@ -12,8 +12,13 @@ export const PASSIVE_STATS = {
   "power.max": "Maximum Incarna",
   "actionpoints.max": "Maximum Action Points",
   "attributes.parry.value": "Parry",
-  "attributes.movement.value": "Movement"
+  "attributes.movement.value": "Movement",
+  // Not an actor value: added to the roller's weapon attacks when they roll (Incarna Weapon Modifier).
+  attack: "Weapon Attack"
 };
+
+/** Weapon attack bonus from the actor's item passives ("+1 Attack"), read when an attack is rolled. */
+export const itemAttackBonus = (items = []) => getItemPassiveModifiers(items).attack ?? 0;
 
 /** Describe owned item passives for the Effects tab, including inactive entries. */
 export function getItemPassiveEntries(items = []) {

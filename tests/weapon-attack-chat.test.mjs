@@ -373,3 +373,17 @@ test("Railgun Curve Shot: up to 6 hits split among the targets, one attack roll 
   assert.deepEqual(targets.map(({ name, uuid, damage }) => [name, uuid, damage]),
     [["A (hit 1)", "Actor.a", 4], ["A (hit 2)", "Actor.a", 0], ["B", "Actor.b", 2]]);
 });
+
+test("Incarna Weapon Modifier: an item's +1 Attack passive adds to weapon attacks", async () => {
+  // Dex 10, weapon +0, item +1: a d20 of 11 hits only with the item.
+  for (const [items, expected] of [[[], false], [[{ id: "mod", name: "Incarna Weapon Modifier", system: { passivesEnabled: true, passives: { bonus1: { stat: "attack", value: 1 } } } }], true]]) {
+    const env = setup([11, 3]);
+    game.user.targets = new Set();
+    await rollWeaponAttackAction({
+      item: { name: "Bow", actor: { items, type: "character", hasPlayerOwner: true }, system: { attackMode: "ranged", modifier: 0, damage: "1d4" } },
+      rollData: { abilities: { dex: { value: 10 } } }, speaker: {}, rollMode: "publicroll", attackId: "shoot", mode: "ranged", parryModifiers: [0]
+    });
+    assert.equal(env.cards[0].flags.incarnos.spellCast.targets[0].damage > 0, expected);
+    if (expected) assert.match(env.updates[0].content, /incl\. items \+1/);
+  }
+});

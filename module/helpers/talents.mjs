@@ -31,7 +31,8 @@ const STAT_PATHS = {
   health: "health.max", hp: "health.max",
   incarna: "power.max", ip: "power.max", "incarna points": "power.max",
   power: "power.max", "power points": "power.max", mana: "power.max", mp: "power.max", pp: "power.max",
-  "action points": "actionpoints.max", ap: "actionpoints.max"
+  "action points": "actionpoints.max", ap: "actionpoints.max",
+  attack: "attack", "attack modifier": "attack", "weapon attack": "attack", "weapon attacks": "attack"
 };
 
 /** Stat names -> ability keys, for save advantage. */
