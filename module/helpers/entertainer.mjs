@@ -124,6 +124,8 @@ async function runFinale(actor, stage) {
   if (!hits.length) {
     // Nobody came to the party: drinking alone makes the caster Invulnerable instead of the afterparty.
     await applyAttackConditions(actor, [{ id: "invulnerable", tokens: ALONE_INVULNERABLE }]);
+    // It starts during her own turn: that turn's end doesn't count, so she stays Invulnerable for 3 full turns.
+    await statusEffect(actor, "invulnerable")?.setFlag("incarnos", "skipTick", true);
     await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor }),
       content: `<p>${escapeText(game.i18n.format("INCARNOS.Stage.alone", { name: actor.name, turns: ALONE_INVULNERABLE }))}</p>` });
     return endStage(actor, stage);

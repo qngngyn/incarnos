@@ -232,8 +232,13 @@ export async function endOfTurn(actor, turn = null) {
     await setConditionTokens(actor, "immobilized", conditionTokens(actor, "immobilized") - 1);
   }
   // Blinded, Shadowmarked, Shadowform count their turns down at the end of the holder's turn.
+  // One gained during the holder's own turn (Invulnerable from the finale at its start) skips that turn's tick,
+  // so "3 turns" are 3 full turns.
   for (const id of TURN_COUNTDOWN_CONDITIONS) {
-    if (statusEffect(actor, id)) await setConditionTokens(actor, id, conditionTokens(actor, id) - 1);
+    const effect = statusEffect(actor, id);
+    if (!effect) continue;
+    if (effect.getFlag("incarnos", "skipTick") === true) { await effect.unsetFlag("incarnos", "skipTick"); continue; }
+    await setConditionTokens(actor, id, conditionTokens(actor, id) - 1);
   }
   // Charged's extra action lasts only for the turn it was gained in.
   if (actor.getFlag?.("incarnos", "extraActions")) await actor.unsetFlag("incarnos", "extraActions");

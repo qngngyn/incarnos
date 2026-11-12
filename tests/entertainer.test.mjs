@@ -38,3 +38,19 @@ test("the curse remembers its caster", async () => {
   await applyAttackConditions(actor, [{ id: "entertainer-s-cursed", by: "Actor.drea" }]);
   assert.equal(statusEffect(actor, "entertainer-s-cursed").getFlag("incarnos", "curseBy"), "Actor.drea");
 });
+
+test("an Invulnerable gained during the holder's own turn skips that turn's end", async () => {
+  const { endOfTurn, conditionTokens } = await import("../module/helpers/conditions.mjs");
+  const flags = { incarnos: { skipTick: true }, statuscounter: { value: 3 } };
+  const effect = { statuses: new Set(["invulnerable"]),
+    getFlag: (scope, key) => flags[scope]?.[key],
+    async unsetFlag(scope, key) { delete flags[scope][key]; },
+    async update(changes) { flags.statuscounter.value = changes["flags.statuscounter.value"]; },
+    async delete() { actor.effects.length = 0; } };
+  const actor = { effects: [effect], getFlag: () => undefined };
+  await endOfTurn(actor);
+  assert.equal(conditionTokens(actor, "invulnerable"), 3, "the turn it started in doesn't count");
+  for (const left of [2, 1]) { await endOfTurn(actor); assert.equal(conditionTokens(actor, "invulnerable"), left); }
+  await endOfTurn(actor);
+  assert.equal(actor.effects.length, 0, "gone after 3 full turns");
+});
