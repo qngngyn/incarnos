@@ -348,3 +348,28 @@ test("Attack: Crazed puts the dealt damage on the attacker as its own row with A
     }
   }
 });
+
+test("Railgun Curve Shot: up to 6 hits split among the targets, one attack roll and 1d4 per hit", async () => {
+  const { splitCurveHits, getWeaponRules } = await import("../module/helpers/weapons.mjs");
+  const traits = "Curve Shot: Firing the Railgun costs 3 actions. The shot curves up to 6 times: split up to 6 hits among the creatures you target.";
+  assert.deepEqual(getWeaponRules({ traits }).curveShot, { hits: 6, cost: 3 });
+  assert.deepEqual(splitCurveHits(4, 6).hits, [2, 2, 1, 1], "spread evenly by default");
+  assert.deepEqual(splitCurveHits(1, 6).hits, [6], "one target takes all 6");
+  assert.match(splitCurveHits(2, 6, [4, 3]).error, /at most 6/);
+  assert.match(splitCurveHits(7, 6).error, /6 creatures or fewer/);
+  assert.match(splitCurveHits(0, 6).error, /Target/);
+
+  // Hit 1 on A: d20 3 (hit), 4 damage; hit 2 on A: d20 20 (miss); B: d20 5 (hit), 2 damage.
+  const env = setup([3, 4, 20, 5, 2]);
+  const a = { uuid: "Actor.a", type: "npc" }, b = { uuid: "Actor.b", type: "npc" };
+  game.user.targets = new Set([{ name: "A", document: { texture: { src: "a.webp" } }, actor: a }, { name: "B", document: { texture: { src: "b.webp" } }, actor: b }]);
+  CONFIG.INCARNOS.attackActions.normal = { id: "normal", name: "Attack: Normal", cost: 1, modes: ["ranged"], statByMode: { ranged: "dex" } };
+  await rollWeaponAttackAction({
+    item: { name: "Railgun", actor: { items: [], type: "character", hasPlayerOwner: true }, system: { attackMode: "ranged", modifier: 0, damage: "1d4", traits } },
+    rollData: { abilities: { dex: { value: 10 } } }, speaker: {}, rollMode: "publicroll", attackId: "normal", mode: "ranged",
+    parryModifiers: [-2, 0], curveHits: [2, 1]
+  });
+  const targets = env.cards[0].flags.incarnos.spellCast.targets;
+  assert.deepEqual(targets.map(({ name, uuid, damage }) => [name, uuid, damage]),
+    [["A (hit 1)", "Actor.a", 4], ["A (hit 2)", "Actor.a", 0], ["B", "Actor.b", 2]]);
+});

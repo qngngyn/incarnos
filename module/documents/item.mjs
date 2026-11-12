@@ -1,7 +1,7 @@
 import { waitForContestAnimations } from "../helpers/contest-requests.mjs";
 import { castSpell } from "../helpers/spell-cast.mjs";
 import { payActions } from "../helpers/action-tracker.mjs";
-import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
+import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits, splitCurveHits } from "../helpers/weapons.mjs";
 import { getTalentRules, getTalentSummary, isSpectacle, isUnarmedWeapon, unarmedConditionLabel } from "../helpers/talents.mjs";
 import { isPlayerSide, isPvpHit, modifierForRoller } from "../helpers/modifiers.mjs";
 import { applyHealthChange, conditionAdvantage, consumeHindered, parseAttackConditions, shadowcloneCheck } from "../helpers/conditions.mjs";
@@ -101,6 +101,7 @@ export class IncarnosItem extends Item {
       advantageType: form.advantageType,
       advantageCount: form.advantageCount,
       twoHanded: form.twoHanded,
+      curveHits: form.curveHits,
       // Players enter the signed modifier announced by the GM; the roll adds target Parry to the die.
       parryModifiers: form.enemyParryModifiers.map(modifier => -modifier)
     });
@@ -145,6 +146,8 @@ export function getAvailableAttackActions(item) {
           .filter(([key]) => key !== "weave")
           .map(([, action]) => action);
 
+  // Curve Shot (Railgun): the weapon fires its one curving shot, an Attack: Normal per hit.
+  if (getWeaponRules(item?.system).curveShot) return attackActions.filter(action => action.id === "normal");
   return attackActions.filter(action =>
     action.modes?.some(mode => weaponModes.includes(mode))
   );
@@ -179,7 +182,8 @@ export async function rollWeaponAttackAction({
   advantageType = "Normal",
   advantageCount = 0,
   parryModifiers = [0],
-  twoHanded = false
+  twoHanded = false,
+  curveHits = []
 } = {}) {
   const attack = CONFIG.INCARNOS?.attackActions?.[attackId];
   if (!attack) return ui.notifications.warn(`Unknown attack action: ${attackId}`);
@@ -216,11 +220,22 @@ export async function rollWeaponAttackAction({
   const tokenFor = index => (targets.length === targetParryModifiers.length ? targets[index] : null);
 
   if (!targetParryModifiers.length) return;
-  const paidActions = await payActions(item.actor, attack.cost ?? 1, attack.name);
+  // One attack roll per entry. Curve Shot: one per hit, the hits split among the targeted creatures; the attack
+  // modifier is one per target, or one for all.
+  let entries = targetParryModifiers.map((parry, index) => ({ parry, token: tokenFor(index), label: "" }));
+  const curve = rules.curveShot;
+  if (curve) {
+    const split = splitCurveHits(targets.length, curve.hits, curveHits);
+    if (split.error) return ui.notifications.warn(`${item.name}: ${split.error}`);
+    const modifiers = parryModifiers.length === targets.length ? parryModifiers.map(Number) : targets.map(() => Number(parryModifiers[0] ?? 0));
+    entries = split.hits.flatMap((count, target) => Array.from({ length: count }, (_, hit) =>
+      ({ parry: modifiers[target], token: targets[target], label: count > 1 ? ` (hit ${hit + 1})` : "" })));
+  }
+  const paidActions = await payActions(item.actor, curve ? curve.cost : attack.cost ?? 1, curve ? `${item.name}: Curve Shot` : attack.name);
   if (paidActions === false) return;
 
-  for (let i = 0; i < targetParryModifiers.length; i++) {
-    const parryModifier = attack.parry?.apply === false ? 0 : Number(targetParryModifiers[i] ?? 0);
+  for (let i = 0; i < entries.length; i++) {
+    const parryModifier = attack.parry?.apply === false ? 0 : Number(entries[i].parry ?? 0);
     const hitRoll = await new Roll(hitFormula, rollData).evaluate({ async: true });
     rolls.push(hitRoll);
 
@@ -230,7 +245,7 @@ export async function rollWeaponAttackAction({
     const needed = threshold - parryModifier;
     const traitHit = getTraitHit(keptD20, needed, rules);
     // Shadowclone: on a d20 of 9 or lower the clone is attacked instead; the target takes nothing from this attack.
-    const token = tokenFor(i);
+    const token = entries[i].token;
     const cloneCheck = await shadowcloneCheck(token?.actor, async formula => {
       const cloneRoll = await new Roll(formula).evaluate();
       rolls.push(cloneRoll);
@@ -262,7 +277,7 @@ export async function rollWeaponAttackAction({
     // PvP rules, as for spells: a player's attack hitting another player character deals half damage.
     const pvp = isPvpHit(item.actor, token?.actor) && Boolean(damageRoll);
     results.push({
-      name: token?.name ?? (targetParryModifiers.length > 1 ? `Target ${i + 1}` : "Target"),
+      name: token?.name ? `${token.name}${entries[i].label}` : (entries.length > 1 ? `Target ${i + 1}` : "Target"),
       img: token?.document?.texture?.src, uuid: token?.actor?.uuid,
       check: { d20: keptD20, threshold: needed, success, crit },
       parryModifier, success, crit, damageRoll, pvp, damage: pvp ? Math.floor(damageRoll.total / 2) : damageRoll?.total ?? 0,
@@ -390,6 +405,16 @@ async function promptWeaponAttack(item, rollData) {
   const advantageOptions = ["Normal", "Advantage", "Disadvantage"].map(type => `<option value="${type}"${type === defaultAdvantage ? " selected" : ""}>${type}</option>`).join("");
   const modifier = Number(item.system?.modifier ?? 0);
   const twoHand = getWeaponRules(item.system).twoHand;
+  // Curve Shot: how many hits each targeted creature takes (default: spread evenly).
+  const curve = getWeaponRules(item.system).curveShot;
+  const targetCount = game.user?.targets?.size ?? 0;
+  const curveDefault = curve ? splitCurveHits(targetCount, curve.hits).hits ?? [] : [];
+  const curveField = curve ? `
+        <div class="form-group">
+          <label>Hits per target</label>
+          <input name="curveHits" type="text" value="${curveDefault.join(", ")}" placeholder="e.g. 3, 2, 1"/>
+          <p class="hint">Curve Shot: up to ${curve.hits} hits in all, one number per targeted creature (${targetCount} targeted), in targeting order. Costs ${curve.cost} actions.</p>
+        </div>` : "";
   const twoHandField = twoHand ? `
         <div class="form-group">
           <label>Two-handed</label>
@@ -416,7 +441,7 @@ async function promptWeaponAttack(item, rollData) {
         <div class="form-group">
           <label>${isPlayerSide(item.actor) ? "Weapon" : "Weapon (for heroes)"}</label>
           <input type="text" value="${formatSignedNumber(modifier)}" readonly />
-        </div>${twoHandField}
+        </div>${twoHandField}${curveField}
         <div class="form-group">
           <label>Attack Modifier</label>
           <input name="enemyParryModifiers" type="text" value="0" placeholder="e.g. -6"/>
@@ -438,7 +463,8 @@ async function promptWeaponAttack(item, rollData) {
         enemyParryModifiers: parseNumberList(button.form.elements.enemyParryModifiers.value),
         advantageType: button.form.elements.advantageType.value,
         advantageCount: Number(button.form.elements.advantageCount.value || 0),
-        twoHanded: Boolean(button.form.elements.twoHanded?.checked)
+        twoHanded: Boolean(button.form.elements.twoHanded?.checked),
+        curveHits: button.form.elements.curveHits?.value.trim() ? parseNumberList(button.form.elements.curveHits.value) : []
       })
     },
 

@@ -1470,5 +1470,48 @@
       "duplicateSource": null,
       "exportSource": null
     }
+  },
+  {
+    "_id": "xJX5vEl3tBcLpntl",
+    "_key": "!items!xJX5vEl3tBcLpntl",
+    "name": "Railgun",
+    "type": "weapon",
+    "img": "tokens/items/railgun.webp",
+    "system": {
+      "description": "<p>A long two-handed rifle of coiled copper rails. Its slug doesn't fly straight: it bends around cover and comes back for another pass, again and again, until its charge runs out.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "60m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "1d4",
+      "traits": "Curve Shot: Firing the Railgun costs 3 actions. The shot curves up to 6 times: split up to 6 hits among the creatures you target (the same creature may be hit several times). Roll the attack once per hit; every hit deals 1d4 damage."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
   }
 ]

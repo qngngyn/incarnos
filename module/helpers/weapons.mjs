@@ -24,7 +24,8 @@ const traitNamed = (traits, name) => traits.find(trait => trait.name.replace(/^\
 /**
  * Attack rules a weapon's traits imply.
  * @returns {{finesse:boolean, throwable:string, deadly:number|null, fatal:number|null, critRange:number,
- *   twoHand:number|null, poorPrecision:boolean, sweep:boolean, reach:string, traits:object[]}}
+ *   twoHand:number|null, poorPrecision:boolean, sweep:boolean, reach:string, curveShot:{hits:number, cost:number}|null,
+ *   traits:object[]}}
  */
 export function getWeaponRules(system = {}) {
   const traits = parseWeaponTraits(system.traits);
@@ -39,8 +40,34 @@ export function getWeaponRules(system = {}) {
     poorPrecision: Boolean(traitNamed(traits, "Poor Precision")),
     sweep: Boolean(traitNamed(traits, "Sweep")),
     reach: traitNamed(traits, "Reach")?.value ?? "",
+    curveShot: curveShotRule(traitNamed(traits, "Curve Shot")),
     traits
   };
+}
+
+/** Curve Shot (Railgun): "costs 3 actions", "curves up to 6 times" → { hits: 6, cost: 3 }. */
+function curveShotRule(trait) {
+  if (!trait) return null;
+  const hits = Number(trait.text.match(/up to (\d+) (?:times|hits)/i)?.[1] ?? 6);
+  const cost = Number(trait.text.match(/costs? (\d+) actions?/i)?.[1] ?? 3);
+  return { hits, cost };
+}
+
+/**
+ * Curve Shot: how many hits each targeted creature takes. `requested` is what the shooter typed ("3, 2, 1"),
+ * one number per target; empty spreads the hits as evenly as possible (first targets first).
+ * @returns {{hits:number[]}|{error:string}}
+ */
+export function splitCurveHits(targetCount, maxHits, requested = []) {
+  if (!(targetCount > 0)) return { error: "Target the creatures the shot should hit first." };
+  if (targetCount > maxHits) return { error: `The shot curves at most ${maxHits} times: target ${maxHits} creatures or fewer.` };
+  if (!requested.length) return { hits: Array.from({ length: targetCount }, (_, index) => Math.floor(maxHits / targetCount) + (index < maxHits % targetCount ? 1 : 0)) };
+  const hits = Array.from({ length: targetCount }, (_, index) => Math.max(0, Math.floor(Number(requested[index] ?? 0)) || 0));
+  const total = hits.reduce((sum, count) => sum + count, 0);
+  if (requested.length !== targetCount) return { error: `Give one number of hits per targeted creature (${targetCount}).` };
+  if (!total) return { error: "The shot needs at least 1 hit." };
+  if (total > maxHits) return { error: `The shot curves at most ${maxHits} times (${total} hits asked).` };
+  return { hits };
 }
 
 /** Replace the size of the formula's first die, e.g. ("1d6 + 2", 10) → "1d10 + 2". */
@@ -85,6 +112,7 @@ export function describeWeaponRules(rules) {
     rules.fatal ? `Fatal: d${rules.fatal} damage on crits` : "",
     rules.twoHand ? `Two-Hand option: −2 hitrate, d${rules.twoHand}` : "",
     rules.poorPrecision ? "Poor Precision: hits on a failed roll" : "",
-    rules.sweep ? "Sweep: full damage with Cleave" : ""
+    rules.sweep ? "Sweep: full damage with Cleave" : "",
+    rules.curveShot ? `Curve Shot: ${rules.curveShot.cost} actions, up to ${rules.curveShot.hits} hits split among the targets` : ""
   ].filter(Boolean).join(" · ");
 }
