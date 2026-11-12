@@ -4,7 +4,8 @@ import { payActions } from "../helpers/action-tracker.mjs";
 import { getTraitDamageFormula, getTraitHit, getWeaponRules, parseWeaponTraits } from "../helpers/weapons.mjs";
 import { getTalentRules, getTalentSummary, isSpectacle, isUnarmedWeapon, unarmedConditionLabel } from "../helpers/talents.mjs";
 import { isPlayerSide, isPvpHit, modifierForRoller } from "../helpers/modifiers.mjs";
-import { conditionAdvantage, consumeHindered, parseAttackConditions, shadowcloneCheck } from "../helpers/conditions.mjs";
+import { applyHealthChange, conditionAdvantage, consumeHindered, parseAttackConditions, shadowcloneCheck } from "../helpers/conditions.mjs";
+import { drinkPotion, isPotion } from "../helpers/potions.mjs";
 import {
   amount as cardAmount, applyAllButton, applyButton, checkChip, chip as cardChip, criticalFailureButton, escape as escapeCard, renderRollCard, rollingChip
 } from "../helpers/roll-card.mjs";
@@ -44,6 +45,8 @@ export class IncarnosItem extends Item {
 
     // Spells pay their cost, resolve attacks/saves/damage and post a card with Apply buttons for the GM.
     if (item.type === "spell") return castSpell(item);
+    // Potions: drink one (Use Object, 1 AP), heal / restore IP, use it up.
+    if (isPotion(item)) return drinkPotion(item, { payActions, applyHealthChange, renderRollCard, escape: escapeCard });
 
     const damageFormula = getWeaponDamageFormula(item);
     const typeLabel = { feature: "Talent", race: "Race", weapon: "Weapon" }[item.type] ?? "Item";

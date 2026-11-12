@@ -98,6 +98,17 @@
         "PLAYER": "NONE",
         "ASSISTANT": "OWNER"
       }
+    },
+    {
+      "name": "items",
+      "label": "Incarnos Items",
+      "path": "packs/items",
+      "type": "Item",
+      "system": "incarnos",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
     }
   ],
   "languages": [

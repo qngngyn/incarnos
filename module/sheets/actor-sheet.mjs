@@ -11,6 +11,7 @@ import { itemSyncStatus } from "../helpers/item-sync.mjs";
 import { formatSignedNumber } from "../documents/item.mjs";
 import { advantageFormula, conditionAdvantage, proneParry, hasDodge, consumeDodge } from "../helpers/conditions.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
+import { isPotion } from "../helpers/potions.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -235,6 +236,7 @@ export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       }
 
       if ((item.type === "item") || (item.type === "weapon")) {
+        item.isPotion = isPotion(item);
         gear.push(item);
       }
       else if (item.type === "feature" || item.type === "race") {

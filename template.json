@@ -109,7 +109,12 @@
         "base"
       ],
       "quantity": 1,
-      "weight": 0
+      "weight": 0,
+      "effect": "",
+      "heal": "",
+      "incarna": "",
+      "actions": 1,
+      "price": ""
     },
     "weapon": {
       "templates": [

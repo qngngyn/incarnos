@@ -42,6 +42,28 @@
     <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
       {{!-- As you add new fields, add them in here! --}}
       <div class="resource">
+        <label class="resource-label">Effect</label>
+        <input type="text" name="system.effect" value="{{system.effect}}" data-dtype="String"/>
+      </div>
+      <div class="grid grid-2col">
+        <div class="resource" title="Potions: healing formula when drunk, e.g. 2d8 + 2">
+          <label class="resource-label">Heals (HP)</label>
+          <input type="text" name="system.heal" value="{{system.heal}}" data-dtype="String"/>
+        </div>
+        <div class="resource" title="Potions: IP restored when drunk, e.g. 3d6">
+          <label class="resource-label">Restores (IP)</label>
+          <input type="text" name="system.incarna" value="{{system.incarna}}" data-dtype="String"/>
+        </div>
+        <div class="resource" title="Actions to drink it in combat (Use Object: 1)">
+          <label class="resource-label">Actions</label>
+          <input type="text" name="system.actions" value="{{system.actions}}" data-dtype="Number"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Price</label>
+          <input type="text" name="system.price" value="{{system.price}}" data-dtype="String"/>
+        </div>
+      </div>
+      <div class="resource">
         <label class="resource-label">Roll Formula</label>
         <input type="text" name="system.formula" value="{{system.formula}}" data-dtype="String"/>
       </div>
