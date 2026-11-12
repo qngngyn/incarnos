@@ -1,9 +1,11 @@
 /**
  * Parser for the monster notes in the Obsidian vault (the rules source of truth):
  * `Welten/Incarnos/Custom Monsters/<Type>/**.md` (TMonster template: "Level N" title, a "### Stats:" block with
- * Element, Weakness, HP, Parry, Speed, Token, Traits, an "Attacks:" and an "Actions:" block, the stat table and
+ * Element, Weakness, HP, Parry, Speed, Token, Traits; optional IP, Race, Talents, Spells, Disposition;
+ * an "Attacks:" and an "Actions:" block, the stat table and
  * the German description blocks). Each monster becomes an NPC actor: attacks that read (modifier written for the heroes)
- * `Name: Melee|Ranged [(range)] [modifier] <damage>[, traits]` become weapons, everything else stays text.
+ * `Name: Melee|Ranged [(range)] [modifier] <damage>[, traits]` become weapons. Optional race/talent/spell names
+ * resolve to compendium item copies; subdirectories become folders (maximum depth 4). Other abilities stay text.
  */
 import { stableId } from "./spell-sheet.mjs";
 import { splitTopLevel, traitLine } from "./weapon-notes.mjs";
@@ -17,6 +19,9 @@ const plain = text => String(text).replace(/!\[\[[^\]]*\]\]/g, "(image in the va
 const paragraphs = text => text.split(/\n\s*\n/).map(part => part.trim()).filter(Boolean)
   .map(part => `<p>${escapeHtml(plain(part)).replace(/\n/g, "<br>")}</p>`).join("");
 const number = text => Number(String(text).replace(",", "."));
+// Resolve the link target rather than its display label.
+const itemName = text => String(text).replace(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, "$1").trim();
+const itemNames = text => [...new Set(splitTopLevel(text).map(itemName).filter(Boolean))];
 
 /** Lines of the first admonition block whose title matches, without the title line. */
 function block(markdown, titlePattern) {
@@ -67,6 +72,8 @@ export function parseMonsterNote(markdown, fallbackName, { traits = {} } = {}) {
   if (!/title:\s*#*\s*Stats:/i.test(text)) return { monster: null, warnings: [`${fallbackName}: not a monster note (no Stats block)`] };
   const warnings = [];
   const field = name => (text.match(new RegExp(`^${name}:[ \\t]*(.*)$`, "m"))?.[1] ?? "").trim();
+  const statsText = block(text, "Stats:");
+  const optional = name => (statsText.match(new RegExp(`^${name}:[ \\t]*(.*)$`, "mi"))?.[1] ?? "").trim();
   const level = Number(text.match(/title:\s*Level\s*(\d+)/i)?.[1] ?? 0);
   const table = text.match(/\|\s*Str[^\n]*\n\|[-\s|]+\n(\|[^\n]*)/);
   const values = table ? table[1].split("|").slice(1, -1).map(cell => Number(cell.trim())) : [];
@@ -93,6 +100,9 @@ export function parseMonsterNote(markdown, fallbackName, { traits = {} } = {}) {
     monster: {
       name: fallbackName, level, element: field("Element").replace(/^-$/, ""), weakness: field("Weakness").replace(/^-$/, ""),
       hp, parry: Number(field("Parry").match(/\d+/)?.[0] ?? 10), speed: field("Speed"), movement: speedMetres(field("Speed")),
+      ip: /^\d+$/.test(optional("IP")) ? Number(optional("IP")) : 0,
+      race: itemName(optional("Race")), talents: itemNames(optional("Talents")), spells: itemNames(optional("Spells")),
+      disposition: ({ neutral: 0, friendly: 1, hostile: -1 })[optional("Disposition").toLowerCase()] ?? -1,
       size: /^[1-9]\d*$/.test(field("Size")) ? Number(field("Size")) : 1,
       token: field("Token"), abilities, traits: traitsText, weapons, special: special.join("\n"),
       actions: block(text, "Actions:").trim(), description, fullDescription: full
@@ -115,19 +125,32 @@ const feature = (id, actorId, name, text, sort, systemVersion) => ({
 });
 
 /**
- * Foundry source documents: one folder per monster type, one NPC actor per monster with its attacks as weapons
- * and its traits/actions as talents. Embedded items use `!actors.items!<actor>.<item>` keys.
- * @param {{monster: object, type: string}[]} entries
+ * Foundry source documents: nested folders (up to depth 4), NPCs with weapons, text features and optional
+ * race/talent/spell copies. Embedded items use `!actors.items!<actor>.<item>` keys.
+ * @param {{monster: object, type: string, folderPath?: string}[]} entries
+ * @param {{systemVersion?: string, sources?: object, warnings?: string[]}} options Item source arrays by pack name.
  */
-export function monstersToDocuments(entries, { systemVersion = "1.4.0" } = {}) {
+export function monstersToDocuments(entries, { systemVersion = "1.4.0", sources = {}, warnings = [] } = {}) {
   const docs = [];
   const folders = new Map();
-  for (const type of [...new Set(entries.map(entry => entry.type).filter(Boolean))].sort()) {
-    const id = stableId(`folder:monsters:${type}`);
-    folders.set(type, id);
-    docs.push({ _id: id, _key: `!folders!${id}`, name: type, type: "Actor", folder: null, sorting: "a", sort: 0, color: null, description: "", flags: {}, _stats: stats(systemVersion) });
+  const folderPath = entry => (entry.folderPath ?? entry.type).split("/").filter(Boolean).slice(0, 4).join("/");
+  const paths = new Set();
+  for (const entry of entries) {
+    const parts = folderPath(entry).split("/").filter(Boolean);
+    parts.forEach((_, index) => paths.add(parts.slice(0, index + 1).join("/")));
   }
-  entries.forEach(({ monster: m, type }, index) => {
+  for (const path of [...paths].sort()) {
+    const id = stableId(`folder:monsters:${path}`);
+    folders.set(path, id);
+    const parts = path.split("/");
+    const name = parts.pop();
+    docs.push({ _id: id, _key: `!folders!${id}`, name, type: "Actor", folder: folders.get(parts.join("/")) ?? null, sorting: "a", sort: 0, color: null, description: "", flags: {}, _stats: stats(systemVersion) });
+  }
+  const indices = Object.fromEntries(["races", "talents", "spells"].map(pack => [pack,
+    new Map((sources[pack] ?? []).filter(doc => doc._key === `!items!${doc._id}`)
+      .map(doc => [doc.name.toLowerCase(), doc]))]));
+  entries.forEach((entry, index) => {
+    const { monster: m, type } = entry;
     const actorId = stableId(`monster:${type}/${m.name}`);
     const items = [];
     m.weapons.forEach((weapon, i) => {
@@ -144,6 +167,24 @@ export function monstersToDocuments(entries, { systemVersion = "1.4.0" } = {}) {
     });
     const texts = [["Traits", m.traits], ["Special Attacks", m.special], ["Actions", m.actions]].filter(([, text]) => text);
     texts.forEach(([name, text], i) => items.push(feature(stableId(`monster:${type}/${m.name}:${name}`), actorId, name, text, (i + 1) * 100000, systemVersion)));
+    for (const [pack, names] of [["races", m.race ? [m.race] : []], ["talents", m.talents ?? []], ["spells", m.spells ?? []]]) {
+      for (const name of names) {
+        const source = indices[pack].get(name.toLowerCase());
+        if (!source) { warnings.push(`${m.name}: unknown ${pack} item "${name}"`); continue; }
+        const id = stableId(`monster:${type}/${m.name}:item:${source._id}`);
+        if (items.some(item => item._id === id)) continue;
+        const uuid = `Compendium.incarnos.${pack}.Item.${source._id}`;
+        const copy = structuredClone(source);
+        // The note's stats, HP, Parry and Speed already include race/talent bonuses: switch their flat passives off
+        // so they don't count twice. Rule text (save bonuses, advantage, darkvision) still applies.
+        if (pack !== "spells") copy.system = { ...copy.system, passivesEnabled: false };
+        items.push({ ...copy, _id: id, _key: `!actors.items!${actorId}.${id}`, folder: null,
+          sort: (items.length + 1) * 100000,
+          flags: { ...copy.flags, core: { ...copy.flags?.core, sourceId: uuid },
+            incarnos: { ...copy.flags?.incarnos, sourceUuid: uuid } },
+          _stats: { ...stats(systemVersion), ...copy._stats, compendiumSource: uuid } });
+      }
+    }
 
     const header = [m.element && `Element: ${m.element}`, m.weakness && `Weakness: ${m.weakness}`, m.speed && `Speed: ${m.speed}`].filter(Boolean).join(" · ");
     const biography = [header ? `<p><strong>${escapeHtml(header)}</strong></p>` : "", paragraphs(m.description), paragraphs(m.fullDescription)].join("");
@@ -152,14 +193,13 @@ export function monstersToDocuments(entries, { systemVersion = "1.4.0" } = {}) {
       _id: actorId, _key: `!actors!${actorId}`, name: m.name, type: "npc", img,
       system: {
         health: { value: m.hp, min: 0, max: m.hp, bonus: 0 },
-        // Monster notes have no IP; their spells are written out as special attacks.
-        power: { value: 0, min: 0, max: 0, bonus: 0 },
+        power: { value: m.ip ?? 0, min: 0, max: m.ip ?? 0, bonus: 0 },
         attributes: { level: { value: m.level }, parry: { value: m.parry, bonus: 0 }, movement: { value: m.movement, bonus: 0 } },
         abilities: Object.fromEntries(Object.entries(m.abilities).map(([key, value]) => [key, { value, bonus: 0 }])),
         biography
       },
-      prototypeToken: { name: m.name, width: m.size ?? 1, height: m.size ?? 1, texture: { src: img }, disposition: -1, actorLink: false },
-      items: items.map(item => item._id), effects: [], folder: folders.get(type) ?? null, sort: (index + 1) * 100000,
+      prototypeToken: { name: m.name, width: m.size ?? 1, height: m.size ?? 1, texture: { src: img }, disposition: m.disposition ?? -1, actorLink: false },
+      items: items.map(item => item._id), effects: [], folder: folders.get(folderPath(entry)) ?? null, sort: (index + 1) * 100000,
       ownership: { default: 0 }, flags: { incarnos: { monster: { element: m.element, weakness: m.weakness, level: m.level } } },
       _stats: stats(systemVersion)
     });

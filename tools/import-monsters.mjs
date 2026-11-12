@@ -8,12 +8,15 @@
  * listFolder defaults to $INCARNOS_VAULT_LISTS or C:/Users/mfgan/IncarnosPnp/System Files/Listen.
  * Writes packs/_source/monsters/monsters.json. Build the compendium afterwards with `node tools/pack.mjs monsters`.
  * A note's "Token:" is a path inside Foundry's data folder (e.g. tokens/monsters/lashtail-panther.webp).
+ * Optional Stats: IP, Race, Talents, Spells and Disposition; nested note folders are retained up to depth 4.
+ * Race/talent/spell copies read the corresponding packs/_source JSON, so import those packs first.
  */
 import { isItemNote } from "./vault-notes.mjs";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, join, relative, resolve, sep } from "node:path";
 import { monstersToDocuments, parseMonsterNote } from "./monster-notes.mjs";
 import { parseTraitNote } from "./weapon-notes.mjs";
+import { readPackSource } from "./pack.mjs";
 
 const LISTS = process.argv[2] ?? process.env.INCARNOS_VAULT_LISTS ?? "C:/Users/mfgan/IncarnosPnp/System Files/Listen";
 const OUT_DIR = new URL("../packs/_source/monsters/", import.meta.url);
@@ -43,11 +46,12 @@ for (const file of files) {
   const parts = relative(dir, file).split(sep);
   const result = parseMonsterNote(readFileSync(file, "utf8"), basename(file, ".md"), { traits });
   warnings.push(...result.warnings.filter(warning => !/not a monster note|incomplete/.test(warning)));
-  if (result.monster) entries.push({ monster: result.monster, type: parts.length > 1 ? parts[0] : "" });
+  if (result.monster) entries.push({ monster: result.monster, type: parts.length > 1 ? parts[0] : "", folderPath: parts.slice(0, -1).join("/") });
   else if (result.warnings.some(warning => /incomplete/.test(warning))) skipped.push(basename(file, ".md"));
 }
 
-const docs = monstersToDocuments(entries, { systemVersion });
+const sources = Object.fromEntries(["races", "talents", "spells"].map(pack => [pack, readPackSource(pack)]));
+const docs = monstersToDocuments(entries, { systemVersion, sources, warnings });
 rmSync(OUT_DIR, { recursive: true, force: true });
 mkdirSync(OUT_DIR, { recursive: true });
 writeFileSync(new URL("monsters.json", OUT_DIR), JSON.stringify(docs, null, 2) + "\n");
