@@ -12,9 +12,8 @@ import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
 import { advantageFormula, applyAttackConditions, applyHealthChange, asleepAfterDamage, conditionAdvantage, conditionTokens, consumeHindered, promptApplied, setConditionTokens, shadowcloneCheck } from "./conditions.mjs";
-import { CURSE_ID, isStageCurse } from "./entertainer.mjs";
+import { CURSE_ID, clearStaleStage, isStageCurse } from "./entertainer.mjs";
 
-const stageOf = actor => actor?.getFlag?.("incarnos", "stageCurse") ?? null;
 import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
 import { createRangeRing, gridOptions, parseSpellRange, showRangeIndicator, targetInRange } from "./spell-range.mjs";
 import { encoreCost, lastSpellRecord, rememberSpell } from "./last-spell.mjs";
@@ -281,7 +280,7 @@ async function castStageCurse(item, system, auto, { fixedCost = null, remember =
   const actor = item.actor;
   const casterToken = getCasterToken(actor);
   if (!canvas.ready || !casterToken) return ui.notifications.warn(`${actor.name} needs a token on this scene to cast ${item.name}.`);
-  if (stageOf(actor)) return ui.notifications.warn(game.i18n.format("INCARNOS.Stage.running", { name: actor.name }));
+  if (!(await clearStaleStage(actor))) return ui.notifications.warn(game.i18n.format("INCARNOS.Stage.running", { name: actor.name }));
   const cost = fixedCost ? checkCastCost(item, fixedCost) : await getCastCost(item);
   if (!cost) return;
   const area = await placeSpellArea(item, { ...auto, areaShape: "circle", areaSize: Number(auto.areaSize) || 6, areaOrigin: "self" }, casterToken, system);

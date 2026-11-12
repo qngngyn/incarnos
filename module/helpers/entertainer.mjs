@@ -69,6 +69,23 @@ const addApplause = caster => (applauseQueue = applauseQueue
   .then(() => setConditionTokens(caster, "applause", conditionTokens(caster, "applause") + 1))
   .catch(error => console.error("Incarnos | applause", error)));
 
+/**
+ * Whether a running combat can still move the stage on: the finale and the end of the afterparty need a started
+ * combat on the stage's scene with the caster in it. Without one (the combat was ended early), nothing ever would.
+ */
+export const stageHasCombat = (stage, actor, combats = []) => [...combats].some(combat => combat.started !== false
+  && (combat.scene?.id ?? combat.scene) === stage.sceneId
+  && [...(combat.combatants ?? [])].some(combatant => combatant.actor === actor || combatant.actorId === actor.id));
+
+/** A stage left over from a combat that no longer runs ends, so the spell can be cast again. True if it was cleared. */
+export async function clearStaleStage(actor) {
+  const stage = stageOf(actor);
+  if (!stage) return true;
+  if (stageHasCombat(stage, actor, game.combats ?? [])) return false;
+  await endStage(actor, stage);
+  return true;
+}
+
 /** Start of the caster's turn: the finale, or the end of the afterparty. */
 export async function stageTurnStart(actor) {
   const stage = stageOf(actor);
@@ -157,9 +174,14 @@ async function afterpartyCheck(caster, doc) {
 /** The spell ends: Applause, the curse and the stage go away. */
 async function endStage(actor, stage) {
   const scene = game.scenes.get(stage.sceneId);
-  for (const doc of cursedBy(actor, scene)) await statusEffect(doc.actor, CURSE_ID)?.delete();
+  // A player clearing a leftover stage can't touch monsters or the region: skip what this user may not change.
+  for (const doc of cursedBy(actor, scene)) {
+    const effect = statusEffect(doc.actor, CURSE_ID);
+    if (effect?.isOwner !== false) await effect?.delete().catch(() => null);
+  }
   await setConditionTokens(actor, "applause", 0);
-  if (stage.regionUuid) await (await fromUuid(stage.regionUuid))?.delete().catch(() => null);
+  const region = stage.regionUuid ? await fromUuid(stage.regionUuid).catch(() => null) : null;
+  if (region && region.isOwner !== false) await region.delete().catch(() => null);
   await actor.unsetFlag("incarnos", "stageCurse");
 }
 
@@ -185,6 +207,15 @@ export function registerStageHooks() {
     handledTurns.set(combat, signature);
     const actor = combat.combatants.get(current.combatantId)?.actor;
     if (actor && stageOf(actor) && isWriter(actor)) void stageTurnStart(actor).catch(error => console.error("Incarnos | Entertainer's Curse", error));
+  });
+  // The combat ends before the stage is over: the spell ends with it (curses, Applause, stage).
+  Hooks.on("deleteCombat", combat => {
+    for (const combatant of combat.combatants ?? []) {
+      const actor = combatant.actor;
+      const stage = stageOf(actor);
+      if (!stage || !isWriter(actor) || (stage.sceneId && (combat.scene?.id ?? combat.scene) && stage.sceneId !== (combat.scene?.id ?? combat.scene))) continue;
+      void endStage(actor, stage).catch(error => console.error("Incarnos | Entertainer's Curse", error));
+    }
   });
   // Afterparty: a friendly walks up to the bar.
   Hooks.on("updateToken", (doc, changes) => {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { afterpartyFormula, atBar, finaleFormula, isStageCurse } from "../module/helpers/entertainer.mjs";
+import { afterpartyFormula, atBar, finaleFormula, isStageCurse, stageHasCombat } from "../module/helpers/entertainer.mjs";
 import { applyAttackConditions, statusEffect } from "../module/helpers/conditions.mjs";
 
 const EFFECT = "On cast:\nA shadow stage (6m radius) rises around you. You stand on a raised stage in its centre, ringed by a bar (1.5m radius).\n"
@@ -25,6 +25,17 @@ test("the bar: within 1.5m of the stage centre, with half a square of leeway", (
   assert.equal(atBar(stage, { x: 0, y: 0 }, ppm), true, "the caster on the stage");
   assert.equal(atBar(stage, { x: 100, y: 100 }, ppm), true, "diagonally next to the stage");
   assert.equal(atBar(stage, { x: 200, y: 0 }, ppm), false, "two squares away");
+});
+
+test("a stage only counts as running while its combat runs", () => {
+  const drea = { id: "drea" };
+  const stage = { sceneId: "city" };
+  const combat = (scene, actor, started = true) => ({ started, scene: { id: scene }, combatants: [{ actor, actorId: actor.id }] });
+  assert.equal(stageHasCombat(stage, drea, [combat("city", drea)]), true);
+  assert.equal(stageHasCombat(stage, drea, []), false, "the combat was ended: the old stage is stale");
+  assert.equal(stageHasCombat(stage, drea, [combat("forest", drea)]), false, "a combat on another scene");
+  assert.equal(stageHasCombat(stage, drea, [combat("city", { id: "other" })]), false, "Drea is not in it");
+  assert.equal(stageHasCombat(stage, drea, [combat("city", drea, false)]), false, "not started yet");
 });
 
 test("the curse remembers its caster", async () => {
