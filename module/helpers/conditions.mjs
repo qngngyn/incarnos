@@ -19,6 +19,7 @@ import { amount, chip, escape, renderRollCard } from "./roll-card.mjs";
 import { getHealthAfter } from "./spells.mjs";
 import { gridOptions, squaresBetween, tokenDistance } from "./spell-range.mjs";
 import { deathSaveReminderHTML, handleDyingHealth } from "./death-saves.mjs";
+import { npcHealthTransition } from "./death-save-rules.mjs";
 
 export const DAMAGE_TOKEN_CONDITIONS = ["burn", "poisoned", "bleed"];
 export const conditionById = id => CONDITIONS.find(condition => condition.id === id);
@@ -418,6 +419,17 @@ export async function markDead(actor) {
   }
 }
 
+/** Undo Dead: the skull and the combatants' defeated mark go away (an NPC healed back above 0 HP). */
+export async function unmarkDead(actor) {
+  const dead = CONFIG.specialStatusEffects?.DEFEATED ?? "dead";
+  if (actor.statuses?.has(dead)) await actor.toggleStatusEffect(dead, { active: false });
+  for (const combat of game.combats ?? []) {
+    for (const combatant of combat.combatants ?? []) {
+      if (combatant.actor === actor && combatant.defeated) await combatant.update({ defeated: false });
+    }
+  }
+}
+
 /** Users who see a private prompt for an actor: its owners and the GMs. */
 const promptRecipients = actor => [...game.users].filter(user => user.isGM || actor.testUserPermission(user, "OWNER")).map(user => user.id);
 
@@ -564,6 +576,13 @@ export function registerConditionHooks() {
     if (!options.incarnosHandledHealth && options.incarnosHealthBefore !== undefined && isWriter(actor)) {
       void handleDyingHealth(actor, options.incarnosHealthBefore, Number(actor.system.health?.value ?? 0), options)
         .catch(error => console.error("Incarnos | dying", error));
+    }
+    // NPCs at 0 HP are dead: the big skull overlay and defeated in combat; healed above 0, they're back.
+    if (options.incarnosHealthBefore !== undefined && isWriter(actor)) {
+      const transition = npcHealthTransition({ type: actor.type, before: options.incarnosHealthBefore,
+        after: Number(actor.system.health?.value ?? 0) });
+      if (transition) void (transition === "dead" ? markDead(actor) : unmarkDead(actor))
+        .catch(error => console.error("Incarnos | npc dead", error));
     }
     if (userId !== game.user.id) return;
     if (options.incarnosBarrierPopped) {

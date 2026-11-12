@@ -19,6 +19,14 @@ export function healthTransition({ type, before, after, dying, dead = false, ble
   return before > 0 && after <= 0 ? "dying" : null;
 }
 
+/** NPCs have no death saves: dropping to 0 HP kills them ("dead"), healing above 0 brings them back ("revived"). */
+export function npcHealthTransition({ type, before, after }) {
+  if (type === "character") return null;
+  if (before > 0 && after <= 0) return "dead";
+  if (before <= 0 && after > 0) return "revived";
+  return null;
+}
+
 export const deathSaveTally = state => "✓".repeat(Math.max(0, Math.min(3, Number(state.successes) || 0)))
   + "✗".repeat(Math.max(0, Math.min(3, Number(state.failures) || 0)));
 

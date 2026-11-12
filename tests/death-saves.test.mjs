@@ -56,11 +56,11 @@ function setup() {
         for (const [path, value] of Object.entries(changes)) set(this, path, value);
         emit("updateActor", this, changes, options, game.user.id);
       },
-      async toggleStatusEffect(id, { active = true } = {}) {
+      async toggleStatusEffect(id, { active = true, overlay = false } = {}) {
         const old = this.effects.find(effect => effect.statuses.has(id));
         if (!active) return old?.delete();
         if (old) return true;
-        const effect = { parent: this, statuses: new Set([id]), flags: {},
+        const effect = { parent: this, statuses: new Set([id]), flags: {}, overlay,
           getFlag(scope, key) { return this.flags[scope]?.[key]; },
           async update(changes) { for (const [path, value] of Object.entries(changes)) set(this, path, value); },
           async delete() { result.effects = result.effects.filter(entry => entry !== this); result.statuses.delete(id); } };
@@ -124,7 +124,10 @@ test("sheet HP updates add Dying and Prone, cap AP and heal without standing up 
   assert.equal(actor.system.actionpoints.value, 3);
   for (const type of ["npc", "monster"]) {
     const npc = f.actor({ type }); await npc.update({ "system.health.value": 0 }); await flush();
-    assert.equal(npc.statuses.size, 0);
+    assert.deepEqual([...npc.statuses], ["dead"], "an NPC at 0 HP is dead (no dying, no death saves)");
+    assert.equal(npc.effects.find(effect => effect.statuses.has("dead"))?.overlay, true, "the big skull overlay");
+    await npc.update({ "system.health.value": 5 }); await flush();
+    assert.equal(npc.statuses.size, 0, "healed above 0 HP: alive again");
   }
   const defeated = f.actor(); await markDead(defeated);
   await defeated.update({ "system.health.value": 0 }); await flush();
