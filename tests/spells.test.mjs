@@ -217,3 +217,14 @@ test("spells put on Taunted, Immobilized, Blinded, Shadowmarked, Shadowform and 
   assert.deepEqual(ids({ target: "Self", check: "No Check", duration: "1 turn", effect: "On cast: \nGive yourself the charging status 2x\nCharged creatures have an additional action when they have this status at the beginning of their turn" }), [["charged", "2", false]]);
   assert.equal(getSpellAutomation({ ...enemy, effect: "On hit: Deals 2d8 + (lvl * 2) shadow dmg\nIn Shadowform: Deals 4d8 + (lvl *2) shadow dmg" }).shadowformDamage, "4d8 + (@lvl *2)");
 });
+
+test("a part that starts at the start of your next turn is not done on cast (Entertainer's Curse)", () => {
+  const auto = getSpellAutomation({ target: "Ground Circle", range: "Self (6m radius)", check: "Attack Int / Cha", duration: "2 turns",
+    effect: "On cast:\nA shadow stage (6m radius) rises around you.\nEvery enemy on the stage is cursed until the finale.\n\n"
+      + "At the start of your next turn:\nFinale: Attack every cursed enemy.\nOn hit: Deals 1d4 per Applause + (lvl * 4) fire dmg.\n\n"
+      + "Afterparty: Every friendly at the bar heals 1d4 per Applause when reaching the bar (once)." });
+  assert.equal(auto.delayed, true);
+  assert.equal(auto.attackStat, "");
+  assert.equal(auto.damage, "");
+  assert.equal(auto.heal, "");
+});

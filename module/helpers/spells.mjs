@@ -112,7 +112,16 @@ export function parseSpellAutomation(system = {}) {
 
   // Spells on oneself or allies, and "Everything" spells with several sub-options, don't deal damage directly.
   const offensive = !/\b(self|ally|allies|friendly)\b/i.test(target) && !/everything/i.test(system.category ?? "");
-  const lines = String(system.effect ?? "").split("\n").map(line => line.trim());
+  let lines = String(system.effect ?? "").split("\n").map(line => line.trim());
+  // "At the start of your next turn:" (Entertainer's Curse) starts a part that happens a turn later: the cast only
+  // does what comes before it, and the attacks in the Check belong to that later part.
+  const later = lines.findIndex(line => /^at the start of your next turn\b/i.test(line));
+  if (later >= 0) {
+    lines = lines.slice(0, later);
+    result.attackStat = "";
+    result.attackCount = 1;
+    result.delayed = true;
+  }
   const summon = parseSpellSummon(system);
   if (summon) result.summon = summon;
   const skip = /\bif\b|%|beginning|end of|additional|extra|instead|shield|attacks deal|^(-|melee:|ranged:|on enemy|on crit)/i;

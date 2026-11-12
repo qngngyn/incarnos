@@ -34,6 +34,10 @@ export const tickDamageTokens = tokens => ({ damage: Math.max(0, tokens), remain
 export const barrierAbsorbs = (before, after, hasBarrier, ignore = false, damage = false) =>
   Boolean(hasBarrier) && !ignore && (Number(after) < Number(before) || Boolean(damage));
 
+/** Invulnerable: no HP loss at all (and no damage instance at 0 HP) while the creature has it. */
+export const invulnerableBlocks = (before, after, invulnerable, damage = false) =>
+  Boolean(invulnerable) && (Number(after) < Number(before) || Boolean(damage));
+
 /** AP at the start of a turn: Stunned leaves none, Paralyzed takes 1. */
 export const actionsAfterTurnStart = (value, { stunned = false, paralyzed = false } = {}) =>
   stunned ? 0 : Math.max(0, Number(value) - (paralyzed ? 1 : 0));
@@ -120,7 +124,7 @@ export const CONDITION_ORDER = [
   "prone", "grappled", "immobilized", "mounted", "hidden", "hindered", "blinded",
   "taunted", "frenzied", "intimidated", "asleep", "paralyzed", "stunned", "charged", "shadowmarked",
   "burn", "poisoned", "bleed", "regenerating", "barrier", "shadowform", "shadowclone",
-  "summoned", "dying", "unconscious"
+  "summoned", "dying", "unconscious", "invulnerable", "entertainer-s-cursed", "applause"
 ];
 
 export const sortConditions = conditions => [...conditions].sort((a, b) => {
@@ -236,7 +240,7 @@ export async function endOfTurn(actor, turn = null) {
 }
 
 /** Conditions whose tokens are turns, counted down at the end of the holder's turn; a new source keeps the longer one. */
-export const TURN_COUNTDOWN_CONDITIONS = ["blinded", "shadowmarked", "shadowform", "shadowclone"];
+export const TURN_COUNTDOWN_CONDITIONS = ["blinded", "shadowmarked", "shadowform", "shadowclone", "invulnerable"];
 
 /**
  * Frenzied: for each action, a random creature within reach to attack; nobody in reach → the nearest to move to.
@@ -527,6 +531,13 @@ export function registerConditionHooks() {
     if (foundry.utils.hasProperty(changes, "system.health.value")) {
       options.incarnosHealthBefore = Number(actor.system.health?.value ?? 0);
       options.incarnosDyingBefore = actor.statuses?.has("dying") ?? false;
+      // Invulnerable: no damage at all, and the Barrier stays.
+      if (invulnerableBlocks(options.incarnosHealthBefore, foundry.utils.getProperty(changes, "system.health.value"),
+        statusEffect(actor, "invulnerable"), options.incarnosDamage)) {
+        foundry.utils.setProperty(changes, "system.health.value", options.incarnosHealthBefore);
+        options.incarnosDamage = false;
+        options.incarnosIgnoreBarrier = true;
+      }
       // Barrier: the next HP loss is ignored completely; the Barrier ends in updateActor.
       // (Damage at 0 HP is a damage instance too: the Apply buttons and turn damage say so with incarnosDamage.)
       if (barrierAbsorbs(options.incarnosHealthBefore, foundry.utils.getProperty(changes, "system.health.value"),

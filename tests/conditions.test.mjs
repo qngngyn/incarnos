@@ -52,9 +52,9 @@ test("vault condition notes give id, name, icon, text and whether they count tok
 
 test("the generated list holds every vault condition with an icon", () => {
   assert.deepEqual(CONDITIONS.map(c => c.id).sort(),
-    ["asleep", "barrier", "bleed", "blinded", "burn", "charged", "dying", "frenzied", "grappled", "hidden", "hindered", "immobilized", "intimidated", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "shadowclone", "shadowform", "shadowmarked", "stunned", "summoned", "taunted", "unconscious"]);
+    ["applause", "asleep", "barrier", "bleed", "blinded", "burn", "charged", "dying", "entertainer-s-cursed", "frenzied", "grappled", "hidden", "hindered", "immobilized", "intimidated", "invulnerable", "mounted", "paralyzed", "poisoned", "prone", "regenerating", "shadowclone", "shadowform", "shadowmarked", "stunned", "summoned", "taunted", "unconscious"]);
   assert.ok(CONDITIONS.every(c => c.img.startsWith("icons/") || c.img.startsWith("systems/incarnos/icons/")));
-  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["asleep", "barrier", "bleed", "blinded", "burn", "charged", "immobilized", "poisoned", "regenerating", "shadowclone", "shadowform", "shadowmarked", "summoned"]);
+  assert.deepEqual(CONDITIONS.filter(c => c.tokens).map(c => c.id).sort(), ["applause", "asleep", "barrier", "bleed", "blinded", "burn", "charged", "immobilized", "invulnerable", "poisoned", "regenerating", "shadowclone", "shadowform", "shadowmarked", "summoned"]);
 });
 
 test("attack conditions: only trait lines that are just a condition count, token conditions keep their dice", () => {
@@ -377,8 +377,17 @@ test("Blinded gives disadvantage on attacks, Parry and saves", () => {
 test("the HUD order is fixed and grouped in rows of 7; unknown conditions follow alphabetically", () => {
   const { CONDITION_ORDER, sortConditions } = CONDITION_HELPERS;
   assert.deepEqual(CONDITION_ORDER.slice(0, 7), ["prone", "grappled", "immobilized", "mounted", "hidden", "hindered", "blinded"]);
-  assert.deepEqual(CONDITION_ORDER.slice(22), ["summoned", "dying", "unconscious"]);
+  assert.deepEqual(CONDITION_ORDER.slice(22), ["summoned", "dying", "unconscious", "invulnerable", "entertainer-s-cursed", "applause"]);
   assert.equal(CONDITION_ORDER[8], "frenzied", "next to Taunted");
   const sorted = sortConditions([{ id: "zeta", name: "Zeta" }, { id: "alpha", name: "Alpha" }, { id: "burn", name: "Burn" }, { id: "prone", name: "Prone" }]);
   assert.deepEqual(sorted.map(condition => condition.id), ["prone", "burn", "alpha", "zeta"]);
+});
+
+test("Invulnerable blocks every HP loss and damage at 0 HP, but not healing; it counts down each turn", () => {
+  const { invulnerableBlocks, TURN_COUNTDOWN_CONDITIONS } = CONDITION_HELPERS;
+  assert.equal(invulnerableBlocks(10, 4, true), true);
+  assert.equal(invulnerableBlocks(0, 0, true, true), true, "a damage instance at 0 HP");
+  assert.equal(invulnerableBlocks(4, 10, true), false, "healing still works");
+  assert.equal(invulnerableBlocks(10, 4, false), false);
+  assert.ok(TURN_COUNTDOWN_CONDITIONS.includes("invulnerable"));
 });
