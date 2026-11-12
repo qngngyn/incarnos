@@ -11669,7 +11669,7 @@
     "_key": "!actors!jpHWUFhCDFj9dfdT",
     "name": "Bartolo Brühwarm",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bartolo-bruhwarm.webp",
     "system": {
       "health": {
         "value": 38,
@@ -11737,7 +11737,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bartolo-bruhwarm.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -12064,7 +12064,7 @@
     "_key": "!actors!wQ13VaPAgxj8OP7L",
     "name": "Oma Grete",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/oma-grete.webp",
     "system": {
       "health": {
         "value": 35,
@@ -12132,7 +12132,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/oma-grete.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -12470,7 +12470,7 @@
     "_key": "!actors!nH5fev7HmhVvq0cB",
     "name": "Pfefferkorn",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/pfefferkorn.webp",
     "system": {
       "health": {
         "value": 31,
@@ -12538,7 +12538,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/pfefferkorn.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -12865,7 +12865,7 @@
     "_key": "!actors!lKMiMJxvOEjwvOkg",
     "name": "Remy Mayonnez",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/remy-mayonnez.webp",
     "system": {
       "health": {
         "value": 39,
@@ -12933,7 +12933,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/remy-mayonnez.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -13260,7 +13260,7 @@
     "_key": "!actors!OAz6MuHH92RzQ3w9",
     "name": "Hagen Grauschlag",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/hagen-grauschlag.webp",
     "system": {
       "health": {
         "value": 39,
@@ -13328,7 +13328,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/hagen-grauschlag.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -13655,7 +13655,7 @@
     "_key": "!actors!DJXQuOpHbTsDX1Sa",
     "name": "Krümel",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/krumel.webp",
     "system": {
       "health": {
         "value": 31,
@@ -13723,7 +13723,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/krumel.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -14050,7 +14050,7 @@
     "_key": "!actors!uNKBnIELDrZOyBgR",
     "name": "Moos",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/moos.webp",
     "system": {
       "health": {
         "value": 32,
@@ -14118,7 +14118,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/moos.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -14445,7 +14445,7 @@
     "_key": "!actors!M1BcJglJXdgCKO2z",
     "name": "Sera Rotfinger",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/sera-rotfinger.webp",
     "system": {
       "health": {
         "value": 35,
@@ -14513,7 +14513,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/sera-rotfinger.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -14851,7 +14851,7 @@
     "_key": "!actors!MQnuTHCxRv7shxaC",
     "name": "Klonk",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/klonk.webp",
     "system": {
       "health": {
         "value": 34,
@@ -14919,7 +14919,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/klonk.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -15200,7 +15200,7 @@
     "_key": "!actors!XMkTun18bvnvnAyf",
     "name": "Mina Funkenspan",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/mina-funkenspan.webp",
     "system": {
       "health": {
         "value": 31,
@@ -15268,7 +15268,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/mina-funkenspan.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -15606,7 +15606,7 @@
     "_key": "!actors!zPeq9FYzEftp9HTU",
     "name": "Rocco Schraubzwinge",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/rocco-schraubzwinge.webp",
     "system": {
       "health": {
         "value": 40,
@@ -15674,7 +15674,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/rocco-schraubzwinge.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -16001,7 +16001,7 @@
     "_key": "!actors!eYVrXx2jdFpSsbOg",
     "name": "Brann, the Silver Knight (True Strength)",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/brann-the-silver-knight-true-strength.webp",
     "system": {
       "health": {
         "value": 52,
@@ -16069,7 +16069,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/brann-the-silver-knight-true-strength.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -16735,7 +16735,7 @@
     "_key": "!actors!LVrprmz2GNnwOkBO",
     "name": "Brann, the Silver Knight",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/brann-the-silver-knight.webp",
     "system": {
       "health": {
         "value": 48,
@@ -16803,7 +16803,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/brann-the-silver-knight.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -17269,7 +17269,7 @@
     "_key": "!actors!lTkstOAMSajhRGe4",
     "name": "Bulma Chaoticus",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bulma-chaoticus.webp",
     "system": {
       "health": {
         "value": 33,
@@ -17337,7 +17337,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bulma-chaoticus.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -17964,7 +17964,7 @@
     "_key": "!actors!vCsGM3wv30JqGXsc",
     "name": "Fenn Zollfrei",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/fenn-zollfrei.webp",
     "system": {
       "health": {
         "value": 33,
@@ -18032,7 +18032,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/fenn-zollfrei.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -18544,7 +18544,7 @@
     "_key": "!actors!VAfxdpxXm4wFX04R",
     "name": "Gerda Eisenwaage",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/gerda-eisenwaage.webp",
     "system": {
       "health": {
         "value": 47,
@@ -18612,7 +18612,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/gerda-eisenwaage.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -19084,7 +19084,7 @@
     "_key": "!actors!H9ew42QQtvNaxcVI",
     "name": "Bodo Blutzoll",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bodo-blutzoll.webp",
     "system": {
       "health": {
         "value": 53,
@@ -19152,7 +19152,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bodo-blutzoll.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -19809,7 +19809,7 @@
     "_key": "!actors!QmFuOUUJDf4EbHH9",
     "name": "Ferrum Carnifex",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/ferrum-carnifex.webp",
     "system": {
       "health": {
         "value": 53,
@@ -19877,7 +19877,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/ferrum-carnifex.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -20060,7 +20060,7 @@
     "_key": "!actors!AQSnfZOYCOYnalty",
     "name": "Kaelen Funkenschlag",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/kaelen-funkenschlag.webp",
     "system": {
       "health": {
         "value": 36,
@@ -20128,7 +20128,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/kaelen-funkenschlag.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -20600,7 +20600,7 @@
     "_key": "!actors!8M5EA6APQpGFGPFz",
     "name": "Mirela Glasherz",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/mirela-glasherz.webp",
     "system": {
       "health": {
         "value": 34,
@@ -20668,7 +20668,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/mirela-glasherz.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -21140,7 +21140,7 @@
     "_key": "!actors!80Z935mdRlOgGq4m",
     "name": "Tamsin Rostblatt",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/tamsin-rostblatt.webp",
     "system": {
       "health": {
         "value": 34,
@@ -21208,7 +21208,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/tamsin-rostblatt.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -21853,7 +21853,7 @@
     "_key": "!actors!wdRBW4f4FFC3yb3Z",
     "name": "Bruder Kasimir",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/bruder-kasimir.webp",
     "system": {
       "health": {
         "value": 39,
@@ -21921,7 +21921,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/bruder-kasimir.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -22248,7 +22248,7 @@
     "_key": "!actors!vdjDxAqts9ZYvpWa",
     "name": "Novize Tamo",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/novize-tamo.webp",
     "system": {
       "health": {
         "value": 33,
@@ -22316,7 +22316,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/novize-tamo.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -22649,7 +22649,7 @@
     "_key": "!actors!TQGfV4zde2kFBLzF",
     "name": "Schwester Ilsabet",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/schwester-ilsabet.webp",
     "system": {
       "health": {
         "value": 33,
@@ -22717,7 +22717,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/schwester-ilsabet.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -23049,7 +23049,7 @@
     "_key": "!actors!EPkU6CvCNMU8xSyu",
     "name": "Aira Windmark",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/aira-windmark.webp",
     "system": {
       "health": {
         "value": 31,
@@ -23117,7 +23117,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/aira-windmark.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -23450,7 +23450,7 @@
     "_key": "!actors!ph5RFWIaIVJ1KJ3Z",
     "name": "Lilou Schlummerlied",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/lilou-schlummerlied.webp",
     "system": {
       "health": {
         "value": 31,
@@ -23518,7 +23518,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/lilou-schlummerlied.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -23845,7 +23845,7 @@
     "_key": "!actors!QDCMjgQ00awC4zDh",
     "name": "Zeph Windmark",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/zeph-windmark.webp",
     "system": {
       "health": {
         "value": 32,
@@ -23913,7 +23913,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/zeph-windmark.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -24246,7 +24246,7 @@
     "_key": "!actors!mIHADkeQhGLidnlu",
     "name": "Jorek",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/jorek.webp",
     "system": {
       "health": {
         "value": 32,
@@ -24314,7 +24314,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/jorek.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -24635,7 +24635,7 @@
     "_key": "!actors!Z6IVV6THW32hWsdm",
     "name": "Kleiner Pim",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/kleiner-pim.webp",
     "system": {
       "health": {
         "value": 31,
@@ -24703,7 +24703,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/kleiner-pim.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -25024,7 +25024,7 @@
     "_key": "!actors!VofVDOt5kyhxTMeb",
     "name": "Ulf",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/ulf.webp",
     "system": {
       "health": {
         "value": 38,
@@ -25092,7 +25092,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/ulf.webp"
       },
       "disposition": -1,
       "actorLink": false
@@ -25425,7 +25425,7 @@
     "_key": "!actors!ebew4ZjT7g80u3OF",
     "name": "Varn",
     "type": "npc",
-    "img": "icons/svg/mystery-man.svg",
+    "img": "tokens/monsters/varn.webp",
     "system": {
       "health": {
         "value": 31,
@@ -25493,7 +25493,7 @@
       "width": 1,
       "height": 1,
       "texture": {
-        "src": "icons/svg/mystery-man.svg"
+        "src": "tokens/monsters/varn.webp"
       },
       "disposition": -1,
       "actorLink": false
