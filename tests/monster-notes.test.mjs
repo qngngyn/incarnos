@@ -78,6 +78,15 @@ test("race, talents and spells are independent linked copies with stable embedde
   assert.deepEqual(sources, before, "copies do not mutate their compendium source");
 });
 
+test("item names match without quotes and extra spaces", () => {
+  const spell = { _id: "hurl", _key: "!items!hurl", name: 'Hurl "Bolder"', type: "spell", system: {}, effects: [], flags: {} };
+  const { monster } = parseMonsterNote(withStats("Spells: [[Hurl  Bolder]]"), "Digger");
+  const warnings = [];
+  const docs = monstersToDocuments([{ monster, type: "Tournament Parties" }], { sources: { spells: [spell] }, warnings });
+  assert.deepEqual(warnings, []);
+  assert.ok(docs.some(doc => doc.type === "spell" && doc.name === 'Hurl "Bolder"'));
+});
+
 test("unknown race, talent and spell names warn without stopping other imports", () => {
   const { monster } = parseMonsterNote(withStats("Race: [[Missing Race]]\nTalents: [[Missing Talent]]\nSpells: [[Missing Spell]]"), "Caster");
   const warnings = [];

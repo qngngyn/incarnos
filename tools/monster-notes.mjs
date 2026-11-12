@@ -21,6 +21,8 @@ const paragraphs = text => text.split(/\n\s*\n/).map(part => part.trim()).filter
 const number = text => Number(String(text).replace(",", "."));
 // Resolve the link target rather than its display label.
 const itemName = text => String(text).replace(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, "$1").trim();
+// Case- and quote-insensitive item lookup (the spell note `Hurl "Bolder"` is linked as [[Hurl Bolder]]).
+const lookupKey = name => String(name).toLowerCase().replace(/["“”„]/g, "").replace(/\s+/g, " ").trim();
 const itemNames = text => [...new Set(splitTopLevel(text).map(itemName).filter(Boolean))];
 
 /** Lines of the first admonition block whose title matches, without the title line. */
@@ -148,7 +150,7 @@ export function monstersToDocuments(entries, { systemVersion = "1.4.0", sources 
   }
   const indices = Object.fromEntries(["races", "talents", "spells"].map(pack => [pack,
     new Map((sources[pack] ?? []).filter(doc => doc._key === `!items!${doc._id}`)
-      .map(doc => [doc.name.toLowerCase(), doc]))]));
+      .map(doc => [lookupKey(doc.name), doc]))]));
   entries.forEach((entry, index) => {
     const { monster: m, type } = entry;
     const actorId = stableId(`monster:${type}/${m.name}`);
@@ -169,7 +171,7 @@ export function monstersToDocuments(entries, { systemVersion = "1.4.0", sources 
     texts.forEach(([name, text], i) => items.push(feature(stableId(`monster:${type}/${m.name}:${name}`), actorId, name, text, (i + 1) * 100000, systemVersion)));
     for (const [pack, names] of [["races", m.race ? [m.race] : []], ["talents", m.talents ?? []], ["spells", m.spells ?? []]]) {
       for (const name of names) {
-        const source = indices[pack].get(name.toLowerCase());
+        const source = indices[pack].get(lookupKey(name));
         if (!source) { warnings.push(`${m.name}: unknown ${pack} item "${name}"`); continue; }
         const id = stableId(`monster:${type}/${m.name}:item:${source._id}`);
         if (items.some(item => item._id === id)) continue;
