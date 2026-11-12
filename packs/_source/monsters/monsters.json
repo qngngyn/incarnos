@@ -11688,7 +11688,7 @@
           "value": 2
         },
         "parry": {
-          "value": 9,
+          "value": 10,
           "bonus": 0
         },
         "movement": {
@@ -11714,7 +11714,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "spd": {
@@ -11726,7 +11726,7 @@
           "bonus": 0
         },
         "cha": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         }
       },
@@ -12073,9 +12073,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 43,
+        "value": 44,
         "min": 0,
-        "max": 43,
+        "max": 44,
         "bonus": 0
       },
       "attributes": {
@@ -12083,7 +12083,7 @@
           "value": 2
         },
         "parry": {
-          "value": 9,
+          "value": 10,
           "bonus": 0
         },
         "movement": {
@@ -12109,7 +12109,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "spd": {
@@ -12117,7 +12117,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 15,
+          "value": 16,
           "bonus": 0
         },
         "cha": {
@@ -12473,15 +12473,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 31,
         "min": 0,
-        "max": 29,
+        "max": 31,
         "bonus": 0
       },
       "power": {
-        "value": 36,
+        "value": 37,
         "min": 0,
-        "max": 36,
+        "max": 37,
         "bonus": 0
       },
       "attributes": {
@@ -12507,7 +12507,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "wis": {
@@ -12523,7 +12523,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "cha": {
@@ -12868,9 +12868,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 38,
+        "value": 39,
         "min": 0,
-        "max": 38,
+        "max": 39,
         "bonus": 0
       },
       "power": {
@@ -12884,7 +12884,7 @@
           "value": 2
         },
         "parry": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "movement": {
@@ -12894,7 +12894,7 @@
       },
       "abilities": {
         "str": {
-          "value": 16,
+          "value": 17,
           "bonus": 0
         },
         "dex": {
@@ -12910,7 +12910,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "spd": {
@@ -12990,7 +12990,7 @@
       "attackMode": "melee",
       "range": "",
       "hands": 1,
-      "modifier": -3,
+      "modifier": -4,
       "damage": "1d4",
       "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nAgile: This weapon may be dual wielded."
     },
@@ -13263,9 +13263,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 38,
+        "value": 39,
         "min": 0,
-        "max": 38,
+        "max": 39,
         "bonus": 0
       },
       "power": {
@@ -13289,11 +13289,11 @@
       },
       "abilities": {
         "str": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "dex": {
-          "value": 9,
+          "value": 10,
           "bonus": 0
         },
         "con": {
@@ -13658,9 +13658,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 31,
         "min": 0,
-        "max": 29,
+        "max": 31,
         "bonus": 0
       },
       "power": {
@@ -13674,7 +13674,7 @@
           "value": 2
         },
         "parry": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "movement": {
@@ -13688,11 +13688,11 @@
           "bonus": 0
         },
         "dex": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "con": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "wis": {
@@ -14059,9 +14059,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 38,
+        "value": 39,
         "min": 0,
-        "max": 38,
+        "max": 39,
         "bonus": 0
       },
       "attributes": {
@@ -14069,7 +14069,7 @@
           "value": 2
         },
         "parry": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "movement": {
@@ -14095,7 +14095,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "spd": {
@@ -14103,7 +14103,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "cha": {
@@ -14454,9 +14454,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 33,
+        "value": 34,
         "min": 0,
-        "max": 33,
+        "max": 34,
         "bonus": 0
       },
       "attributes": {
@@ -14464,7 +14464,7 @@
           "value": 2
         },
         "parry": {
-          "value": 13,
+          "value": 14,
           "bonus": 0
         },
         "movement": {
@@ -14478,7 +14478,7 @@
           "bonus": 0
         },
         "dex": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "con": {
@@ -14498,7 +14498,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "cha": {
@@ -14570,7 +14570,7 @@
       "attackMode": "melee",
       "range": "",
       "hands": 1,
-      "modifier": -1,
+      "modifier": -2,
       "damage": "1d6",
       "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nForceful: When you attack with it more than once on your turn, the second attack gains +2 damage, and each subsequent attack gains +4 damage\nSweep: When you use Attack: Cleave, it deals full damage instead of 0.5× damage."
     },
@@ -14860,9 +14860,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 36,
+        "value": 37,
         "min": 0,
-        "max": 36,
+        "max": 37,
         "bonus": 0
       },
       "attributes": {
@@ -14870,7 +14870,7 @@
           "value": 2
         },
         "parry": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "movement": {
@@ -14896,7 +14896,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "spd": {
@@ -14904,7 +14904,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "cha": {
@@ -15203,15 +15203,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 31,
         "min": 0,
-        "max": 29,
+        "max": 31,
         "bonus": 0
       },
       "power": {
-        "value": 40,
+        "value": 41,
         "min": 0,
-        "max": 40,
+        "max": 41,
         "bonus": 0
       },
       "attributes": {
@@ -15237,7 +15237,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "wis": {
@@ -15253,7 +15253,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 16,
+          "value": 17,
           "bonus": 0
         },
         "cha": {
@@ -15609,9 +15609,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 38,
+        "value": 40,
         "min": 0,
-        "max": 38,
+        "max": 40,
         "bonus": 0
       },
       "power": {
@@ -15625,7 +15625,7 @@
           "value": 2
         },
         "parry": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "movement": {
@@ -15643,7 +15643,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "wis": {
@@ -15651,7 +15651,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "spd": {
@@ -16004,15 +16004,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 47,
+        "value": 52,
         "min": 0,
-        "max": 47,
+        "max": 52,
         "bonus": 0
       },
       "power": {
-        "value": 38,
+        "value": 40,
         "min": 0,
-        "max": 38,
+        "max": 40,
         "bonus": 0
       },
       "attributes": {
@@ -16020,7 +16020,7 @@
           "value": 6
         },
         "parry": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "movement": {
@@ -16030,27 +16030,27 @@
       },
       "abilities": {
         "str": {
-          "value": 17,
+          "value": 18,
           "bonus": 0
         },
         "dex": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "con": {
-          "value": 15,
+          "value": 17,
           "bonus": 0
         },
         "wis": {
-          "value": 15,
+          "value": 16,
           "bonus": 0
         },
         "prc": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "spd": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "int": {
@@ -16058,7 +16058,7 @@
           "bonus": 0
         },
         "cha": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         }
       },
@@ -16738,15 +16738,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 44,
+        "value": 48,
         "min": 0,
-        "max": 44,
+        "max": 48,
         "bonus": 0
       },
       "power": {
-        "value": 37,
+        "value": 39,
         "min": 0,
-        "max": 37,
+        "max": 39,
         "bonus": 0
       },
       "attributes": {
@@ -16754,11 +16754,11 @@
           "value": 4
         },
         "parry": {
-          "value": 13,
+          "value": 14,
           "bonus": 0
         },
         "movement": {
-          "value": 6,
+          "value": 7.5,
           "bonus": 0
         }
       },
@@ -16772,19 +16772,19 @@
           "bonus": 0
         },
         "con": {
-          "value": 14,
+          "value": 16,
           "bonus": 0
         },
         "wis": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "prc": {
-          "value": 13,
+          "value": 14,
           "bonus": 0
         },
         "spd": {
-          "value": 9,
+          "value": 11,
           "bonus": 0
         },
         "int": {
@@ -16796,7 +16796,7 @@
           "bonus": 0
         }
       },
-      "biography": "<p><strong>Element: Light · Speed: 4 (6m)</strong></p><p>Merkmal: Der Wirt aus Rostwind, der immer einen schlechten Tag hat. Wischt im Kampf mit dem Umhang über die Klinge, als wäre sie ein Tresen, und brummt &quot;Sperrstunde&quot;, bevor er zuschlägt.</p><p>Kampfstil: Ein Schild-und-Schwert-Bollwerk. Bleibt nah bei seinen Leuten, zieht Angriffe auf sich und blendet den gefährlichsten Gegner. Er kämpft spürbar unter seinen Möglichkeiten.</p><p>Aussehen: Breiter Mann Mitte vierzig, grau melierter Bart, angelaufene silberne Rüstung unter einer Schürze, die er nie ganz ablegt. Auf dem Rücken ein in Leder geschnürtes Bündel (seine gebundenen Flügel).</p><p>Geruch: Bier, Waffenöl und ein Hauch von Weihrauch.</p><p>Hörend: Tiefe, müde Stimme. Die Rüstung klirrt bei jedem Schritt.</p><p>Brann tritt für **die Stadt** (Bulma Chaoticus) im Gruppenturnier an. Das ist seine gedrosselte Turnierform; seine wahre Stärke steht in Brann, the Silver Knight (True Strength).</p><p>**Balancing:** built like a level 4 hero (see Build). Against the level 4 heroes he is about one hero's worth: tanky (44 HP, Parry 13) but low damage (Longsword 1d8, no damaging spell).</p>"
+      "biography": "<p><strong>Element: Light · Speed: 5 (7,5m)</strong></p><p>Merkmal: Der Wirt aus Rostwind, der immer einen schlechten Tag hat. Wischt im Kampf mit dem Umhang über die Klinge, als wäre sie ein Tresen, und brummt &quot;Sperrstunde&quot;, bevor er zuschlägt.</p><p>Kampfstil: Ein Schild-und-Schwert-Bollwerk. Bleibt nah bei seinen Leuten, zieht Angriffe auf sich und blendet den gefährlichsten Gegner. Er kämpft spürbar unter seinen Möglichkeiten.</p><p>Aussehen: Breiter Mann Mitte vierzig, grau melierter Bart, angelaufene silberne Rüstung unter einer Schürze, die er nie ganz ablegt. Auf dem Rücken ein in Leder geschnürtes Bündel (seine gebundenen Flügel).</p><p>Geruch: Bier, Waffenöl und ein Hauch von Weihrauch.</p><p>Hörend: Tiefe, müde Stimme. Die Rüstung klirrt bei jedem Schritt.</p><p>Brann tritt für **die Stadt** (Bulma Chaoticus) im Gruppenturnier an. Das ist seine gedrosselte Turnierform; seine wahre Stärke steht in Brann, the Silver Knight (True Strength).</p><p>**Balancing:** built like a level 4 hero (see Build). Against the level 4 heroes he is about one hero's worth: tanky (48 HP, Parry 14) but low damage (Longsword 1d8, no damaging spell).</p>"
     },
     "prototypeToken": {
       "name": "Brann, the Silver Knight",
@@ -17272,15 +17272,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 33,
         "min": 0,
-        "max": 29,
+        "max": 33,
         "bonus": 0
       },
       "power": {
-        "value": 44,
+        "value": 47,
         "min": 0,
-        "max": 44,
+        "max": 47,
         "bonus": 0
       },
       "attributes": {
@@ -17302,15 +17302,15 @@
           "bonus": 0
         },
         "dex": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "con": {
-          "value": 11,
+          "value": 13,
           "bonus": 0
         },
         "wis": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "prc": {
@@ -17322,15 +17322,15 @@
           "bonus": 0
         },
         "int": {
-          "value": 16,
+          "value": 17,
           "bonus": 0
         },
         "cha": {
-          "value": 17,
+          "value": 18,
           "bonus": 0
         }
       },
-      "biography": "<p><strong>Element: Ambericity · Speed: 5 (7,5m)</strong></p><p>Merkmal: Wettet auf alles: wer zuerst fällt, wie viele Runden es dauert, ob es regnet. Gewinnt sie, verteilt sie den Gewinn sofort an die Zuschauer. Ihr Buch führt sie im Kopf, auf den Kupferling genau.</p><p>Kampfstil: Bleibt hinten, verwandelt die Bolzen ihrer Leute in lähmende Bernsteingeschosse und entlädt dann gespeicherte Energie in einem einzigen großen Schlag. Chaotisch, aber nie planlos: jeder Zufall ist eingepreist.</p><p>Aussehen: Kleine Frau mit wildem, türkis gefärbtem Haar unter einer Schutzbrille, Mantel voller Taschen, an jedem Finger ein Bernsteinring. Eine Steinschlosspistole mit Goldbeschlägen.</p><p>Geruch: Harz, Schwarzpulver und teures Parfüm.</p><p>Hörend: Schnelle, laute Stimme, ständiges Klimpern von Münzen. Lacht über eigene Witze, bevor sie fertig sind.</p><p>**Bulma Chaoticus** führt Die Stadt, die Gilde der freien Händler und des freien Volks, die keinem Fürsten des Aether Syndikats Steuern zahlt. Sie tritt im Gruppenturnier selbst an: als Vertreterin der Stadt und des freien Volks und als Beweis, dass man dem Syndikat auf seiner eigenen Bühne die Stirn bieten kann. An ihrer Seite: Brann, the Silver Knight, Gerda Eisenwaage und Fenn Zollfrei.</p><p>**Balancing:** built like a level 5 hero (see Build). Fragile (29 HP) but the party's damage and control; a level 5 character counts about 1,25 level 4 heroes.</p>"
+      "biography": "<p><strong>Element: Ambericity · Speed: 5 (7,5m)</strong></p><p>Merkmal: Wettet auf alles: wer zuerst fällt, wie viele Runden es dauert, ob es regnet. Gewinnt sie, verteilt sie den Gewinn sofort an die Zuschauer. Ihr Buch führt sie im Kopf, auf den Kupferling genau.</p><p>Kampfstil: Bleibt hinten, verwandelt die Bolzen ihrer Leute in lähmende Bernsteingeschosse und entlädt dann gespeicherte Energie in einem einzigen großen Schlag. Chaotisch, aber nie planlos: jeder Zufall ist eingepreist.</p><p>Aussehen: Kleine Frau mit wildem, türkis gefärbtem Haar unter einer Schutzbrille, Mantel voller Taschen, an jedem Finger ein Bernsteinring. Eine Steinschlosspistole mit Goldbeschlägen.</p><p>Geruch: Harz, Schwarzpulver und teures Parfüm.</p><p>Hörend: Schnelle, laute Stimme, ständiges Klimpern von Münzen. Lacht über eigene Witze, bevor sie fertig sind.</p><p>**Bulma Chaoticus** führt Die Stadt, die Gilde der freien Händler und des freien Volks, die keinem Fürsten des Aether Syndikats Steuern zahlt. Sie tritt im Gruppenturnier selbst an: als Vertreterin der Stadt und des freien Volks und als Beweis, dass man dem Syndikat auf seiner eigenen Bühne die Stirn bieten kann. An ihrer Seite: Brann, the Silver Knight, Gerda Eisenwaage und Fenn Zollfrei.</p><p>**Balancing:** built like a level 5 hero (see Build). Fragile (33 HP) but the party's damage and control; a level 5 character counts about 1,25 level 4 heroes.</p>"
     },
     "prototypeToken": {
       "name": "Bulma Chaoticus",
@@ -17967,15 +17967,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 28,
+        "value": 33,
         "min": 0,
-        "max": 28,
+        "max": 33,
         "bonus": 0
       },
       "power": {
-        "value": 31,
+        "value": 33,
         "min": 0,
-        "max": 31,
+        "max": 33,
         "bonus": 0
       },
       "attributes": {
@@ -17983,7 +17983,7 @@
           "value": 4
         },
         "parry": {
-          "value": 13,
+          "value": 14,
           "bonus": 0
         },
         "movement": {
@@ -17993,7 +17993,7 @@
       },
       "abilities": {
         "str": {
-          "value": 6,
+          "value": 7,
           "bonus": 0
         },
         "dex": {
@@ -18001,15 +18001,15 @@
           "bonus": 0
         },
         "con": {
-          "value": 11,
+          "value": 13,
           "bonus": 0
         },
         "wis": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "prc": {
-          "value": 12,
+          "value": 14,
           "bonus": 0
         },
         "spd": {
@@ -18021,11 +18021,11 @@
           "bonus": 0
         },
         "cha": {
-          "value": 13,
+          "value": 14,
           "bonus": 0
         }
       },
-      "biography": "<p><strong>Element: Air · Speed: 8 (14m)</strong></p><p>Merkmal: Hat noch nie einen Zoll bezahlt und ist stolz darauf. Versteckt Münzen überall (in den Ohren, im Stiefel, im Mund) und verliert im Kampf ständig welche.</p><p>Kampfstil: Schneller als jeder auf dem Feld. Rennt durch die gegnerische Reihe, schießt aus der Bewegung und bläst Gegner mit Windstößen dorthin, wo Gerda sie haben will.</p><p>Aussehen: Drahtiger Koopabbit mit einem Ohr voller Messingringe, Kurierjacke mit hundert Taschen, Armbrust am Handgelenk. Grinst immer.</p><p>Geruch: Straßenstaub und gestohlene Orangen.</p><p>Hörend: Pfeift, wenn er rennt. Münzen klimpern, wo er war.</p><p>Fenn ist Schmuggler und Kurier des freien Volks: Er bringt Waren an den Schlagbäumen des Syndikats vorbei in die Stadt. Bulma hat ihn einmal aus einem Schuldturm von Ledger freigekauft, seitdem läuft er für sie.</p><p>**Balancing:** built like a level 4 hero (see Build). Fragile (28 HP) and very mobile; low weapon damage, his value is pushing enemies around.</p>"
+      "biography": "<p><strong>Element: Air · Speed: 8 (14m)</strong></p><p>Merkmal: Hat noch nie einen Zoll bezahlt und ist stolz darauf. Versteckt Münzen überall (in den Ohren, im Stiefel, im Mund) und verliert im Kampf ständig welche.</p><p>Kampfstil: Schneller als jeder auf dem Feld. Rennt durch die gegnerische Reihe, schießt aus der Bewegung und bläst Gegner mit Windstößen dorthin, wo Gerda sie haben will.</p><p>Aussehen: Drahtiger Koopabbit mit einem Ohr voller Messingringe, Kurierjacke mit hundert Taschen, Armbrust am Handgelenk. Grinst immer.</p><p>Geruch: Straßenstaub und gestohlene Orangen.</p><p>Hörend: Pfeift, wenn er rennt. Münzen klimpern, wo er war.</p><p>Fenn ist Schmuggler und Kurier des freien Volks: Er bringt Waren an den Schlagbäumen des Syndikats vorbei in die Stadt. Bulma hat ihn einmal aus einem Schuldturm von Ledger freigekauft, seitdem läuft er für sie.</p><p>**Balancing:** built like a level 4 hero (see Build). Fragile (33 HP) and very mobile; low weapon damage, his value is pushing enemies around.</p>"
     },
     "prototypeToken": {
       "name": "Fenn Zollfrei",
@@ -18547,15 +18547,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 44,
+        "value": 47,
         "min": 0,
-        "max": 44,
+        "max": 47,
         "bonus": 0
       },
       "power": {
-        "value": 37,
+        "value": 39,
         "min": 0,
-        "max": 37,
+        "max": 39,
         "bonus": 0
       },
       "attributes": {
@@ -18567,13 +18567,13 @@
           "bonus": 0
         },
         "movement": {
-          "value": 6,
+          "value": 7.5,
           "bonus": 0
         }
       },
       "abilities": {
         "str": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "dex": {
@@ -18581,11 +18581,11 @@
           "bonus": 0
         },
         "con": {
-          "value": 15,
+          "value": 16,
           "bonus": 0
         },
         "wis": {
-          "value": 13,
+          "value": 14,
           "bonus": 0
         },
         "prc": {
@@ -18593,7 +18593,7 @@
           "bonus": 0
         },
         "spd": {
-          "value": 9,
+          "value": 11,
           "bonus": 0
         },
         "int": {
@@ -18601,11 +18601,11 @@
           "bonus": 0
         },
         "cha": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         }
       },
-      "biography": "<p><strong>Element: Earth · Speed: 4 (6m)</strong></p><p>Merkmal: Die Eichmeisterin der Stadt. Wiegt alles nach, Münzen, Waren, Schläge, und beschwert sich laut, wenn etwas &quot;zu leicht&quot; war.</p><p>Kampfstil: Das Bollwerk vor Bulma. Zieht mit Taunt alle auf sich, baut Mauern zwischen Feind und Händlerin und hält stand, bis die anderen den Kampf entscheiden.</p><p>Aussehen: Breite Zwergin mit geflochtenem rotem Bart, Lederschürze über einem Kettenhemd. Am Gürtel eine Messingwaage, auf dem Rücken ein Schild mit dem Siegel der Stadt (eine offene Hand).</p><p>Geruch: Messingpolitur und Pfeifentabak.</p><p>Hörend: Brummige Stimme. Die kleinen Gewichte an ihrem Gürtel klackern bei jedem Schritt.</p><p>Gerda prüft auf den Märkten der Stadt Maße und Gewichte und ist Bulmas Leibwächterin, seit die Steuereintreiber des Syndikats ihr einmal die Waage zerbrochen haben. Ehrlich bis zur Sturheit; sie hält Bulma für leichtsinnig und folgt ihr trotzdem überallhin.</p><p>**Balancing:** built like a level 4 hero (see Build). The party's tank: high Parry (14) and HP, low damage.</p>"
+      "biography": "<p><strong>Element: Earth · Speed: 5 (7,5m)</strong></p><p>Merkmal: Die Eichmeisterin der Stadt. Wiegt alles nach, Münzen, Waren, Schläge, und beschwert sich laut, wenn etwas &quot;zu leicht&quot; war.</p><p>Kampfstil: Das Bollwerk vor Bulma. Zieht mit Taunt alle auf sich, baut Mauern zwischen Feind und Händlerin und hält stand, bis die anderen den Kampf entscheiden.</p><p>Aussehen: Breite Zwergin mit geflochtenem rotem Bart, Lederschürze über einem Kettenhemd. Am Gürtel eine Messingwaage, auf dem Rücken ein Schild mit dem Siegel der Stadt (eine offene Hand).</p><p>Geruch: Messingpolitur und Pfeifentabak.</p><p>Hörend: Brummige Stimme. Die kleinen Gewichte an ihrem Gürtel klackern bei jedem Schritt.</p><p>Gerda prüft auf den Märkten der Stadt Maße und Gewichte und ist Bulmas Leibwächterin, seit die Steuereintreiber des Syndikats ihr einmal die Waage zerbrochen haben. Ehrlich bis zur Sturheit; sie hält Bulma für leichtsinnig und folgt ihr trotzdem überallhin.</p><p>**Balancing:** built like a level 4 hero (see Build). The party's tank: high Parry (14) and HP, low damage.</p>"
     },
     "prototypeToken": {
       "name": "Gerda Eisenwaage",
@@ -19087,9 +19087,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 48,
+        "value": 53,
         "min": 0,
-        "max": 48,
+        "max": 53,
         "bonus": 0
       },
       "power": {
@@ -19113,7 +19113,7 @@
       },
       "abilities": {
         "str": {
-          "value": 20,
+          "value": 21,
           "bonus": 0
         },
         "dex": {
@@ -19121,7 +19121,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 14,
+          "value": 16,
           "bonus": 0
         },
         "wis": {
@@ -19129,7 +19129,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "spd": {
@@ -19145,7 +19145,7 @@
           "bonus": 0
         }
       },
-      "biography": "<p><strong>Element: Blood · Speed: 5 (7,5m)</strong></p><p>Merkmal: Lacht, wenn er blutet. Danach streicht er eine alte Inventarnummer auf seinem Arm mit frischem Rot durch.</p><p>Kampfstil: Zieht Gegner mit Death Grip in Maul-Reichweite und hält sie mit Heart Strike langsam. Er bleibt im Schlagabtausch, während Death Strike und Vampire Blood ihn wieder aufrichten.</p><p>Aussehen: Massiger Bearfolk mit Brandnummern, Kettenresten und einer Hammerschneide aus Schmiedeabfall.</p><p>Geruch: Eisen, kalte Asche und verbranntes Fell.</p><p>Hörend: Tiefes Lachen und das Schleifen abgerissener Ketten.</p><p>Bodo entkam als sogenanntes „Material“ einer Ascheschmiede Ferrums, wie sie das Aether Syndikat betreibt. Er hasst Ferrum Carnifex und will mit dem Turnierpreis weitere Gefangene freikaufen oder ihre Flucht bezahlen. Öffentlich anzutreten ist für ihn der Beweis, dass er keine Ware mehr ist.</p><p>**Balancing:** Sehr hohe HP und Str 20 machen ihn zum zähen Brecher; Maul-Hitrate -3 und mittlere Bewegung lassen Raum für Distanzspiel, und seine Heilquellen können einander blockieren.</p>"
+      "biography": "<p><strong>Element: Blood · Speed: 5 (7,5m)</strong></p><p>Merkmal: Lacht, wenn er blutet. Danach streicht er eine alte Inventarnummer auf seinem Arm mit frischem Rot durch.</p><p>Kampfstil: Zieht Gegner mit Death Grip in Maul-Reichweite und hält sie mit Heart Strike langsam. Er bleibt im Schlagabtausch, während Death Strike und Vampire Blood ihn wieder aufrichten.</p><p>Aussehen: Massiger Bearfolk mit Brandnummern, Kettenresten und einer Hammerschneide aus Schmiedeabfall.</p><p>Geruch: Eisen, kalte Asche und verbranntes Fell.</p><p>Hörend: Tiefes Lachen und das Schleifen abgerissener Ketten.</p><p>Bodo entkam als sogenanntes „Material“ einer Ascheschmiede Ferrums, wie sie das Aether Syndikat betreibt. Er hasst Ferrum Carnifex und will mit dem Turnierpreis weitere Gefangene freikaufen oder ihre Flucht bezahlen. Öffentlich anzutreten ist für ihn der Beweis, dass er keine Ware mehr ist.</p><p>**Balancing:** Sehr hohe HP und Str 21 machen ihn zum zähen Brecher; Maul-Hitrate -3 und mittlere Bewegung lassen Raum für Distanzspiel, und seine Heilquellen können einander blockieren.</p>"
     },
     "prototypeToken": {
       "name": "Bodo Blutzoll",
@@ -20063,9 +20063,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 34,
+        "value": 36,
         "min": 0,
-        "max": 34,
+        "max": 36,
         "bonus": 0
       },
       "power": {
@@ -20079,7 +20079,7 @@
           "value": 4
         },
         "parry": {
-          "value": 12,
+          "value": 14,
           "bonus": 0
         },
         "movement": {
@@ -20093,11 +20093,11 @@
           "bonus": 0
         },
         "dex": {
-          "value": 16,
+          "value": 18,
           "bonus": 0
         },
         "con": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "wis": {
@@ -20105,7 +20105,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 11,
+          "value": 13,
           "bonus": 0
         },
         "spd": {
@@ -20188,7 +20188,7 @@
       "attackMode": "melee",
       "range": "",
       "hands": 1,
-      "modifier": -2,
+      "modifier": -3,
       "damage": "1d6",
       "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nDisarm: You can use this weapon to Disarm with the Strength roll instead of attacking.\nDeadly D6: When you crit, add the named dice to your damage roll (not doubled).\nAgile: This weapon may be dual wielded."
     },
@@ -20603,15 +20603,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 32,
+        "value": 34,
         "min": 0,
-        "max": 32,
+        "max": 34,
         "bonus": 0
       },
       "power": {
-        "value": 39,
+        "value": 41,
         "min": 0,
-        "max": 39,
+        "max": 41,
         "bonus": 0
       },
       "attributes": {
@@ -20633,11 +20633,11 @@
           "bonus": 0
         },
         "dex": {
-          "value": 17,
+          "value": 18,
           "bonus": 0
         },
         "con": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "wis": {
@@ -20653,7 +20653,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 15,
+          "value": 17,
           "bonus": 0
         },
         "cha": {
@@ -21143,15 +21143,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 32,
+        "value": 34,
         "min": 0,
-        "max": 32,
+        "max": 34,
         "bonus": 0
       },
       "power": {
-        "value": 44,
+        "value": 46,
         "min": 0,
-        "max": 44,
+        "max": 46,
         "bonus": 0
       },
       "attributes": {
@@ -21159,7 +21159,7 @@
           "value": 4
         },
         "parry": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "movement": {
@@ -21177,7 +21177,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "wis": {
@@ -21185,7 +21185,7 @@
           "bonus": 0
         },
         "prc": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "spd": {
@@ -21193,7 +21193,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 16,
+          "value": 18,
           "bonus": 0
         },
         "cha": {
@@ -21856,9 +21856,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 38,
+        "value": 39,
         "min": 0,
-        "max": 38,
+        "max": 39,
         "bonus": 0
       },
       "power": {
@@ -21882,11 +21882,11 @@
       },
       "abilities": {
         "str": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "dex": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "con": {
@@ -22251,9 +22251,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 31,
+        "value": 33,
         "min": 0,
-        "max": 31,
+        "max": 33,
         "bonus": 0
       },
       "power": {
@@ -22281,11 +22281,11 @@
           "bonus": 0
         },
         "dex": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "con": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "wis": {
@@ -22652,15 +22652,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 31,
+        "value": 33,
         "min": 0,
-        "max": 31,
+        "max": 33,
         "bonus": 0
       },
       "power": {
-        "value": 40,
+        "value": 41,
         "min": 0,
-        "max": 40,
+        "max": 41,
         "bonus": 0
       },
       "attributes": {
@@ -22686,7 +22686,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 11,
+          "value": 12,
           "bonus": 0
         },
         "wis": {
@@ -22702,7 +22702,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "cha": {
@@ -23052,9 +23052,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 31,
         "min": 0,
-        "max": 29,
+        "max": 31,
         "bonus": 0
       },
       "power": {
@@ -23082,11 +23082,11 @@
           "bonus": 0
         },
         "dex": {
-          "value": 15,
+          "value": 16,
           "bonus": 0
         },
         "con": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "wis": {
@@ -23453,9 +23453,9 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 31,
         "min": 0,
-        "max": 29,
+        "max": 31,
         "bonus": 0
       },
       "power": {
@@ -23483,11 +23483,11 @@
           "bonus": 0
         },
         "dex": {
-          "value": 15,
+          "value": 16,
           "bonus": 0
         },
         "con": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "wis": {
@@ -23575,7 +23575,7 @@
       "attackMode": "melee",
       "range": "",
       "hands": 1,
-      "modifier": -2,
+      "modifier": -3,
       "damage": "1d4",
       "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nReach 4,5m: This weapon can attack in melee within the named ranged.\nDisarm: You can use this weapon to Disarm with the Strength roll instead of attacking.\nTrip: You can use this weapon to prone with the Strength roll instead of attacking.\nNonlethal: This weapon cannot kill a target - only knock them out."
     },
@@ -23854,9 +23854,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 36,
+        "value": 37,
         "min": 0,
-        "max": 36,
+        "max": 37,
         "bonus": 0
       },
       "attributes": {
@@ -23878,7 +23878,7 @@
           "bonus": 0
         },
         "dex": {
-          "value": 15,
+          "value": 16,
           "bonus": 0
         },
         "con": {
@@ -23898,7 +23898,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "cha": {
@@ -24255,9 +24255,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 34,
+        "value": 35,
         "min": 0,
-        "max": 34,
+        "max": 35,
         "bonus": 0
       },
       "attributes": {
@@ -24265,7 +24265,7 @@
           "value": 2
         },
         "parry": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "movement": {
@@ -24279,7 +24279,7 @@
           "bonus": 0
         },
         "dex": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "con": {
@@ -24299,7 +24299,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "cha": {
@@ -24638,15 +24638,15 @@
     "img": "icons/svg/mystery-man.svg",
     "system": {
       "health": {
-        "value": 29,
+        "value": 31,
         "min": 0,
-        "max": 29,
+        "max": 31,
         "bonus": 0
       },
       "power": {
-        "value": 38,
+        "value": 39,
         "min": 0,
-        "max": 38,
+        "max": 39,
         "bonus": 0
       },
       "attributes": {
@@ -24672,7 +24672,7 @@
           "bonus": 0
         },
         "con": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "wis": {
@@ -24688,7 +24688,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "cha": {
@@ -25033,9 +25033,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 32,
+        "value": 33,
         "min": 0,
-        "max": 32,
+        "max": 33,
         "bonus": 0
       },
       "attributes": {
@@ -25057,7 +25057,7 @@
           "bonus": 0
         },
         "dex": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "con": {
@@ -25077,7 +25077,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 10,
+          "value": 11,
           "bonus": 0
         },
         "cha": {
@@ -25149,7 +25149,7 @@
       "attackMode": "ranged",
       "range": "9m",
       "hands": 1,
-      "modifier": -1,
+      "modifier": -2,
       "damage": "1d8",
       "traits": "Pull: You are able to pull your target up to your destination when you hit. The target may prevent that by succeeding a con saving throw."
     },
@@ -25434,9 +25434,9 @@
         "bonus": 0
       },
       "power": {
-        "value": 36,
+        "value": 37,
         "min": 0,
-        "max": 36,
+        "max": 37,
         "bonus": 0
       },
       "attributes": {
@@ -25444,7 +25444,7 @@
           "value": 2
         },
         "parry": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "movement": {
@@ -25458,7 +25458,7 @@
           "bonus": 0
         },
         "dex": {
-          "value": 14,
+          "value": 15,
           "bonus": 0
         },
         "con": {
@@ -25478,7 +25478,7 @@
           "bonus": 0
         },
         "int": {
-          "value": 12,
+          "value": 13,
           "bonus": 0
         },
         "cha": {
@@ -25550,7 +25550,7 @@
       "attackMode": "melee",
       "range": "",
       "hands": 1,
-      "modifier": -2,
+      "modifier": -3,
       "damage": "1d4",
       "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nAgile: This weapon may be dual wielded.\nThrowable 9m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown."
     },
