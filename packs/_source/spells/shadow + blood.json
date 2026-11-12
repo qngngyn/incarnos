@@ -1,0 +1,67 @@
+[
+  {
+    "_id": "VwCjDjH5ts3KLrB5",
+    "_key": "!folders!VwCjDjH5ts3KLrB5",
+    "name": "Shadow + Blood",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 2100000,
+    "color": null,
+    "description": "Shadow and Blood: You keep the affinities of both elements (resistance to fire dmg and water dmg).",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "gyBYA1kAPbGJ02Fe",
+    "_key": "!items!gyBYA1kAPbGJ02Fe",
+    "name": "Entertainer's Curse",
+    "type": "spell",
+    "img": "icons/magic/light/explosion-star-large-teal-purple.webp",
+    "system": {
+      "description": "<p>The shadows rise into a theatre around you: a raised stage beneath your feet, a bar around it, and an audience that can't leave. Every blow they take earns you applause. The finale sets the sky on fire, the afterparty pours it back into your friends.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Shadow + Blood",
+      "category": "Attack / Heal",
+      "cost": "3 Actions, 20 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 20,
+      "range": "Self (6m radius)",
+      "target": "Ground Circle",
+      "check": "Attack Int / Cha",
+      "duration": "2 turns",
+      "effect": "On cast:\nA shadow stage (6m radius) rises around you. You stand on a raised stage in its centre, ringed by a bar (1.5m radius).\nEvery enemy on the stage is cursed until the finale.\n\nWhile the spell lasts:\nEach time a cursed enemy takes damage, the crowd cheers: you gain +1 Applause (no maximum).\n\nAt the start of your next turn:\nFinale: Attack every cursed enemy.\nOn hit: Deals 1d4 per Applause + (lvl * 4) fire dmg.\n\nAfterparty: Every friendly at the bar heals 1d4 per Applause when reaching the bar (once).\nInstead, if no one was hit by the finale, Drea drinks alone by herself, becoming invulnerable for 3 turns."
+    },
+    "effects": [],
+    "folder": "VwCjDjH5ts3KLrB5",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]
