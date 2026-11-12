@@ -614,6 +614,12 @@ export async function applyAttackConditions(actor, conditions = []) {
       if (!existing || existing.getFlag("incarnos", "untilEndOfTurn") === true) await effect?.setFlag("incarnos", "untilEndOfTurn", true);
       continue;
     }
+    if (id === "entertainer-s-cursed") {
+      // Entertainer's Curse remembers its caster, who gains Applause when this creature takes damage.
+      if (!statusEffect(actor, id)) await actor.toggleStatusEffect(id, { active: true });
+      if (by) await statusEffect(actor, id)?.setFlag("incarnos", "curseBy", by);
+      continue;
+    }
     if (TURN_COUNTDOWN_CONDITIONS.includes(id)) {
       // A new Shadowclone also gives its extra action (a refreshed clone doesn't give another).
       const fresh = id === "shadowclone" && !statusEffect(actor, id);

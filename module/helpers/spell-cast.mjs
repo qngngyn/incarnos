@@ -11,7 +11,10 @@ import { escape } from "./roll-card.mjs";
 import { hasCriticalFailure } from "./critical-failure-rules.mjs";
 import { getTalentRules } from "./talents.mjs";
 import { modifierForRoller } from "./modifiers.mjs";
-import { advantageFormula, applyAttackConditions, applyHealthChange, asleepAfterDamage, conditionAdvantage, conditionTokens, consumeHindered, promptApplied, shadowcloneCheck } from "./conditions.mjs";
+import { advantageFormula, applyAttackConditions, applyHealthChange, asleepAfterDamage, conditionAdvantage, conditionTokens, consumeHindered, promptApplied, setConditionTokens, shadowcloneCheck } from "./conditions.mjs";
+import { CURSE_ID, isStageCurse } from "./entertainer.mjs";
+
+const stageOf = actor => actor?.getFlag?.("incarnos", "stageCurse") ?? null;
 import { checkSpellTargets, describeSpellTargets, filterBySide, parseSpellTargets, relationTo } from "./spell-targets.mjs";
 import { createRangeRing, gridOptions, parseSpellRange, showRangeIndicator, targetInRange } from "./spell-range.mjs";
 import { encoreCost, lastSpellRecord, rememberSpell } from "./last-spell.mjs";
@@ -63,6 +66,8 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
 
   // Summons: the GM's client places the creature and remembers the spell. An Encore copy places the same version.
   if (auto.summon) return castSummon(item, auto, fixedCost && remember?.uuid ? { sourceItemUuid: remember.uuid, ip: remember.summonIp ?? 0, cost: fixedCost, record: remember } : null);
+  // Entertainer's Curse: curse the enemies on the stage now; the finale and afterparty follow on later turns.
+  if (isStageCurse(system)) return castStageCurse(item, system, auto, { fixedCost, remember });
 
   for (const formula of [auto.damage, auto.heal].filter(Boolean)) {
     if (!Roll.validate(formula)) return ui.notifications.warn(`${item.name}: "${formula}" is not a valid roll formula.`);
@@ -266,6 +271,47 @@ export async function castSpell(item, { cost: fixedCost = null, remember = null 
     await message.update({ content: card(false), "flags.incarnos.spellCast.resolved": true });
   }
   return message;
+}
+
+/**
+ * Entertainer's Curse: place the stage around the caster, curse every enemy on it (the GM's client puts the condition
+ * on), and remember the stage for the finale at the start of the caster's next turn (see entertainer.mjs).
+ */
+async function castStageCurse(item, system, auto, { fixedCost = null, remember = null } = {}) {
+  const actor = item.actor;
+  const casterToken = getCasterToken(actor);
+  if (!canvas.ready || !casterToken) return ui.notifications.warn(`${actor.name} needs a token on this scene to cast ${item.name}.`);
+  if (stageOf(actor)) return ui.notifications.warn(game.i18n.format("INCARNOS.Stage.running", { name: actor.name }));
+  const cost = fixedCost ? checkCastCost(item, fixedCost) : await getCastCost(item);
+  if (!cost) return;
+  const area = await placeSpellArea(item, { ...auto, areaShape: "circle", areaSize: Number(auto.areaSize) || 6, areaOrigin: "self" }, casterToken, system);
+  if (!area) return;
+  const caster = { actor, token: casterToken };
+  const enemies = filterBySide({ side: "enemy", self: false }, getTokensInArea(area), caster);
+  const paid = await spendCastCost(actor, cost, item.name);
+  if (paid === false) return;
+  const data = remember?.data ?? item.toObject?.();
+  if (data) await rememberSpell(actor, lastSpellRecord(data, remember?.cost ?? cost, { uuid: remember?.uuid ?? item.uuid }));
+
+  const abilities = actor.system.abilities ?? {};
+  const attackValue = Math.max(Number(abilities.int?.value ?? 0), Number(abilities.cha?.value ?? 0));
+  const lvl = Number(actor.getRollData?.().lvl ?? actor.system.attributes?.level?.value ?? 0);
+  await setConditionTokens(actor, "applause", 0);
+  await actor.setFlag("incarnos", "stageCurse", {
+    id: foundry.utils.randomID(), phase: "finale", itemName: item.name, img: item.img,
+    sceneId: canvas.scene.id, x: casterToken.center.x, y: casterToken.center.y, lvl, attackValue,
+    regionUuid: area.uuid && area.id ? area.uuid : null
+  });
+  const results = enemies.map(token => ({ name: token.name, img: token.document.texture?.src ?? token.actor.img, uuid: token.actor.uuid,
+    hit: true, saved: false, damage: 0, heal: 0, conditions: [{ id: CURSE_ID, name: "Entertainer's Cursed", by: actor.uuid }] }));
+  const chatData = {
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: renderSpellCard({ name: item.name, img: item.img, system, auto: {}, paid, results }),
+    flags: { incarnos: { spellCast: { itemName: item.name, autoConditions: true, resolved: true, targets: results.map(({ name, uuid, conditions }) =>
+      ({ name, uuid, damage: 0, heal: 0, conditions, appliedDamage: false, appliedHeal: false })) } } }
+  };
+  ChatMessage.applyMode(chatData, game.settings.get("core", "messageMode"));
+  return ChatMessage.create(chatData);
 }
 
 /** The caster's token on this scene (linked or not), preferring a controlled one. */
