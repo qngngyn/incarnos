@@ -27,7 +27,7 @@
     "_key": "!items!qXlJpwpF4Ektrpmd",
     "name": "Death Gold's Embrace",
     "type": "spell",
-    "img": "icons/svg/book.svg",
+    "img": "icons/magic/defensive/shield-hex-gold.webp",
     "system": {
       "description": "<p>&quot;The safety brought forth by dead gold is never long-lasting.&quot;</p>",
       "passivesEnabled": true,
@@ -69,7 +69,7 @@
     "_key": "!items!kBhFohmhSw79jLlN",
     "name": "Deathy Golden Coating",
     "type": "spell",
-    "img": "icons/svg/book.svg",
+    "img": "icons/weapons/swords/sword-gold-holy.webp",
     "system": {
       "description": "<p>&quot;The everhateful energies of Death gold leeches the life of everything, no matter who or what.&quot;</p>",
       "passivesEnabled": true,
