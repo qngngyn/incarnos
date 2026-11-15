@@ -1,0 +1,193 @@
+[
+  {
+    "_id": "I0Ve4vQZZRQsjw8x",
+    "_key": "!folders!I0Ve4vQZZRQsjw8x",
+    "name": "Crystal",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 400000,
+    "color": null,
+    "description": "Water Affinity: You have resistance to water dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "HdUzYI6TSNyydArt",
+    "_key": "!items!HdUzYI6TSNyydArt",
+    "name": "Crystal Illusion",
+    "type": "spell",
+    "img": "icons/magic/defensive/illusion-evasion-echo-purple.webp",
+    "system": {
+      "description": "<p>The User creates a crystalized Image of himself while backdashing &quot;to safety&quot;. Enemys around the Image are forced to attack it and if they succesfuly hit the Image explodes and the Crystals left behind hurt the surrounding Enemys.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Crystal",
+      "category": "Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Self",
+      "target": "Self",
+      "check": "Target Save Dex+2",
+      "duration": "Instant",
+      "effect": "On cast:\nMove 3m in any direction of your choice\nCreates a crystal image in former position and taunts all enemies in melee\nThis image has the same Parry as the user and has 1 hp\n\nWhen crystal image is hit:\nAll targets in 1,5m range take 1d8 + (lvl * 1) water dmg (none when Save succeeded)"
+    },
+    "effects": [],
+    "folder": "I0Ve4vQZZRQsjw8x",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "3WaY9RPmrMhtU7Tu",
+    "_key": "!items!3WaY9RPmrMhtU7Tu",
+    "name": "Crystal Path",
+    "type": "spell",
+    "img": "icons/magic/water/barrier-ice-crystal-wall-faceted-blue.webp",
+    "system": {
+      "description": "<p>The user creates a ball made out of crystal. The User can let the ball loose to create difficult/prepared terrain and knock enemys standing in the balls path down.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Crystal",
+      "category": "Control / Utility",
+      "cost": "1 Action, 10 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 10,
+      "range": "9m (3m width)",
+      "target": "Line from User",
+      "check": "Target Save Dex-2",
+      "duration": "Instant",
+      "effect": "On cast:\nLeaves difficult and preferred terrain (Everyone is hindered in this terrain, except the user gains +50% more movement in it instead)\nKnocks hit targets prone (none when Save succeeded)"
+    },
+    "effects": [],
+    "folder": "I0Ve4vQZZRQsjw8x",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "dPdE6n81BBjh1evm",
+    "_key": "!items!dPdE6n81BBjh1evm",
+    "name": "Crystal Shower",
+    "type": "spell",
+    "img": "icons/magic/water/projectiles-ice-faceted-shard-salvo-blue.webp",
+    "system": {
+      "description": "<p>The user is able to grow crystallized scales and throw them at their command. This is done by channeling their ancestor's energy and using their regenerative powers. It is said that depending on the Kaiju, the scales come in different colors and shapes.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Crystal",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "9m",
+      "target": "Varied",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On cast: Choose between spear or needles:\n9m · Single Target\nSpear:\nDeals 4d6 + (lvl * 2) water dmg\n9m (4,5m x 4,5m) · Square Ground\nNeedles:\nDeals 2d4 + 1 + (lvl * 2) water dmg\nLeaves difficult terrain"
+    },
+    "effects": [],
+    "folder": "I0Ve4vQZZRQsjw8x",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "aJBXNx6tYmhR4Rrt",
+    "_key": "!items!aJBXNx6tYmhR4Rrt",
+    "name": "Crystal Trap",
+    "type": "spell",
+    "img": "icons/magic/water/barrier-ice-water-cube.webp",
+    "system": {
+      "description": "<p>The user throws a molten crystal at the targets feet that hardens on impact - immobilizing the target in its tracks.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Crystal",
+      "category": "Control",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "12m",
+      "target": "Single Enemy",
+      "check": "Attack Dex, Target Save Str+2",
+      "duration": "Instant",
+      "effect": "On hit: Target is immobilized (cannot use Movement actions). The target can use an action to break out (still immobilized when failed). Each attempt gives +2 for the next one."
+    },
+    "effects": [],
+    "folder": "I0Ve4vQZZRQsjw8x",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

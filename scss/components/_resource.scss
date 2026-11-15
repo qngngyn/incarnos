@@ -1,3 +1,52 @@
 .resource-label {
   font-weight: bold;
 }
+// Header proportions: Health and Power each take two of seven shares.
+.actor-resource-header {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+}
+
+// Align contest actions below the ability and saving throw column groups.
+.abilities .ability {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 0.5fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: 0;
+  input { width: 100%; min-width: 0; }
+}
+.contest-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  button { width: 50%; flex: 0 0 50%; margin: 0; }
+}
+
+.action-resource { display: flex; align-items: center; gap: 6px; margin-top: 10px; input { width: 45px; min-width: 0; } button { width: auto; flex: 0 0 auto; margin: 0; padding: 0 8px; } }
+
+// Align the character action tracker and contest with the ability columns.
+.character-actions-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 0.5fr) minmax(0, 3fr);
+  align-items: center;
+  margin-top: 10px;
+  .action-resource { grid-column: 1; margin-top: 0; flex-wrap: wrap; }
+  .contest-buttons { grid-column: 3; margin-top: 0; }
+  .contest-buttons button { width: 100%; flex-basis: 100%; }
+}
+
+.parry-modifier { margin-left: 4px; opacity: 0.75; white-space: nowrap; }
+
+// NPC header: Parry shows its value and the players' modifier "(−6)", so it gets a wider column and neither part shrinks.
+.npc .actor-resource-header {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1fr);
+  .parry-resource .resource-content { flex-wrap: nowrap; justify-content: center; gap: 4px; }
+  .parry-resource input { flex: 0 0 4.5ch; width: 4.5ch; min-width: 4.5ch; padding: 0 2px; text-align: center; }
+  .parry-resource .parry-modifier { flex: 0 0 auto; margin-left: 0; }
+}
+
+// Compact action rows shared by character and NPC profiles.
+.combat-actions { grid-column: 1 / -1; min-width: 0; margin-top: 8px; }
+.combat-actions > .resource-label { font-size: 12px; }
+.combat-action-row { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+.combat-action-label { flex: 0 0 48px; font-size: 11px; opacity: 0.75; }
+.combat-action-buttons { display: flex; flex: 1; flex-wrap: wrap; gap: 3px; min-width: 0; }
+.combat-action-buttons button { flex: 0 0 auto; width: auto; min-height: 24px; margin: 0; padding: 0 5px; font-size: 11px; line-height: 22px; }

@@ -1,0 +1,403 @@
+[
+  {
+    "_id": "gD1CySDn35qnwSNy",
+    "_key": "!folders!gD1CySDn35qnwSNy",
+    "name": "Blood",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 300000,
+    "color": null,
+    "description": "Water Affinity: You have resistance to water dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "BTxROARy64F7PbiM",
+    "_key": "!items!BTxROARy64F7PbiM",
+    "name": "Dancing Rune Weapon",
+    "type": "spell",
+    "img": "icons/skills/melee/strike-sword-dagger-runes-red.webp",
+    "system": {
+      "description": "<p>The user draws the energy of runes written in blood. This energy forms into a rune weapon of the user's choice that imitates the user's weapon movement and parries incoming attacks even from a blind angle.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Buff",
+      "cost": "3 Actions, 20 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 20,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "4 turns",
+      "effect": "On cast:\nGain +2 Parry\nWeaponattacks are doubled"
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "yIP5YgVst4nFMqRz",
+    "_key": "!items!yIP5YgVst4nFMqRz",
+    "name": "Death Coil",
+    "type": "spell",
+    "img": "icons/magic/unholy/projectile-helix-blood-red.webp",
+    "system": {
+      "description": "<p>The user fires a blast of unholy energy at the target, causing damage to an enemy's organs by draining the life essence directly.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "30m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit: Deals 3d6 + (lvl * 2) water dmg"
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "t58Cw906YaoEacjU",
+    "_key": "!items!t58Cw906YaoEacjU",
+    "name": "Death Grip",
+    "type": "spell",
+    "img": "icons/magic/control/debuff-chains-shackle-movement-red.webp",
+    "system": {
+      "description": "<p>Harnesses the energy that surrounds all matter: The user is able to draw the target towards him, also taunting the target.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Control",
+      "cost": "1 Action, 6 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 6,
+      "range": "9m",
+      "target": "Single Enemy",
+      "check": "Target Save Wil",
+      "duration": "Instant",
+      "effect": "On cast: Draws the target towards the user (none when Save succeeded)\nWhen succeeded, the target must attack the user next turn"
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "KSLL0FfvDZjgamJ2",
+    "_key": "!items!KSLL0FfvDZjgamJ2",
+    "name": "Death Strike",
+    "type": "spell",
+    "img": "icons/skills/melee/strike-sword-blood-red.webp",
+    "system": {
+      "description": "<p>It is a deadly attack directly aimed at the life essence of the target and transfers it to the user.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Attack / Heal",
+      "cost": "1 Reaction, 5 IP",
+      "actions": 1,
+      "actionType": "reaction",
+      "mp": 5,
+      "range": "Touch",
+      "target": "Single Enemy",
+      "check": "Attack Weapon",
+      "duration": "Instant",
+      "effect": "On hit: Deals additional 1d6 + (lvl * 1) dmg\nAlso heals the user for 5% of maximum health"
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "77NbCwem2HxatZYc",
+    "_key": "!items!77NbCwem2HxatZYc",
+    "name": "Heart Strike",
+    "type": "spell",
+    "img": "icons/skills/wounds/anatomy-organ-heart-red.webp",
+    "system": {
+      "description": "<p>Instantly strike the target and one other nearby enemy, causing internal damage, and reducing enemies' movement speed by changing the target's blood pressure.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "One/Two Enemies",
+      "check": "Attack Weapon",
+      "duration": "3 turns",
+      "effect": "On hit: Deals 3d6 + (lvl * 1) dmg\nAlso reduces movementspeed by 1,5m"
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "IhkGP9SOhk1knqe3",
+    "_key": "!items!IhkGP9SOhk1knqe3",
+    "name": "Sanguine Pool",
+    "type": "spell",
+    "img": "icons/magic/death/blood-corruption-vomit-red.webp",
+    "system": {
+      "description": "<p>The user gracefully dodges into a pool of blood leaving behind a small puddle of blood which hurts enemies surrounding the user.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Buff",
+      "cost": "2 Reactions, 9 IP",
+      "actions": 2,
+      "actionType": "reaction",
+      "mp": 9,
+      "range": "Self (3m radius)",
+      "target": "Ground Circle",
+      "check": "Attack Con",
+      "duration": "Instant",
+      "effect": "On cast:\nThe next weapon attack does not hit you\nOn hit:\nDeals 2d6 water dmg."
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "R7uOiP2EjrEEWVam",
+    "_key": "!items!R7uOiP2EjrEEWVam",
+    "name": "Share the pain",
+    "type": "spell",
+    "img": "icons/magic/control/voodoo-doll-pain-damage-red.webp",
+    "system": {
+      "description": "<p>When an enemy hits you with an attack you bind your vitality to your enemy and force them to take part/full damage of the attack. If you fail to bind your vitality you take the damage.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Utility",
+      "cost": "2 Reactions, 7 IP",
+      "actions": 2,
+      "actionType": "reaction",
+      "mp": 7,
+      "range": "Touch",
+      "target": "Single Enemy",
+      "check": "You + Target Con Save",
+      "duration": "Instant",
+      "effect": "On taking damage from enemy:\nYou and your enemy roll a save to determine one of the following the outcomes:\n\n1. You succeed, enemy fails: \nTransfer all dmg to the target.\n\n2. You succeed, enemy succeeds: \nTransfer 50% of the dmg to the target.\n\n3. You fail, enemy succeeds: \nYou take dmg as normal."
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "15klE9vTbg4PhXb9",
+    "_key": "!items!15klE9vTbg4PhXb9",
+    "name": "Shock Stroke",
+    "type": "spell",
+    "img": "icons/skills/wounds/blood-cells-vessel-red.webp",
+    "system": {
+      "description": "<p>The user stops the targets heart for a brief second. Not enough to kill them but enough to throw them off and stun them for a bit.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Control",
+      "cost": "2 Actions, 6 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 6,
+      "range": "Touch",
+      "target": "Single Enemy",
+      "check": "Target Con Save",
+      "duration": "Instant",
+      "effect": "On hit: Stunned for 1 turn (none when Save succeeded)\nStun removes all actions of the enemy next turn. This does not stack."
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "rON6h65JYdimiYxN",
+    "_key": "!items!rON6h65JYdimiYxN",
+    "name": "Vampire Blood",
+    "type": "spell",
+    "img": "icons/magic/life/heart-shadow-red.webp",
+    "system": {
+      "description": "<p>The user embraces his undeath: temporarily changing ones blood and turning into a half-vampire, gaining its regenerative properties.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Blood",
+      "category": "Heal",
+      "cost": "1 Action, 8 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 8,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "2 turns",
+      "effect": "On cast:\nHeals the user by 30% of maximum health\nFor 2 turns: \nGives the undead status (cannot be healed)"
+    },
+    "effects": [],
+    "folder": "gD1CySDn35qnwSNy",
+    "sort": 900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

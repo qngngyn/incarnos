@@ -1,0 +1,1517 @@
+[
+  {
+    "_id": "lBUGK7ibtB0tW3LJ",
+    "_key": "!folders!lBUGK7ibtB0tW3LJ",
+    "name": "Melee",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 100000,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "95ChmvR6ho1SMU60",
+    "_key": "!folders!95ChmvR6ho1SMU60",
+    "name": "Ranged",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 200000,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "4cMNjkPgl6piFCz1",
+    "_key": "!folders!4cMNjkPgl6piFCz1",
+    "name": "Legendary",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 300000,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "y36IACbpmiDQzuMk",
+    "_key": "!items!y36IACbpmiDQzuMk",
+    "name": "Bloodrecombobulator",
+    "type": "weapon",
+    "img": "icons/weapons/polearms/spear-simple-barbed.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "1d6",
+      "traits": "Bloodsucker: Whenever this weapon hits an attack, add one blood counter. You may have a maximum of 10 counters.\nTransfusion: Pay X blood counter. Instead of attacking, you may heal 1d6 + Xd6 dmg instead."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "87ylDgYWCk7Vp00r",
+    "_key": "!items!87ylDgYWCk7Vp00r",
+    "name": "Bo Staff",
+    "type": "weapon",
+    "img": "icons/weapons/staves/staff-simple-brown.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {
+        "parry": {
+          "stat": "attributes.parry.value",
+          "value": 1,
+          "description": "Parry trait"
+        }
+      },
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": -3,
+      "damage": "1d8",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nParry: +1 Parry\nRetaliation Knockback: When you parry an attack wearing this weapon, knock the attacker 3m back in an any direction.\n(Once per Shortrest) Knockdown Sweep: Your next attack hits up to 3 targets in front of you and prones them instead of dealing damage."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "glUaOhB0Vr3g3IFW",
+    "_key": "!items!glUaOhB0Vr3g3IFW",
+    "name": "Cardón (Pachycereus pringlei)",
+    "type": "weapon",
+    "img": "icons/magic/nature/plant-bamboo-green.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 1,
+      "damage": "1d6",
+      "traits": "Throwable 6m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "n1NCwzx321XFBU0n",
+    "_key": "!items!n1NCwzx321XFBU0n",
+    "name": "Claws",
+    "type": "weapon",
+    "img": "icons/weapons/fist/claw-leather-black.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 1,
+      "damage": "1d6",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nAgile: This weapon may be dual wielded."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Tv9CE7DSV7sxle8d",
+    "_key": "!items!Tv9CE7DSV7sxle8d",
+    "name": "Dagger",
+    "type": "weapon",
+    "img": "icons/weapons/daggers/dagger-simple-black.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 2,
+      "damage": "1d4",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nAgile: This weapon may be dual wielded.\nThrowable 9m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "01NC3MsMCOaDiz8s",
+    "_key": "!items!01NC3MsMCOaDiz8s",
+    "name": "Flintlock Pistol",
+    "type": "weapon",
+    "img": "icons/weapons/guns/gun-pistol-flintlock-metal.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "9m",
+      "hands": 1,
+      "modifier": 2,
+      "damage": "1d4",
+      "traits": "Critical Strike 1-3: Crits now occur on the listed range.\nFatal D10: When you crit, the weapon’s damage die increases to the named die size instead of the normal die size.\nConsuming: Consumes the following item each use: 1x Black Powder (any), 1x Bullet (any)"
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "rEFJfqrPVZpRrETL",
+    "_key": "!items!rEFJfqrPVZpRrETL",
+    "name": "Golden Ball (Kroenleinia grusonii)",
+    "type": "weapon",
+    "img": "icons/magic/nature/plant-bamboo-green.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "12m",
+      "hands": 1,
+      "modifier": 2,
+      "damage": "1d4",
+      "traits": "Agile: This weapon may be dual wielded."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1cNklsOf9umnSJGM",
+    "_key": "!items!1cNklsOf9umnSJGM",
+    "name": "Grease cannon",
+    "type": "weapon",
+    "img": "icons/weapons/guns/gun-blunderbuss-bronze.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "12m",
+      "hands": 2,
+      "modifier": 2,
+      "damage": "",
+      "traits": "Grease Cannon: You are able to hit 4 squares in a line but must reload the weapon to use it again. Reloading costs 1 action."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "BaiwQ5sVJOwcssUm",
+    "_key": "!items!BaiwQ5sVJOwcssUm",
+    "name": "Greatsword",
+    "type": "weapon",
+    "img": "icons/weapons/swords/greatsword-crossguard-curved.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": -3,
+      "damage": "1d12",
+      "traits": "Sweep: When you use Attack: Cleave, it deals full damage instead of 0.5× damage."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "4fqKvEKJnBkyNakD",
+    "_key": "!items!4fqKvEKJnBkyNakD",
+    "name": "Harpoon spear",
+    "type": "weapon",
+    "img": "icons/weapons/polearms/spear-simple-barbed.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "9m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "1d8",
+      "traits": "Pull: You are able to pull your target up to your destination when you hit. The target may prevent that by succeeding a con saving throw."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 1000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "5dH2vHDg0yIOpR0G",
+    "_key": "!items!5dH2vHDg0yIOpR0G",
+    "name": "Hawk Tuah",
+    "type": "weapon",
+    "img": "icons/weapons/bows/bow-simple-small.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "9m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "1d8",
+      "traits": "Spit on that thang."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 1100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "MsdScqmrL47LGngw",
+    "_key": "!items!MsdScqmrL47LGngw",
+    "name": "Katana",
+    "type": "weapon",
+    "img": "icons/weapons/swords/sword-katana.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d6",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nTwo-Hand D10: This weapon can be wielded with two hands - in this case your attack has -2 hitrate and deals the named dice dmg instead.\nDeadly D8: When you crit, add the named dice to your damage roll (not doubled)."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "B5SyhPRYbgYUSF2k",
+    "_key": "!items!B5SyhPRYbgYUSF2k",
+    "name": "Khopesh",
+    "type": "weapon",
+    "img": "icons/weapons/sickles/hand-sickle.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d8",
+      "traits": "Trip: You can use this weapon to prone with the Strength roll instead of attacking.\nSweep: When you use Attack: Cleave, it deals full damage instead of 0.5× damage."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "RJv25sk9fHalndI7",
+    "_key": "!items!RJv25sk9fHalndI7",
+    "name": "Kochlöffel",
+    "type": "weapon",
+    "img": "icons/weapons/clubs/club-banded-brown.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 2,
+      "damage": "1d4",
+      "traits": "Sling: You are able to sling semi-/ fluid substances with this weapon. In this scenario, the attack is considered a ranged weapon."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "0NzGqwnCBCVyPUPa",
+    "_key": "!items!0NzGqwnCBCVyPUPa",
+    "name": "Light hammer",
+    "type": "weapon",
+    "img": "icons/weapons/hammers/hammer-simple-iron.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 1,
+      "damage": "1d6",
+      "traits": "Agile: This weapon may be dual wielded.\nThrowable 6m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "xyFvB93k5AmPYOo8",
+    "_key": "!items!xyFvB93k5AmPYOo8",
+    "name": "Longbow",
+    "type": "weapon",
+    "img": "icons/weapons/bows/longbow-leather-green.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "36m",
+      "hands": 2,
+      "modifier": -2,
+      "damage": "1d10",
+      "traits": "Deadly D10: When you crit, add the named dice to your damage roll (not doubled).\nUnmanoeuvrable: If you use a movementaction this turn, you cannot attack anymore. Vice versa, if you attack this turn, you cannot use a movementaction anymore."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 1600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "OuDfgn1t0wLnufIC",
+    "_key": "!items!OuDfgn1t0wLnufIC",
+    "name": "Longsword",
+    "type": "weapon",
+    "img": "icons/weapons/swords/sword-broad-red.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d8",
+      "traits": "(Once per Shortrest) Pommel Strike: A target must succeed a Con saving throw or be dazed."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "eIlq5QSvQW0e6IsL",
+    "_key": "!items!eIlq5QSvQW0e6IsL",
+    "name": "Maul",
+    "type": "weapon",
+    "img": "icons/weapons/hammers/hammer-double-simple.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": -3,
+      "damage": "1d14",
+      "traits": "Trip: You can use this weapon to prone with the Strength roll instead of attacking."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "3LoZLTw8f6fyHey4",
+    "_key": "!items!3LoZLTw8f6fyHey4",
+    "name": "Rapier",
+    "type": "weapon",
+    "img": "icons/weapons/swords/sword-guard-steel-green.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d6",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nDisarm: You can use this weapon to Disarm with the Strength roll instead of attacking.\nDeadly D6: When you crit, add the named dice to your damage roll (not doubled)."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 1900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "iwhsFtXrAxTQV3Z0",
+    "_key": "!items!iwhsFtXrAxTQV3Z0",
+    "name": "Scalpel",
+    "type": "weapon",
+    "img": "icons/weapons/daggers/dagger-curved-black.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": -2,
+      "damage": "1d4",
+      "traits": "Agile: This weapon may be dual wielded.\nFinesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nPoor Precision: This weapon hits if you fail your attack roll and misses if you succeed your attack roll."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1qDOwZlJUC2RLKmE",
+    "_key": "!items!1qDOwZlJUC2RLKmE",
+    "name": "Scimitar",
+    "type": "weapon",
+    "img": "icons/weapons/sickles/hand-sickle.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d6",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nForceful: When you attack with it more than once on your turn, the second attack gains +2 damage, and each subsequent attack gains +4 damage\nSweep: When you use Attack: Cleave, it deals full damage instead of 0.5× damage."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Ef7knyJvCpI5UYdO",
+    "_key": "!items!Ef7knyJvCpI5UYdO",
+    "name": "Shield",
+    "type": "weapon",
+    "img": "icons/equipment/shield/buckler-wooden-boss-brown.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {
+        "parry": {
+          "stat": "attributes.parry.value",
+          "value": 1,
+          "description": "Parry trait"
+        }
+      },
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "",
+      "traits": "Parry: +1 Parry\n(Once per Turn) Shield Bash: A medium or smaller target must succeed a Str saving throw or be knocked prone for one turn. This is not considered a weapon attack and therefore does not penalize the next weapon attack.\nAgile: This weapon may be dual wielded."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Gs8cCNd0kNXGOGLI",
+    "_key": "!items!Gs8cCNd0kNXGOGLI",
+    "name": "Shortblade",
+    "type": "weapon",
+    "img": "icons/weapons/swords/shortsword-broad.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 1,
+      "damage": "1d6",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nAgile: This weapon may be dual wielded.\nThrowable 3m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "pxSSp0wCNXLoHbrr",
+    "_key": "!items!pxSSp0wCNXLoHbrr",
+    "name": "Shortbow",
+    "type": "weapon",
+    "img": "icons/weapons/bows/shortbow-leather.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "18m",
+      "hands": 2,
+      "modifier": -2,
+      "damage": "1d10",
+      "traits": "Deadly D10: When you crit, add the named dice to your damage roll (not doubled)."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 2400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "BSLyuQIRQh0lrQ1W",
+    "_key": "!items!BSLyuQIRQh0lrQ1W",
+    "name": "Slingshot",
+    "type": "weapon",
+    "img": "icons/weapons/slings/slingshot-wood.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "9m",
+      "hands": 1,
+      "modifier": 1,
+      "damage": "1d6",
+      "traits": "Sling: You are able to sling semi-/ fluid substances with this weapon. In this scenario, the attack is considered a ranged weapon."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 2500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "C7fsS4YFP4tGEsao",
+    "_key": "!items!C7fsS4YFP4tGEsao",
+    "name": "Teddy-Bear Cholla (Cylindropuntia bigelovii)",
+    "type": "weapon",
+    "img": "icons/magic/nature/plant-bamboo-green.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": -2,
+      "damage": "1d8",
+      "traits": "Throwable 4,5m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown.\nSpikey D4: Deal the named dice amount of damage to your character\nBarbed D4: Deal the named dice amount of damage at the beginning of the target's turn for 3 turns."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "V7AJjojT8ftAsQhp",
+    "_key": "!items!V7AJjojT8ftAsQhp",
+    "name": "Trident",
+    "type": "weapon",
+    "img": "icons/weapons/polearms/spear-simple-barbed.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "1d8",
+      "traits": "Throwable 6m: You can throw this weapon as a ranged attack without penalty, and it is a ranged weapon when thrown."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ka4TRlAj1C2QH2zN",
+    "_key": "!items!ka4TRlAj1C2QH2zN",
+    "name": "Unarmed",
+    "type": "weapon",
+    "img": "icons/weapons/fist/fist-brass-knuckles.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 2,
+      "damage": "1d4",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nAgile: This weapon may be dual wielded."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "7sjiLQl4iPbaTsK1",
+    "_key": "!items!7sjiLQl4iPbaTsK1",
+    "name": "Whip",
+    "type": "weapon",
+    "img": "icons/weapons/misc/whip-red-yellow.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "4,5m",
+      "hands": 1,
+      "modifier": 1,
+      "damage": "1d4",
+      "traits": "Finesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nReach 4,5m: This weapon can attack in melee within the named ranged.\nDisarm: You can use this weapon to Disarm with the Strength roll instead of attacking.\nTrip: You can use this weapon to prone with the Strength roll instead of attacking.\nNonlethal: This weapon cannot kill a target - only knock them out."
+    },
+    "effects": [],
+    "folder": "lBUGK7ibtB0tW3LJ",
+    "sort": 2900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "KtaHxFr3GHRtTpAW",
+    "_key": "!items!KtaHxFr3GHRtTpAW",
+    "name": "Wrist-mounted crossbow",
+    "type": "weapon",
+    "img": "icons/weapons/crossbows/crossbow-blue.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "9m",
+      "hands": 1,
+      "modifier": 2,
+      "damage": "1d4",
+      "traits": "Agile: This weapon may be dual wielded.\nStealthy: This weapon does not reveal you when you attack from stealth."
+    },
+    "effects": [],
+    "folder": "95ChmvR6ho1SMU60",
+    "sort": 3000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "koCfYshoHoYGk7SA",
+    "_key": "!items!koCfYshoHoYGk7SA",
+    "name": "Bringer of Death and Fire Trident",
+    "type": "weapon",
+    "img": "tokens/items/bringer-of-death-and-fire-trident.webp",
+    "system": {
+      "description": "<p>Made out of two deathfire rods and a brazier. Who knows why. Fire and skull motifs, blue and gold. Who knows why.</p><p>Samuel's weapon.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": -5,
+      "damage": "3d12",
+      "traits": "Deathfire Blaze: Pay 3 IP when you attack: the attack deals an additional 2d6 fire damage."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "8z4LwJoQi8q9bvvA",
+    "_key": "!items!8z4LwJoQi8q9bvvA",
+    "name": "Coronacht, the Heartseeking Bow",
+    "type": "weapon",
+    "img": "tokens/items/coronacht-the-heartseeking-bow.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "18m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "2d10",
+      "traits": "Deadly d10: When you crit, add the named dice to your damage roll (not doubled).\nMultishot: Your normal attack deals half the damage but hits every enemy in a cone.\nPower Shot d10: You may spend an additional action to add an additional named dice to your damage roll (doubled on crit)."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ZMyWWh5uAW3c9g1K",
+    "_key": "!items!ZMyWWh5uAW3c9g1K",
+    "name": "Supreme Deity's Favor",
+    "type": "weapon",
+    "img": "tokens/items/supreme-deity-s-favor.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 1,
+      "modifier": 0,
+      "damage": "2d8",
+      "traits": "Eostre's Will: You can ask once per lifetime for a favor from Eostre.\nBenevocatus' Ductor: By the will of Eostre, you are able to heal all friendly for 4d4 + (lvl*2). All friendly also gain 1 action this turn. (Once per Longrest)\nBound weapon: This weapon always returns in your hand whenever you will it.\n(Once per Shortrest) Pommel Strike: A target must succeed a Con saving throw or be dazed.\nBonus Damage: +1d8 vs Undead/Fiends"
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "eYE2njXaPUBF0F0K",
+    "_key": "!items!eYE2njXaPUBF0F0K",
+    "name": "Glarid's Glamorous Greaser",
+    "type": "weapon",
+    "img": "tokens/items/glarid-s-glamorous-greaser.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "12m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "",
+      "traits": "Grease Cannon: You are able to hit 4 squares in a line but must reload the weapon to use it again. Reloading costs 1 action.\nFlama Diddle: Your weapon may now attack with incendiary projectiles that deal 1d8 fire damage for 1 action. When greased enemies are hit, the target take additional 2d8 fire damage.\nShotgun mode: For 1 round, you may turn your weapon into a shotgun. While in shotgun mode, your range becomes 3m and every action you do with your weapon cost 1 less action and can be used a maximum of 3times. After this, your weapon breaks and can only be reinstated by a Longrest."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "AT17dmeU71zD2PId",
+    "_key": "!items!AT17dmeU71zD2PId",
+    "name": "Paua Pole",
+    "type": "weapon",
+    "img": "tokens/items/paua-pole.webp",
+    "system": {
+      "description": "",
+      "passivesEnabled": true,
+      "passives": {
+        "parry": {
+          "stat": "attributes.parry.value",
+          "value": 1,
+          "description": "Parry trait"
+        }
+      },
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "melee",
+      "range": "",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "2d8",
+      "traits": "Sentient: This weapon inhabits the soul of the Pole.\nEndless Growth: This weapon can grow by 3m per action and retract momentarily when wanted.\nFinesse: You can use your Dexterity instead of your Strength on attacks rolls using this melee weapon.\nParry: +1 Parry\nRetaliation Knockback: When you parry an attack wearing this weapon, knock the attacker 3m back in an any direction. (Once per Shortrest)\nKnockdown Sweep: Your next attack hits up to 3 targets in front of you and prones them instead of dealing damage."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "xJX5vEl3tBcLpntl",
+    "_key": "!items!xJX5vEl3tBcLpntl",
+    "name": "Railgun",
+    "type": "weapon",
+    "img": "tokens/items/railgun.webp",
+    "system": {
+      "description": "<p>A long two-handed rifle of coiled copper rails. Its slug doesn't fly straight: it bends around cover and comes back for another pass, again and again, until its charge runs out.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "versatile": false,
+      "attackMode": "ranged",
+      "range": "60m",
+      "hands": 2,
+      "modifier": 0,
+      "damage": "1d4",
+      "traits": "Curve Shot: Firing the Railgun costs 3 actions. The shot curves up to 6 times: split up to 6 hits among the creatures you target (the same creature may be hit several times). Roll the attack once per hit; every hit deals 1d4 damage."
+    },
+    "effects": [],
+    "folder": "4cMNjkPgl6piFCz1",
+    "sort": 3600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {
+      "incarnos": {
+        "legendary": true
+      }
+    },
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

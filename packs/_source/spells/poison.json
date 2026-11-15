@@ -1,0 +1,109 @@
+[
+  {
+    "_id": "b7NEGlStM0o1vyye",
+    "_key": "!folders!b7NEGlStM0o1vyye",
+    "name": "Poison",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 2000000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "p6sI44buDpXLB5K5",
+    "_key": "!items!p6sI44buDpXLB5K5",
+    "name": "Aflatoxin",
+    "type": "spell",
+    "img": "icons/skills/melee/blade-tip-acid-poison-green.webp",
+    "system": {
+      "description": "<p>A simple toxin produced by a certain mold. Mostly used by assassins due to it's speed and ease of application. Though it has to be applied quickly due to it's high volatility.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Poison",
+      "category": "Attack",
+      "cost": "0 Actions, 3 IP",
+      "actions": 0,
+      "actionType": "action",
+      "mp": 3,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "3 turns",
+      "effect": "On cast:\nYour next attack applies the following poison:\nOn beginning of target's turn:\nDeals 2d4 earth dmg (this can stack)"
+    },
+    "effects": [],
+    "folder": "b7NEGlStM0o1vyye",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "RX8B3jHAWZtqlKaA",
+    "_key": "!items!RX8B3jHAWZtqlKaA",
+    "name": "Triazolam",
+    "type": "spell",
+    "img": "icons/consumables/potions/potion-jug-corked-skull-poison-brown-green.webp",
+    "system": {
+      "description": "<p>A fast working sedative, generally used to treat severe insomnia. It's quite effective in putting the opponent to sleep but only for a relatively short time.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Poison",
+      "category": "Attack / Control",
+      "cost": "0 Actions, 3 IP",
+      "actions": 0,
+      "actionType": "action",
+      "mp": 3,
+      "range": "Self",
+      "target": "Self",
+      "check": "Target Save Con",
+      "duration": "1 turn",
+      "effect": "On cast:\nYour next attack applies the following poison:\nOn beginning of target's turn:\nThe target falls asleep (none when Save succeded)\nSleeping creatures are woken up by damage"
+    },
+    "effects": [],
+    "folder": "b7NEGlStM0o1vyye",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

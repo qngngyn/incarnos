@@ -1,16 +1,16 @@
-<form class="{{cssClass}}" autocomplete="off">
+<section class="{{cssClass}}">
   <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
     <div class="header-fields">
       <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
       <div class="grid grid-2col">
         <div class="resource">
           <label class="resource-label">Quantity</label>
-          <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" class="auto-select"/>
+          <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"  />
         </div>
         <div class="resource">
           <label class="resource-label">Weight</label>
-          <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number" class="auto-select"/>
+          <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number"  />
         </div>
       </div>
     </div>
@@ -18,26 +18,56 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="attributes">Attributes</a>
+    <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
+    <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
+    <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
   </nav>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
 
     {{!-- Description Tab --}}
-    <div class="tab" data-group="primary" data-tab="description">
+    <div class="tab {{tabs.description.cssClass}}" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">
       {{!-- To render inline rolls in a TinyMCE editor, you need to pass the parent actor's (if any) roll data to the rollData prop. --}}
-      {{editor system.description target="system.description" rollData=rollData button=true owner=owner editable=editable}}
+      {{#if editable}}
+        <prose-mirror name="system.description" button="true" editable="{{editable}}" toggled="false" value="{{system.description}}">
+          {{{descriptionHTML}}}
+        </prose-mirror>
+      {{else}}
+        {{{descriptionHTML}}}
+      {{/if}}
     </div>
 
     {{!-- Attributes Tab --}}
-    <div class="tab attributes" data-group="primary" data-tab="attributes">
+    <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
       {{!-- As you add new fields, add them in here! --}}
+      <div class="resource">
+        <label class="resource-label">Effect</label>
+        <input type="text" name="system.effect" value="{{system.effect}}" data-dtype="String"/>
+      </div>
+      <div class="grid grid-2col">
+        <div class="resource" title="Potions: healing formula when drunk, e.g. 2d8 + 2">
+          <label class="resource-label">Heals (HP)</label>
+          <input type="text" name="system.heal" value="{{system.heal}}" data-dtype="String"/>
+        </div>
+        <div class="resource" title="Potions: IP restored when drunk, e.g. 3d6">
+          <label class="resource-label">Restores (IP)</label>
+          <input type="text" name="system.incarna" value="{{system.incarna}}" data-dtype="String"/>
+        </div>
+        <div class="resource" title="Actions to drink it in combat (Use Object: 1)">
+          <label class="resource-label">Actions</label>
+          <input type="text" name="system.actions" value="{{system.actions}}" data-dtype="Number"/>
+        </div>
+        <div class="resource">
+          <label class="resource-label">Price</label>
+          <input type="text" name="system.price" value="{{system.price}}" data-dtype="String"/>
+        </div>
+      </div>
       <div class="resource">
         <label class="resource-label">Roll Formula</label>
         <input type="text" name="system.formula" value="{{system.formula}}" data-dtype="String"/>
       </div>
     </div>
+    {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>
-</form>
+</section>

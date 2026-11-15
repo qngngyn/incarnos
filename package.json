@@ -6,7 +6,19 @@
     "build": "gulp build",
     "compile": "gulp css",
     "watch": "gulp",
-    "gulp": "gulp"
+    "gulp": "gulp",
+    "import:spells": "node tools/import-spells.mjs",
+    "pack:spells": "node tools/pack.mjs spells",
+    "test": "node --test tests/*.test.mjs",
+    "import:weapons": "node tools/import-weapons.mjs",
+    "pack:weapons": "node tools/pack.mjs weapons",
+    "sync:vault": "node tools/sync-vault.mjs",
+    "import:talents": "node tools/import-talents.mjs",
+    "import:races": "node tools/import-races.mjs",
+    "import:monsters": "node tools/import-monsters.mjs",
+    "pack:talents": "node tools/pack.mjs talents",
+    "pack:races": "node tools/pack.mjs races",
+    "pack:monsters": "node tools/pack.mjs monsters"
   },
   "browserslist": [
     "last 3 versions"
@@ -19,6 +31,7 @@
     "gulp-autoprefixer": "^8.0.0",
     "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",
+    "marked": "18.1.0",
     "sass": "^1.53.0"
   }
 }

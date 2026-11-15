@@ -1,0 +1,193 @@
+[
+  {
+    "_id": "ODUs29BSbefpuz0v",
+    "_key": "!folders!ODUs29BSbefpuz0v",
+    "name": "Dream",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 800000,
+    "color": null,
+    "description": "Water Affinity: You have resistance to water dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "jWrxlwhEkothi4q6",
+    "_key": "!items!jWrxlwhEkothi4q6",
+    "name": "Go to Sleep..",
+    "type": "spell",
+    "img": "icons/magic/control/sleep-bubble-purple.webp",
+    "system": {
+      "description": "<p>The user is able to shoot a dart (by crossbow or blowpipe) to send someone to a good night's sleep! If the dart hits, the target is sent to sleep for a certain amount of time.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Dream",
+      "category": "Attack / Utility",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "9m",
+      "target": "Single Target",
+      "check": "Attack Dex",
+      "duration": "Instant",
+      "effect": "On hit:\nDeals 1d6 + (lvl * 2) water dmg\nApply 4d4 + (lvl * 2) sleep tokens, the target falls asleep\n\nAsleep: You cannot act. For every action you would act, you remove 1 sleep token. When you take damage while asleep, you lose half your sleep tokens, rounded down, but at least 2 tokens."
+    },
+    "effects": [],
+    "folder": "ODUs29BSbefpuz0v",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "lcgvS8t4ZzZiAjh0",
+    "_key": "!items!lcgvS8t4ZzZiAjh0",
+    "name": "Inception",
+    "type": "spell",
+    "img": "icons/magic/perception/orb-crystal-ball-scrying-blue.webp",
+    "system": {
+      "description": "<p>If the target is asleep, you enter their dreams, discovering their deepest and darkest wishes, or if none are present their biggest weakness.. Who knows, maybe this information could be useful?</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Dream",
+      "category": "Utility",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "18m",
+      "target": "Asleep Single Target",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nYou successfully connect a \"Combat Insight\"- action."
+    },
+    "effects": [],
+    "folder": "ODUs29BSbefpuz0v",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "gFVeGRGjqKFs3CNc",
+    "_key": "!items!gFVeGRGjqKFs3CNc",
+    "name": "Rise and Shine",
+    "type": "spell",
+    "img": "icons/magic/light/explosion-star-large-teal-purple.webp",
+    "system": {
+      "description": "<p>If the target is asleep, you violently wake them from their slumber inflicting tons of damage.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Dream",
+      "category": "Attack",
+      "cost": "2 Actions, 8 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 8,
+      "range": "9m",
+      "target": "Asleep Single Target",
+      "check": "Attack Dex",
+      "duration": "Instant",
+      "effect": "On Hit:\nDeal 3d6 + (lvl * 2) + (number of sleep tokens) water dmg\nIf you would wake up the target in the process, \nyou deal 8d6 + (lvl * 2) instead."
+    },
+    "effects": [],
+    "folder": "ODUs29BSbefpuz0v",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "nhI6SEahGp9STmlR",
+    "_key": "!items!nhI6SEahGp9STmlR",
+    "name": "You're a fucking Nightmare",
+    "type": "spell",
+    "img": "icons/magic/control/fear-fright-shadow-monster-purple.webp",
+    "system": {
+      "description": "<p>If the target is asleep, make them live their worst fears. They start screaming and throwing punches around themselves. They inflict damage do people (friend or foe) around them while trying to fend off their worst nightmares.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Dream",
+      "category": "Attack",
+      "cost": "2 Actions, 8 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 8,
+      "range": "9m",
+      "target": "Asleep Single Target",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nForces your target to spend his next actions randomly attacking targets around him."
+    },
+    "effects": [],
+    "folder": "ODUs29BSbefpuz0v",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

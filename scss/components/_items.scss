@@ -1,3 +1,15 @@
+.item-sync-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 4px 0;
+  font-size: 11px;
+  button { width: auto; min-height: 22px; padding: 0 6px; font-size: inherit; }
+}
+.item-sync-status.customized, .item-sync-marker { color: #c99e65; }
+.item-sync-marker { margin-left: 3px; font-size: 10px; }
+
 // Section Header
 .items-header {
   height: 28px;
@@ -101,11 +113,13 @@
     background: rgba(0, 0, 0, 0.05);
     border: $border-groove;
     font-weight: bold;
+    color: var(--color-text-primary, #{$c-tan});
     > * {
       font-size: 12px;
       text-align: center;
     }
     .item-name {
+      color: inherit;
       padding-left: 5px;
       text-align: left;
       // font-size: 16px;
@@ -117,4 +131,101 @@
 .item-formula {
   flex: 0 0 200px;
   padding: 0 8px;
+}
+.item-attack-roll {
+  flex: 0 0 80px;
+  padding: 0 8px;
+}
+
+.items-list.talents-list .talent-description {
+  flex: 3;
+  min-width: 0;
+  padding: 0 8px;
+  text-align: left;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.items-list.talents-list .talent-description p { margin: 4px 0; }
+.items-list.talents-list .race-tag {
+  font-size: 10px;
+  font-weight: normal;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+// Muted warm gray keeps inventory, talent and effect rows readable on dark backgrounds.
+.items-list:is(.inventory-list, .talents-list, .spells-list, .effects-list) .item:not(.items-header) {
+  color: #b9b3a8;
+  .item-name, .item-name h4, .item-prop { color: inherit; }
+}
+
+// Spells tab: one row per spell under its element heading.
+.items-list.spells-list .spell-summary {
+  flex: 3;
+  min-width: 0;
+  padding: 0 8px;
+  text-align: left;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.items-list.spells-list .spell-element-header {
+  padding: 6px 4px 2px;
+  font-weight: bold;
+  border-bottom: 1px solid #c9c7b8;
+}
+
+// Spell item sheet: prominent rules text above the two-column field grid.
+.spell-effect-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-left: 3px solid rgba(128, 128, 160, 0.65);
+  border-radius: 0 4px 4px 0;
+  background: rgba(128, 128, 160, 0.1);
+
+  textarea {
+    width: 100%;
+    min-height: 8em;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+}
+
+.spell-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  .spell-field-wide { grid-column: 1 / -1; }
+}
+
+.spell-options { display: grid; gap: 8px; margin-bottom: 10px; }
+.spell-option { min-width: 0; padding: 6px 8px; border-radius: 4px; }
+.spell-option legend { font-weight: bold; }
+.spell-option p { margin: 0 0 6px; font-size: 12px; opacity: 0.8; }
+.spell-option-effect { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; }
+
+
+.spell-automation-summary {
+  margin-top: 8px; padding: 4px 6px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px;
+  em { opacity: 0.7; }
+}
+
+/* Talent sheet: Bonus text above the description */
+.talent-bonus-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+
+  textarea {
+    width: 100%;
+    min-height: 4.5em;
+    resize: vertical;
+    font-family: inherit;
+  }
 }

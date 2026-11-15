@@ -6,8 +6,13 @@
  export const preloadHandlebarsTemplates = async function() {
   return loadTemplates([
 
+    "systems/incarnos/templates/item/item-passives.html",
+    "systems/incarnos/templates/item/item-sync-status.html",
+    "systems/incarnos/templates/item/item-sync-marker.html",
+
     // Actor partials.
-    "systems/incarnos/templates/actor/parts/actor-features.html",
+    "systems/incarnos/templates/actor/parts/actor-actions.html",
+    "systems/incarnos/templates/actor/parts/actor-talents.html",
     "systems/incarnos/templates/actor/parts/actor-items.html",
     "systems/incarnos/templates/actor/parts/actor-spells.html",
     "systems/incarnos/templates/actor/parts/actor-effects.html",

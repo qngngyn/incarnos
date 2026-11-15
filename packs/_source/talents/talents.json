@@ -1,0 +1,782 @@
+[
+  {
+    "_id": "lOqDBITZiHY1xhm6",
+    "_key": "!items!lOqDBITZiHY1xhm6",
+    "name": "Angsthase",
+    "type": "feature",
+    "img": "icons/magic/control/fear-fright-monster-grin-red-orange.webp",
+    "system": {
+      "description": "<p>Your deadly talents frighten the opponents around your target when you kill. Giving you an edge on your next attack.</p>",
+      "bonus": "Angsthase: On kill, you gain advantage on all opponents around the target for the next attack",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "wWVueEdDDDmm1ltF",
+    "_key": "!items!wWVueEdDDDmm1ltF",
+    "name": "Basic Instinct",
+    "type": "feature",
+    "img": "icons/magic/perception/eye-ringed-green.webp",
+    "system": {
+      "description": "<p>Born and raised by a tribe of hunters you know your surroundings and are always aware of odd situations. Anyone who tries to set you up for a honey trap might find the tables turned on them.</p>",
+      "bonus": "+4 in Perception Checks against ambushes",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "TKAzFN3nj0DJdjLW",
+    "_key": "!items!TKAzFN3nj0DJdjLW",
+    "name": "Bloody Claws",
+    "type": "feature",
+    "img": "icons/creatures/claws/claw-bear-paw-swipe-red.webp",
+    "system": {
+      "description": "<p>You have trained your Claws to become especially sharp - being able to even cut through stone</p>",
+      "bonus": "Unarmed attacks inflict bleeding status:\n2d6 dmg at the beginning of the victim's turn for 3 turns",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "KaTY99tdMjqnM1L3",
+    "_key": "!items!KaTY99tdMjqnM1L3",
+    "name": "Cold-Hearted",
+    "type": "feature",
+    "img": "icons/magic/water/heart-ice-freeze.webp",
+    "system": {
+      "description": "<p>True pity, sympathy or affection are foreign to you. While many see this unfavorably, in truth that also means you are not vulnerable to shame, insults and similar things.</p>",
+      "bonus": "Advantage on Charisma/Willpower Saving Throws",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "phyDDYhXEouB6BkO",
+    "_key": "!items!phyDDYhXEouB6BkO",
+    "name": "Delusional",
+    "type": "feature",
+    "img": "icons/magic/symbols/mask-metal-silver-white.webp",
+    "system": {
+      "description": "<p>&quot;You are so deeply convinced about who you are that little to nothing can convince you otherwise&quot; - any therapist really</p>",
+      "bonus": "+4 to all saves against breaking character",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "2QM2SgM4iteGtBb5",
+    "_key": "!items!2QM2SgM4iteGtBb5",
+    "name": "Dual Wielding Rapiers",
+    "type": "feature",
+    "img": "icons/skills/melee/weapons-crossed-swords-white-blue.webp",
+    "system": {
+      "description": "<p>Expertise in Dual Wielding</p>",
+      "bonus": "Allows up to two wielded Rapiers. Your Rapiers gain the Agile trait.",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "vzJmVIDsmtFBZTe7",
+    "_key": "!items!vzJmVIDsmtFBZTe7",
+    "name": "Entertainer's Pride",
+    "type": "feature",
+    "img": "icons/magic/control/mouth-smile-deception-purple.webp",
+    "system": {
+      "description": "<p>A truly great entertainer never fails to amuse the masses but if for whatever reason he fails, he stabs instead.</p>",
+      "bonus": "If you miss an ability, you are allowed to make a free weapon attack with a damage die half of the abilty's power cost",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ljsRKMF7eTLy6OFH",
+    "_key": "!items!ljsRKMF7eTLy6OFH",
+    "name": "Explosive Jump",
+    "type": "feature",
+    "img": "icons/skills/movement/feet-bladed-boots-fire.webp",
+    "system": {
+      "description": "<p>Channeling explosive force through your legs, you can propel yourself with incredible power, blasting past enemies and obstacles. Your jumps allow you to reposition quickly and strike with force, making you a hard target to pin down.</p>",
+      "bonus": "You deal 1d4 extra dmg on movement when you touch targets of your choice\nYou gain +2m movement\nYou passively gain the Disengage Action each turn. (you cannot be opportunity attacked)",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "attributes.movement.value",
+          "value": 2,
+          "description": "You gain +2m movement"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "eyAAafWIsX4QC7Cc",
+    "_key": "!items!eyAAafWIsX4QC7Cc",
+    "name": "First Aid",
+    "type": "feature",
+    "img": "icons/tools/medical/bandages-gauze.webp",
+    "system": {
+      "description": "<p>Expertise in Medicine</p>",
+      "bonus": "+2 in First Aid Checks, can heal with bandages 1d4",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Yd0lUA4YUhmllIeU",
+    "_key": "!items!Yd0lUA4YUhmllIeU",
+    "name": "Friend of Fishermen",
+    "type": "feature",
+    "img": "icons/skills/trades/fishing-rod-gray.webp",
+    "system": {
+      "description": "<p>Naturally you have been blessed with the urge to catch any prey that comes in sight - just like a fisherman catching a fish.</p>",
+      "bonus": "(Once per turn) When an enemy enters your melee range forced, you may make a free attack that deals 1d8 dmg and irritates the enemy (irritiation: -2 to all stats) for 1 turn.",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "pCZ9gKYQkhpYEEHJ",
+    "_key": "!items!pCZ9gKYQkhpYEEHJ",
+    "name": "Impressive Spectacle",
+    "type": "feature",
+    "img": "icons/skills/melee/swords-triple-orange.webp",
+    "system": {
+      "description": "<p>You live for the thrill of an incredible display. When you strike with overwhelming skill, your flourish turns the blow into a spectacle, striking with twice the force and leaving onlookers in awe.</p>",
+      "bonus": "If you attack with a one-handed weapon, and you succeed an attack by over 10 (e.g. you roll a 2 strengthroll, while you have 12 strength), your damage is doubled for this attack.",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "UX2qFwYGRbfhMHxt",
+    "_key": "!items!UX2qFwYGRbfhMHxt",
+    "name": "Keen Mind",
+    "type": "feature",
+    "img": "icons/commodities/biological/organ-brain-pink-purple.webp",
+    "system": {
+      "description": "<p>You have a mind that can track time, direction, and detail with uncanny precision.</p>",
+      "bonus": "+1 Intelligence\nYou always know which way is north.\nYou always know the number of hours left before the next sunrise or sunset.\nYou can accurately recall anything you have seen or heard within the past month.",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.int.value",
+          "value": 1,
+          "description": "+1 Intelligence"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1jw92txo5oScw9BO",
+    "_key": "!items!1jw92txo5oScw9BO",
+    "name": "King of Iron Fist Tournament",
+    "type": "feature",
+    "img": "icons/skills/melee/unarmed-punch-fist.webp",
+    "system": {
+      "description": "<p>The King of Iron Fist Tournament is a renowned martial arts competition, it attracts top fighters worldwide aiming for the title and a cash prize.</p>",
+      "bonus": "+2 Strength",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.str.value",
+          "value": 2,
+          "description": "+2 Strength"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "EJmqRxrMtANKf7Zl",
+    "_key": "!items!EJmqRxrMtANKf7Zl",
+    "name": "Lord of the Elements",
+    "type": "feature",
+    "img": "icons/magic/symbols/elements-air-earth-fire-water.webp",
+    "system": {
+      "description": "<p>The Avatar, master of the four elements, wields the unique ability to bend water, earth, fire, and air. As the bridge between the physical and spirit worlds, the Avatar maintains balance, channels immense cosmic energy.</p>",
+      "bonus": "When you learn a spell, you may choose from any element",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "K4lmuyxBmgUmlRUy",
+    "_key": "!items!K4lmuyxBmgUmlRUy",
+    "name": "Maul Bite",
+    "type": "feature",
+    "img": "icons/creatures/abilities/fangs-teeth-bite.webp",
+    "system": {
+      "description": "<p>A maul bite attack involves powerful jaws delivering a crushing bite, often targeting the head, neck, or limbs. This attack can cause severe injuries, including deep punctures, fractures, and extensive tissue damage. Users use their immense strength to overpower prey or defend themselves.</p>",
+      "bonus": "Gain a new miscellaneous action: (Once per turn) Maulbite attack:\nRoll a Str attack, deal 1d4+2 dmg and choose a body part:\n- Body: Inflict additional 1d4 bleeding dmg for 2 turns | Arm: Disarm the target | Legs: Prone the target.",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "5mJNn7o7FsqR4mEk",
+    "_key": "!items!5mJNn7o7FsqR4mEk",
+    "name": "Nightvision",
+    "type": "feature",
+    "img": "icons/magic/perception/shadow-stealth-eyes-purple.webp",
+    "system": {
+      "description": "<p>Light is needed to see, Nightvision needs way less light to see.</p>",
+      "bonus": "Vision up to 9m in Darkness",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "fFkvBHZu1phkyk6H",
+    "_key": "!items!fFkvBHZu1phkyk6H",
+    "name": "One with nature",
+    "type": "feature",
+    "img": "icons/magic/nature/leaf-juggle-humanoid-green.webp",
+    "system": {
+      "description": "<p>Living in the outside world has sharpened your survival instinct tremendously. Youve become Outdoor Boys.</p>",
+      "bonus": "You have advantage on survival checks",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "wpJaNlRMhz5HervG",
+    "_key": "!items!wpJaNlRMhz5HervG",
+    "name": "Repairer",
+    "type": "feature",
+    "img": "icons/tools/hand/hammer-and-nail.webp",
+    "system": {
+      "description": "<p>Expertise in Repairing jobs</p>",
+      "bonus": "+4 in Repairing Checks",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "jssgUlPvgtnJ0sKe",
+    "_key": "!items!jssgUlPvgtnJ0sKe",
+    "name": "Shadowblade",
+    "type": "feature",
+    "img": "icons/magic/unholy/hand-weapon-glow-black-green.webp",
+    "system": {
+      "description": "<p>The blade of darkness only chooses the most edgiest of dual wielders.</p>",
+      "bonus": "Gain a new action: Create Shadowblade:\nCreate a shadowcopy of your weapon. It gains the Agile Trait. This weapon will disappear, when you let go of it.",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "DdPd3RwHhiWQ9US7",
+    "_key": "!items!DdPd3RwHhiWQ9US7",
+    "name": "Tailor",
+    "type": "feature",
+    "img": "icons/commodities/cloth/thread-and-needle.webp",
+    "system": {
+      "description": "<p>As you were raised by monks that specialized in the craftsmanship of tailoring, you have become an expert yourself. You can identify fabrics fairly easily and know of their usage in all kinds of situations. You know how to treat a wound using fabric, dress up in certain fashion or tell the quality of a fabric. Your knowledge has even surpassed this of your former masters.</p>",
+      "bonus": "+2 on Fabric Checks",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Lx8YlBNTqQa0GnJw",
+    "_key": "!items!Lx8YlBNTqQa0GnJw",
+    "name": "Thief",
+    "type": "feature",
+    "img": "icons/tools/hand/lockpicks-steel-grey.webp",
+    "system": {
+      "description": "<p>Expertise in Stealing, Lockpicking and sorts</p>",
+      "bonus": "+4 in Sleight of Hand Checks",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "oGk7rf0JRiJSoiIv",
+    "_key": "!items!oGk7rf0JRiJSoiIv",
+    "name": "Tough Skin",
+    "type": "feature",
+    "img": "icons/magic/defensive/armor-stone-skin.webp",
+    "system": {
+      "description": "<p>Your skin is tougher than usual</p>",
+      "bonus": "+1 Parry",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "attributes.parry.value",
+          "value": 1,
+          "description": "+1 Parry"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "UQwIqfrZJfnjfEIv",
+    "_key": "!items!UQwIqfrZJfnjfEIv",
+    "name": "Unwavering Resolve",
+    "type": "feature",
+    "img": "icons/magic/holy/angel-wings-gray.webp",
+    "system": {
+      "description": "<p>After a lifetime of basking in the light of your deity in the celestial realm your soul is marked by firm determination and resolution. Your perserverence is unbendable and your faith unshakable.</p>",
+      "bonus": "+2 Willpower",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.wis.value",
+          "value": 2,
+          "description": "+2 Willpower"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ZXbANvrjdGlXHuKS",
+    "_key": "!items!ZXbANvrjdGlXHuKS",
+    "name": "Vein-Bound Magic",
+    "type": "feature",
+    "img": "icons/magic/unholy/hand-marked-pink.webp",
+    "system": {
+      "description": "<p>The infection on his body isn't a disease, but a bizarre manifestation of his magical power. The veins flare and glow when he casts spells, acting as conduits of raw arcane energy. This can cause others to feel an unsettling sensation. The more the veins glow, the more magic the body holds.</p>",
+      "bonus": "You gain a bonus (lvl * 1/2, rounded up) to casting spells related to 'dark' magic.\n-1 Charisma",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.cha.value",
+          "value": -1,
+          "description": "-1 Charisma"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

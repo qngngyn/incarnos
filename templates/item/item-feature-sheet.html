@@ -1,29 +1,42 @@
-<form class="{{cssClass}}" autocomplete="off">
+<section class="{{cssClass}}">
   <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
     <div class="header-fields">
+      <label class="resource-label">Talent</label>
       <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      {{> "systems/incarnos/templates/item/item-sync-status.html"}}
     </div>
   </header>
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="attributes">Attributes</a>
+    <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
+    <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
   </nav>
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
 
     {{!-- Description Tab --}}
-    <div class="tab" data-group="primary" data-tab="description">
-      {{editor system.description target="system.description" rollData=rollData button=true owner=owner editable=editable}}
+    <div class="tab {{tabs.description.cssClass}}" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">
+      <div class="talent-bonus-field">
+        <label class="resource-label">Bonus</label>
+        <textarea name="system.bonus" rows="3" placeholder="+1 Parry">{{system.bonus}}</textarea>
+      </div>
+      <div class="spell-automation-summary">
+        <strong>In play:</strong>
+        {{#if talentRulesText}}{{talentRulesText}}{{else}}nothing automated{{/if}}
+        <em>(stat bonuses come from the Passives tab; the rest is read from Bonus)</em>
+      </div>
+      {{#if editable}}
+        <prose-mirror name="system.description" button="true" editable="{{editable}}" toggled="false" value="{{system.description}}">
+          {{{descriptionHTML}}}
+        </prose-mirror>
+      {{else}}
+        {{{descriptionHTML}}}
+      {{/if}}
     </div>
 
-    {{!-- Attributes Tab --}}
-    <div class="tab attributes" data-group="primary" data-tab="attributes">
-      {{!-- As you add new fields, add them in here! --}}
-    </div>
+    {{> "systems/incarnos/templates/item/item-passives.html"}}
   </section>
-
-</form>
+</section>

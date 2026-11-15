@@ -1,0 +1,67 @@
+[
+  {
+    "_id": "ErMxe46oOpDuveFr",
+    "_key": "!folders!ErMxe46oOpDuveFr",
+    "name": "Luck",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1500000,
+    "color": null,
+    "description": "No Affinity",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "qHUN0DXPXDOuTXxS",
+    "_key": "!items!qHUN0DXPXDOuTXxS",
+    "name": "Luck of the Draw",
+    "type": "spell",
+    "img": "icons/sundries/gaming/playing-cards.webp",
+    "system": {
+      "description": "<p>The user flicks a glowing card from an endless deck at their target. Nobody knows which card comes next, not even the user, but the house always takes its cut.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Luck",
+      "category": "Attack",
+      "cost": "2 Actions, 8 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 8,
+      "range": "9m",
+      "target": "Single Target",
+      "check": "Attack Cha",
+      "duration": "Instant",
+      "effect": "On hit:\nDeals 4d6 + (lvl * 2) dmg\nThen draw a card: roll 1d4\n1 - Ace: Deal the damage a second time.\n2 - Heart: You heal half the damage dealt.\n3 - Spade: The target has -2 on its next check.\n4 - Joker: The damage hits a random creature within 3m of the target instead (this can be you)."
+    },
+    "effects": [],
+    "folder": "ErMxe46oOpDuveFr",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

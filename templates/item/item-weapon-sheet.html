@@ -1,48 +1,89 @@
-<form class="{{cssClass}}" autocomplete="off">
-    <header class="sheet-header">
-      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
-      <div class="header-fields">
-        <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
-        <div class="grid grid-2col">
-          <div class="resource">
-            <label class="resource-label">Quantity</label>
-            <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" class="auto-select"/>
-          </div>
-          <div class="resource">
-            <label class="resource-label">Weight</label>
-            <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number" class="auto-select"/>
-          </div>
+<section class="{{cssClass}}">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-field="img" title="{{item.name}}"/>
+    <div class="header-fields">
+      <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+      {{> "systems/incarnos/templates/item/item-sync-status.html"}}
+      <div class="grid grid-2col">
+        <div class="resource">
+          <label class="resource-label">Quantity</label>
+          <input type="number" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"  />
         </div>
+        <div class="resource">
+          <label class="resource-label">Weight</label>
+          <input type="number" name="system.weight" value="{{system.weight}}" data-dtype="Number"  />
+        </div>
+      </div>
+      <div class="grid grid-2col">
+        <div class="resource">
+          <label class="resource-label">Attack Mode</label>
+          <select name="system.attackMode" data-dtype="String">
+            {{selectOptions weaponModes selected=system.attackMode localize=false}}
+          </select>
+        </div>
+        <div class="resource">
+          <label class="resource-label" {{#if enemyWeapon}}title="Written for the heroes: negative is bad for them (Melee -2 = heroes parry at -2)"{{/if}}>{{#if enemyWeapon}}Modifier (for heroes){{else}}Hitrate{{/if}}</label>
+          <input type="number" name="system.modifier" value="{{system.modifier}}" data-dtype="Number"   step="1"/>
+        </div>
+      </div>
+      <div class="resource">
+        <label class="resource-label checkbox">
+          <input type="checkbox" name="system.versatile" data-dtype="Boolean" {{checked system.versatile}}/>
+          Versatile: can be used as melee and ranged
+        </label>
+      </div>
+    </div>
+  </header>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item {{tabs.description.cssClass}}" data-action="tab" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">Description</a>
+    <a class="item {{tabs.attributes.cssClass}}" data-action="tab" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">Attributes</a>
+    <a class="item {{tabs.passives.cssClass}}" data-action="tab" data-group="primary" data-tab="passives">Passives</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Description Tab --}}
+    <div class="tab {{tabs.description.cssClass}}" data-group="{{tabs.description.group}}" data-tab="{{tabs.description.id}}">
+      {{#if editable}}
+        <prose-mirror name="system.description" button="true" editable="{{editable}}" toggled="false" value="{{system.description}}">
+          {{{descriptionHTML}}}
+        </prose-mirror>
+      {{else}}
+        {{{descriptionHTML}}}
+      {{/if}}
+    </div>
+
+    {{!-- Attributes Tab --}}
+    <div class="tab attributes {{tabs.attributes.cssClass}}" data-group="{{tabs.attributes.group}}" data-tab="{{tabs.attributes.id}}">
+      <div class="resource">
+        <label class="resource-label">Damage Formula</label>
+        <input type="text" name="system.damage" value="{{system.damage}}" data-dtype="String"/>
+        <p class="hint">Old weapons that still use system.formula will keep working; this field replaces formula for new weapons.</p>
+      </div>
+      <div class="grid grid-2col">
         <div class="resource">
           <label class="resource-label">Hands</label>
-          <input type="text" name="system.hands" value="{{system.hands}}" data-dtype="Number" class="auto-select"/>
+          <input type="number" name="system.hands" value="{{system.hands}}" data-dtype="Number" min="1" max="2" step="1"/>
         </div>
-      </div>
-    </header>
-  
-    {{!-- Sheet Tab Navigation --}}
-    <nav class="sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="description">Description</a>
-      <a class="item" data-tab="attributes">Attributes</a>
-    </nav>
-  
-    {{!-- Sheet Body --}}
-    <section class="sheet-body">
-  
-      {{!-- Description Tab --}}
-      <div class="tab" data-group="primary" data-tab="description">
-        {{!-- To render inline rolls in a TinyMCE editor, you need to pass the parent actor's (if any) roll data to the rollData prop. --}}
-        {{editor system.description target="system.description" rollData=rollData button=true owner=owner editable=editable}}
-      </div>
-  
-      {{!-- Attributes Tab --}}
-      <div class="tab attributes" data-group="primary" data-tab="attributes">
-        {{!-- As you add new fields, add them in here! --}}
         <div class="resource">
-          <label class="resource-label">Roll Formula</label>
-          <input type="text" name="system.formula" value="{{system.formula}}" data-dtype="String"/>
+          <label class="resource-label">Range</label>
+          <input type="text" name="system.range" value="{{system.range}}" placeholder="12m"/>
         </div>
       </div>
-    </section>
-  </form>
-  
+      <div class="resource">
+        <label class="resource-label">Traits</label>
+        <textarea name="system.traits" rows="6" placeholder="Finesse: You can use your Dexterity instead of your Strength…&#10;Deadly D6: When you crit, add the named dice…">{{system.traits}}</textarea>
+        <p class="hint">One trait per line, "Name value: description", as in the Weapons sheet.</p>
+      </div>
+      <div class="spell-automation-summary">
+        <strong>In attacks:</strong>
+        {{#if weaponRulesText}}{{weaponRulesText}}{{else}}no automated traits{{/if}}
+        <em>(read from Traits; the rest show on the attack card)</em>
+      </div>
+    </div>
+    {{> "systems/incarnos/templates/item/item-passives.html"}}
+  </section>
+</section>

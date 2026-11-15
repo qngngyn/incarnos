@@ -1,3 +1,16 @@
+import { registerSceneScaleHooks } from "./helpers/scene-scale.mjs";
+import { registerActionTrackerHooks } from "./helpers/action-tracker.mjs";
+import { registerCombatActionHooks } from "./helpers/action-effects.mjs";
+import { registerContestRequestHooks } from "./helpers/contest-requests.mjs";
+import { registerSpellCastHooks } from "./helpers/spell-cast.mjs";
+import { registerSummonHooks } from "./helpers/summons.mjs";
+import { registerTalentHooks } from "./helpers/talents.mjs";
+import { registerConditionHooks } from "./helpers/conditions.mjs";
+import { registerStageHooks } from "./helpers/entertainer.mjs";
+import { registerItemSyncHooks } from "./helpers/item-sync.mjs";
+import { syncCompendiumsFromSource } from "./helpers/compendium-sync.mjs";
+import { criticalFailure, registerCriticalFailureHooks } from "./helpers/critical-failure.mjs";
+import { deathSave, registerDeathSaveHooks } from "./helpers/death-saves.mjs";
 // Import document classes.
 import { IncarnosActor } from "./documents/actor.mjs";
 import { IncarnosItem } from "./documents/item.mjs";
@@ -12,6 +25,19 @@ import { INCARNOS } from "./helpers/config.mjs";
 /*  Init Hook                                   */
 /* -------------------------------------------- */
 
+registerContestRequestHooks();
+registerCombatActionHooks();
+registerSpellCastHooks();
+registerSummonHooks();
+registerCriticalFailureHooks();
+registerTalentHooks();
+registerConditionHooks();
+registerStageHooks();
+registerDeathSaveHooks();
+registerItemSyncHooks(syncCompendiumsFromSource);
+registerActionTrackerHooks();
+registerSceneScaleHooks();
+
 Hooks.once('init', async function() {
 
   // Add utility classes to the global game object so that they're more easily
@@ -19,7 +45,9 @@ Hooks.once('init', async function() {
   game.incarnos = {
     IncarnosActor,
     IncarnosItem,
-    rollItemMacro
+    rollItemMacro,
+    criticalFailure,
+    deathSave
   };
 
   // Add custom constants for configuration.
@@ -38,11 +66,15 @@ Hooks.once('init', async function() {
   CONFIG.Actor.documentClass = IncarnosActor;
   CONFIG.Item.documentClass = IncarnosItem;
 
-  // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("incarnos", IncarnosActorSheet, { makeDefault: true });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("incarnos", IncarnosItemSheet, { makeDefault: true });
+  // Register sheet application classes.
+  Actors.registerSheet("incarnos", IncarnosActorSheet, {
+    types: ["character", "npc"],
+    makeDefault: true
+  });
+  Items.registerSheet("incarnos", IncarnosItemSheet, {
+    types: ["item", "weapon", "feature", "race", "spell"],
+    makeDefault: true
+  });
 
   // Preload Handlebars templates.
   return preloadHandlebarsTemplates();
@@ -76,7 +108,9 @@ Hooks.once("ready", async function() {
 
 // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
 Hooks.on("hotbarDrop", (bar, data, slot) => {
-  createItemMacro(data, slot)
+  // Only items become item macros; everything else (e.g. the Critical Failure macro) uses Foundry's own drop.
+  if (data.type !== "Item") return true;
+  createItemMacro(data, slot);
   return false;
 });
 

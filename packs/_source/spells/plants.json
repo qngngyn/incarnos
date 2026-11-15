@@ -1,0 +1,193 @@
+[
+  {
+    "_id": "ZB6FUqVNcA55I7bd",
+    "_key": "!folders!ZB6FUqVNcA55I7bd",
+    "name": "Plants",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1900000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "xC8AbkJReeGgUHT2",
+    "_key": "!items!xC8AbkJReeGgUHT2",
+    "name": "Ivy vines",
+    "type": "spell",
+    "img": "icons/magic/nature/root-vine-entangle-foot-green.webp",
+    "system": {
+      "description": "<p>The user concentrates the plant energy and makes ivy vines grow where they usually do not. The ivy is a specifically tricky plant that is difficult to grow due to their nature of slow growth. But once grown, they are very sturdy and versatile in nature. Some say, ivy vines are a &quot;spicy&quot; delicacy (though that is objectively due to bad taste).</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Plants",
+      "category": "Utility",
+      "cost": "1 Action, 8 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 8,
+      "range": "12m (3m x 1,5m)",
+      "target": "Ground",
+      "check": "Attack Int / Cha",
+      "duration": "2 turns",
+      "effect": "On cast: Summons ivy vines from the ground that occupy the space they grow from\nOn hit: Target is immobilized (cannot use Movement actions). The target can use an action to break out."
+    },
+    "effects": [],
+    "folder": "ZB6FUqVNcA55I7bd",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "lWw5J9f9ZR3xUfcs",
+    "_key": "!items!lWw5J9f9ZR3xUfcs",
+    "name": "Leaf toss",
+    "type": "spell",
+    "img": "icons/magic/nature/leaf-arrowheads-glow-green.webp",
+    "system": {
+      "description": "<p>Even the most normal things can turn into a deadly weapon when wielded correctly. The user sharpens a handful of 3 leaves and throws them like throwing knives at the target. These leaves are extra sharp and can even cut rock when thrown proficiently.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Plants",
+      "category": "Attack",
+      "cost": "2 Actions, 12 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 12,
+      "range": "9m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha (3x)",
+      "duration": "Instant",
+      "effect": "On cast:\nFor each successful attack, deal 3d4 + (lvl * 1) earth dmg"
+    },
+    "effects": [],
+    "folder": "ZB6FUqVNcA55I7bd",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "1VicZhPOZvJWGzDT",
+    "_key": "!items!1VicZhPOZvJWGzDT",
+    "name": "Leaf wind",
+    "type": "spell",
+    "img": "icons/magic/nature/root-vine-caduceus-healing.webp",
+    "system": {
+      "description": "<p>Magical leafs form a healing wind around a target and heals the target until they disappear.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Plants",
+      "category": "Heal",
+      "cost": "2 Actions, 8 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 8,
+      "range": "6m",
+      "target": "Single Ally",
+      "check": "No Check",
+      "duration": "2 turns",
+      "effect": "On cast:\nHeals the target by 2d6 + (lvl * 1)\nTarget gains Regenerating 2: heals 1d6 + (lvl * 1) at the beginning of the target's turn"
+    },
+    "effects": [],
+    "folder": "ZB6FUqVNcA55I7bd",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "gO6ENCgBit7GilUv",
+    "_key": "!items!gO6ENCgBit7GilUv",
+    "name": "Street Pharmacy",
+    "type": "spell",
+    "img": "icons/magic/nature/plant-sprout-hands-vines.webp",
+    "system": {
+      "description": "<p>Not all herbs and plants should be consumed. But &quot;from time to time individuals dont have a choice&quot; - some french guy</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Plants",
+      "category": "Utility",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "Self",
+      "target": "Single Seed",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nMagically grow any seed of your choice into the maximum growth size."
+    },
+    "effects": [],
+    "folder": "ZB6FUqVNcA55I7bd",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

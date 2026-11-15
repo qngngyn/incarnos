@@ -1,6 +1,9 @@
 {
   "Actor": {
-    "types": ["npc","character", "vehicle", "monster"],
+    "types": [
+      "npc",
+      "character"
+    ],
     "templates": {
       "base": {
         "health": {
@@ -16,9 +19,9 @@
           "bonus": 0
         },
         "actionpoints": {
-          "value": 4,
+          "value": 3,
           "min": 0,
-          "max": 4,
+          "max": 3,
           "bonus": 0
         },
         "attributes": {
@@ -29,7 +32,7 @@
             "value": 1
           },
           "parry": {
-            "value": 5,
+            "value": 10,
             "bonus": 0
           },
           "movement": {
@@ -75,38 +78,86 @@
       }
     },
     "npc": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "cr": 0
     },
     "character": {
-      "templates": ["base"]
+      "templates": [
+        "base"
+      ]
     }
   },
   "Item": {
-    "types": ["item", "weapon", "feature", "spell"],
+    "types": [
+      "item",
+      "weapon",
+      "feature",
+      "race",
+      "spell"
+    ],
     "templates": {
       "base": {
-        "description": ""
+        "description": "",
+        "passivesEnabled": true,
+        "passives": {}
       }
     },
     "item": {
-      "templates": ["base"],
-      "quantity": 1,
-      "weight": 0
-    },
-    "weapon": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "quantity": 1,
       "weight": 0,
+      "effect": "",
+      "heal": "",
+      "incarna": "",
+      "actions": 1,
+      "price": ""
+    },
+    "weapon": {
+      "templates": [
+        "base"
+      ],
+      "quantity": 1,
+      "weight": 0,
+      "damage": "d6",
+      "attackMode": "melee",
+      "versatile": false,
+      "modifier": 0,
       "hands": 1,
-      "formula": "d20 + @abilities.str.value"
+      "range": "",
+      "traits": ""
     },
     "feature": {
-      "templates": ["base"]
+      "templates": [
+        "base"
+      ],
+      "bonus": ""
+    },
+    "race": {
+      "templates": [
+        "base"
+      ],
+      "bonus": ""
     },
     "spell": {
-      "templates": ["base"],
-      "spellLevel": 1
+      "templates": [
+        "base"
+      ],
+      "spellLevel": 1,
+      "element": "",
+      "category": "",
+      "cost": "",
+      "actions": 0,
+      "actionType": "action",
+      "mp": 0,
+      "range": "",
+      "target": "",
+      "check": "",
+      "duration": "",
+      "effect": ""
     }
   }
 }

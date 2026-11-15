@@ -1,0 +1,277 @@
+[
+  {
+    "_id": "BUJ5LdKGZZJd2lom",
+    "_key": "!folders!BUJ5LdKGZZJd2lom",
+    "name": "Ketchup",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1300000,
+    "color": null,
+    "description": "Fire Affinity: You have resistance to fire dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "zbVZIH7ueN0BlX1D",
+    "_key": "!items!zbVZIH7ueN0BlX1D",
+    "name": "Full Tomato",
+    "type": "spell",
+    "img": "icons/consumables/fruit/tomato-ripe-red.webp",
+    "system": {
+      "description": "<p>User fires ketchup at the enemy from their hands or mouth, dealing damage. Can be channeled to deal more damage.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ketchup",
+      "category": "Attack",
+      "cost": "1 Action, 3 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 3,
+      "range": "12m",
+      "target": "Single Target",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit:\nDeal 1d6 fire dmg"
+    },
+    "effects": [],
+    "folder": "BUJ5LdKGZZJd2lom",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "owzU7iPNNqvX2VMG",
+    "_key": "!items!owzU7iPNNqvX2VMG",
+    "name": "Power of Ketchup",
+    "type": "spell",
+    "img": "icons/commodities/materials/bowl-liquid-red.webp",
+    "system": {
+      "description": "<p>With great determination and the power of Ketchup, tomato and everything great. Launch an attack of Ketchup to defeat your foe, but at a great cost.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ketchup",
+      "category": "Attack",
+      "cost": "3 Actions, X IP/HP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 0,
+      "range": "Touch",
+      "target": "Single Target",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nDeal X irresistable fire dmg \nX is the total amount of IP and HP you decide to spend"
+    },
+    "effects": [],
+    "folder": "BUJ5LdKGZZJd2lom",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "asbNGlzhbtDeZhLa",
+    "_key": "!items!asbNGlzhbtDeZhLa",
+    "name": "Pressure Dash",
+    "type": "spell",
+    "img": "icons/creatures/slimes/slime-movement-splashing-red.webp",
+    "system": {
+      "description": "<p>The user channels the power of Ketchup before launching themselves in a direction. The longer the channel the better the dash. If something or someone is in the way, they get hit and you come to a stop if there is anything left standing.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ketchup",
+      "category": "Attack / Utility",
+      "cost": "1 Action, 5 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 5,
+      "range": "up to 5m",
+      "target": "Line from User",
+      "check": "Target Save Str",
+      "duration": "Instant",
+      "effect": "On cast:\nUser moves full range (stopped when save succeeded)\nDeal 2d6 fire dmg (half dmg when save succeeded)\nTarget is knocked prone (not prone when save succeeded)"
+    },
+    "effects": [],
+    "folder": "BUJ5LdKGZZJd2lom",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "lbfEgnzryIQrHS9n",
+    "_key": "!items!lbfEgnzryIQrHS9n",
+    "name": "Spicy Ketchup",
+    "type": "spell",
+    "img": "icons/magic/fire/blast-jet-stream-splash.webp",
+    "system": {
+      "description": "<p>Channels the fiery power of spice and tomato, burning with potential.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ketchup",
+      "category": "Buff",
+      "cost": "3 Actions, 0 Mp",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 0,
+      "range": "Self",
+      "target": "Self + Targets around Self",
+      "check": "No Check",
+      "duration": "Toggle",
+      "effect": "On cast:\nYou toggle the \"Fiery 2\" Status\n\nFiery X:\nTake Xd6 irresistable fire dmg at the end of your turn\nAll other targets around you take the same damage"
+    },
+    "effects": [],
+    "folder": "BUJ5LdKGZZJd2lom",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "weW6WgrxmUURNSvu",
+    "_key": "!items!weW6WgrxmUURNSvu",
+    "name": "Stain Armour",
+    "type": "spell",
+    "img": "icons/magic/defensive/shield-barrier-flaming-diamond-red.webp",
+    "system": {
+      "description": "<p>User covers themselves in a thin layer of Ketchup, gaining a shield that deals damage when broken.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ketchup",
+      "category": "Buff",
+      "cost": "1 Reaction, 6 IP",
+      "actions": 1,
+      "actionType": "reaction",
+      "mp": 6,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nGain 4d6 max health shield that deals 2d6 fire damage when broken in melee to the attacker"
+    },
+    "effects": [],
+    "folder": "BUJ5LdKGZZJd2lom",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "YlsrGfX68rTf8HtJ",
+    "_key": "!items!YlsrGfX68rTf8HtJ",
+    "name": "Tomato Juice",
+    "type": "spell",
+    "img": "icons/consumables/potions/potion-bottle-labeled-medicine-capped-red-black.webp",
+    "system": {
+      "description": "<p>User either focuses on their ketchup power to recover their own wounds, or to creates juice to heal others.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Ketchup",
+      "category": "Heal",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Ally",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nHeals 3d10 hp"
+    },
+    "effects": [],
+    "folder": "BUJ5LdKGZZJd2lom",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

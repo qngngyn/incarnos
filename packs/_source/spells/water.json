@@ -1,0 +1,277 @@
+[
+  {
+    "_id": "rIDnvgUKx6pV7V7C",
+    "_key": "!folders!rIDnvgUKx6pV7V7C",
+    "name": "Water",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 2400000,
+    "color": null,
+    "description": "Water Affinity: You have resistance to water dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "trw3rNMPvl0hjf9d",
+    "_key": "!items!trw3rNMPvl0hjf9d",
+    "name": "A Token of Gratitude/Sin",
+    "type": "spell",
+    "img": "icons/magic/life/heart-red-blue.webp",
+    "system": {
+      "description": "<p>The user learns a technique as ancient as the lands themselves. Heal and Damage, Good and Evil, Ying and Yang. These principles hold most true in the element of water. The user is now able to channel the Tokens of Gratitude and Sin.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Water",
+      "category": "Attack / Heal",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m",
+      "target": "Single Target",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "Unlocks the Gratitude/Sin Tokens\nEach time healing is applied, gain Gratitude (Lose all Sin). Each time damage is dealt, gain Sin (Lose all Gratitude).\nOn cast: For each Gratitude/Sin, deal/heal 2d6 water dmg/hp"
+    },
+    "effects": [],
+    "folder": "rIDnvgUKx6pV7V7C",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "4UNa8t90TMG1Maj7",
+    "_key": "!items!4UNa8t90TMG1Maj7",
+    "name": "Bubblebarrier",
+    "type": "spell",
+    "img": "icons/magic/water/orb-water-bubbles-blue.webp",
+    "system": {
+      "description": "<p>The user envelops the target in a bubble of water. The target is protected by outside harm, can breath inside the bubble and is healed inside the bubble until it pops. The bubble can absorb one instant of damage regardless of its force. It then pops.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Water",
+      "category": "Buff / Heal",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Ally",
+      "check": "No Check",
+      "duration": "3 turns",
+      "effect": "On enemy hit: Attack deals no damage. Bubblebarrier then disappears.\nOn begin of turn: Heals the holder for 1d4 hp."
+    },
+    "effects": [],
+    "folder": "rIDnvgUKx6pV7V7C",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "faDXOAPHFMvWoEdE",
+    "_key": "!items!faDXOAPHFMvWoEdE",
+    "name": "Healing Rain",
+    "type": "spell",
+    "img": "icons/magic/life/heart-cross-strong-blue.webp",
+    "system": {
+      "description": "<p>The user unleashes a large scale shower of healing rain that magically heals all wounds.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Water",
+      "category": "Heal",
+      "cost": "2 Actions, 14 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 14,
+      "range": "Self (12m radius)",
+      "target": "Ground Circle",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: Heals every target 4d4 + (lvl * 2) in the area around the caster"
+    },
+    "effects": [],
+    "folder": "rIDnvgUKx6pV7V7C",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "oNsaSncMGx61eE1c",
+    "_key": "!items!oNsaSncMGx61eE1c",
+    "name": "Lay on Hands",
+    "type": "spell",
+    "img": "icons/magic/water/water-hand.webp",
+    "system": {
+      "description": "<p>The user lays its hands on the target, finding disruptions in the target's mana and repairing its flow to enhance self regeneration by a lot.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Water",
+      "category": "Heal",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Ally",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: Heals the target by 4d6 + (lvl * 2) hp"
+    },
+    "effects": [],
+    "folder": "rIDnvgUKx6pV7V7C",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "deq1YiMhJ4VKOlHO",
+    "_key": "!items!deq1YiMhJ4VKOlHO",
+    "name": "Tsunami",
+    "type": "spell",
+    "img": "icons/magic/water/wave-water-rolling-blue.webp",
+    "system": {
+      "description": "<p>The user summons a great mass of water that floods the space. Everyone caught in it falls victim to its force and is knocked prone. Water users are able to ride the flood and can use them to their advantage.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Water",
+      "category": "Control",
+      "cost": "2 Action, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "6m (4,5m width)",
+      "target": "Line From User",
+      "check": "Target Save Str+Con",
+      "duration": "Instant",
+      "effect": "On cast: Targets are knocked prone (none when StrSave succeeded)\nAlso moved to the end of the Tsunami (none when ConSave succeeded)"
+    },
+    "effects": [],
+    "folder": "rIDnvgUKx6pV7V7C",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "FgHPDZXPP00VpPVY",
+    "_key": "!items!FgHPDZXPP00VpPVY",
+    "name": "Waterwhip",
+    "type": "spell",
+    "img": "icons/magic/water/pseudopod-swirl-blue.webp",
+    "system": {
+      "description": "<p>The user unleashes a whip of pure water. It can grapple things from a distance and be used as a weapon.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Water",
+      "category": "Attack",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "12m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit: Deals 4d6 + (lvl * 2) water/force dmg\nCan be used to grapple things from afar."
+    },
+    "effects": [],
+    "folder": "rIDnvgUKx6pV7V7C",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

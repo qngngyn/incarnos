@@ -1,0 +1,319 @@
+[
+  {
+    "_id": "6Xb34iqHHnWvN2xG",
+    "_key": "!folders!6Xb34iqHHnWvN2xG",
+    "name": "Earth",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 900000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "paXEcEFZ8mS9AfA8",
+    "_key": "!items!paXEcEFZ8mS9AfA8",
+    "name": "Earth Wall",
+    "type": "spell",
+    "img": "icons/magic/earth/barrier-stone-brown-green.webp",
+    "system": {
+      "description": "<p>The user creates a wall of solid stone out of the ground. Length, Height, Width can be controlled by the user.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Utility",
+      "cost": "2 Actions, 8 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 8,
+      "range": "12m",
+      "target": "Variable",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: A wall of the total size of 15m³ is being created\nExamples: Length, Height, Width\n(2m, 15m, 0,5m), (15m, 1m, 1m), (9m, 2m, ~0,8m)"
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "EdBSBG8Uh5OlEE5N",
+    "_key": "!items!EdBSBG8Uh5OlEE5N",
+    "name": "Exploding Lasagna",
+    "type": "spell",
+    "img": "icons/consumables/food/bowl-stew-tofu-potato-red.webp",
+    "system": {
+      "description": "<p>The user throws a Star-Shaped delicious looking Lasagna that taunts the Enemies within its range. Explodes when eaten leaving a Star Shaped Crater behind with a Face of Peri.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 14 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 14,
+      "range": "4,5m (3m radius)",
+      "target": "Ground Circle",
+      "check": "Target Save Int",
+      "duration": "Instant",
+      "effect": "On cast:\nThrows a lasagna mine that taunts all enemies in range for 1 turn. \"Eating\" the lasagna triggers an explosion with 1,5m radius that deals 3d6 + (lvl*2) (halved, when save succeded)"
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "JCQGLohr0CxwWOSg",
+    "_key": "!items!JCQGLohr0CxwWOSg",
+    "name": "Hurl \"Bolder\"",
+    "type": "spell",
+    "img": "icons/magic/earth/projectile-boulder-debris.webp",
+    "system": {
+      "description": "<p>This technique was developed by a professional strongwoman. At the time elemental powers were still unknown, she used her affinity to win her boulder lifting competition by outcompeting her peers by 3x. It was the first technique to see the light of day.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 14 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 14,
+      "range": "6m (1,5m radius)",
+      "target": "Ground Circle",
+      "check": "Attack Str, Target Save Con",
+      "duration": "Instant",
+      "effect": "On hit: Deals 4d6 + (lvl * 2) earth dmg\nTarget is knocked prone (none when save succeeded)"
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ob1jkEq6tI4DSP2E",
+    "_key": "!items!ob1jkEq6tI4DSP2E",
+    "name": "Lie detector",
+    "type": "spell",
+    "img": "icons/magic/perception/mask-stone-eyes-orange.webp",
+    "system": {
+      "description": "<p>The user heightens its senses and can read even the smallest of changes in pulse through the ground. This gets harder, the less solid the ground is. It is said one that masters this technique will never be lied to again.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Utility",
+      "cost": "1 Action, 3 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 3,
+      "range": "6m",
+      "target": "Single Target",
+      "check": "No Check",
+      "duration": "1 turn",
+      "effect": "On cast: Can detect a lie from the target. Doesn't work when the ground (the user+target are standing on) is not solid and connected. Must be cast before statements."
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "13bernjVrz32AAea",
+    "_key": "!items!13bernjVrz32AAea",
+    "name": "Plate Armor",
+    "type": "spell",
+    "img": "icons/magic/defensive/armor-stone-skin.webp",
+    "system": {
+      "description": "<p>The user has learned about the will of Rasmus. At any point in time, the user can call upon this will and envelop itself in an armor that is hard enough to withstand the furiest of blows.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Buff",
+      "cost": "2 Reactions, 10 IP",
+      "actions": 2,
+      "actionType": "reaction",
+      "mp": 10,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: Gains 50% maximum health shield"
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "aAs6xlkhZPmjNzZs",
+    "_key": "!items!aAs6xlkhZPmjNzZs",
+    "name": "Stoneprison",
+    "type": "spell",
+    "img": "icons/magic/earth/barrier-stone-explosion-spiked.webp",
+    "system": {
+      "description": "<p>The user moves the earth underneath the target at will. Four pillars shoot from the ground at the target, holding the target in place. These pillars come with such force that even walls break.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Attack / Control",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "9m",
+      "target": "Single Enemy",
+      "check": "Attack Int / Cha, Target Save Str",
+      "duration": "Instant",
+      "effect": "On hit: Deals 4d6 + (lvl * 2) earth dmg\nTarget is held in place (none when Save succeeded)"
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "3ZSIPgrHLKL8mtVq",
+    "_key": "!items!3ZSIPgrHLKL8mtVq",
+    "name": "Taunt",
+    "type": "spell",
+    "img": "icons/magic/control/control-influence-crown-gold.webp",
+    "system": {
+      "description": "<p>It is known that not only weapons can deal damage: so can words. The sheer cockiness the user extrudes, can hurt even the ego of most prideful of creatures and makes the user the #1 enemy.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Earth",
+      "category": "Control",
+      "cost": "2 Actions, 12 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 12,
+      "range": "Self (3m radius)",
+      "target": "Ground Circle",
+      "check": "Attack Int / Cha",
+      "duration": "Instant",
+      "effect": "On hit: Targets must attack the user in their next turn, dealing only 50% of their damage"
+    },
+    "effects": [],
+    "folder": "6Xb34iqHHnWvN2xG",
+    "sort": 700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

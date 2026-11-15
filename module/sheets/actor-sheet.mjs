@@ -1,339 +1,547 @@
-import {onManageActiveEffect, prepareActiveEffectCategories} from "../helpers/effects.mjs";
+import { ACTIONS, CONTEST_AP_COST, actionLabel, actionTooltip } from "../data/actions.mjs";
+import { useCombatAction } from "../helpers/combat-actions.mjs";
+import { changeActions, payActions, actorParticipatesInCombat } from "../helpers/action-tracker.mjs";
+import { CONTEST_STATS, getContestDefender, requestDefenderContest, getContestDie, renderNewContestBoard, rollBoardSide, showContestDialog, waitForContestAnimations } from "../helpers/contest-requests.mjs";
+import { renderCheckCard } from "../helpers/roll-card.mjs";
+import { getTalentRules, getTalentSummary } from "../helpers/talents.mjs";
+import { getParryModifier, getSpellChatContent, getSpellSummary, groupSpellsByElement } from "../helpers/spells.mjs";
+import { itemSummaryParts, sortItems } from "../helpers/item-summary.mjs";
+import { PASSIVE_STATS } from "../helpers/passives.mjs";
+import { itemSyncStatus } from "../helpers/item-sync.mjs";
+import { formatSignedNumber } from "../documents/item.mjs";
+import { advantageFormula, conditionAdvantage, proneParry, hasDodge, consumeDodge } from "../helpers/conditions.mjs";
+import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
+import { isPotion } from "../helpers/potions.mjs";
+
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheetV2 } = foundry.applications.sheets;
+const TextEditor = foundry.applications.ux.TextEditor.implementation;
 
 /**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
+ * Incarnos Actor Sheet using the Foundry VTT ApplicationV2 sheet framework.
+ * @extends {ActorSheetV2}
  */
-export class IncarnosActorSheet extends ActorSheet {
+export class IncarnosActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
-  /** @override */
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      classes: ["incarnos", "sheet", "actor"],
-      template: "systems/incarnos/templates/actor/actor-sheet.html",
+  /** Display only the actor type in the window header. */
+  get title() {
+    const type = this.actor.type;
+    const key = `TYPES.Actor.${type}`;
+    const label = game.i18n.localize(key);
+    return label !== key ? label : type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
+  /** @inheritDoc */
+  static DEFAULT_OPTIONS = {
+    classes: ["incarnos", "sheet", "actor"],
+    tag: "form",
+    position: {
       width: 600,
-      height: 600,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "features" }]
-    });
+      height: 700
+    },
+    window: {
+      resizable: true
+    },
+    form: {
+      closeOnSubmit: false,
+      submitOnChange: true
+    },
+    actions: {
+      roll: IncarnosActorSheet.#onRoll,
+      spendAction: function () { return changeActions(this.actor, "spend"); },
+      restoreAction: function () { return changeActions(this.actor, "restore"); },
+      resetActions: function () { return changeActions(this.actor, "reset"); },
+      combatAction: function (event, target) { event.preventDefault(); return useCombatAction(this.actor, target.dataset.combatAction); },
+      contestRoll: IncarnosActorSheet.#onContestRoll,
+      editImage: IncarnosActorSheet.#onEditImage,
+      itemCreate: IncarnosActorSheet.#onItemCreate,
+      itemEdit: IncarnosActorSheet.#onItemEdit,
+      itemDelete: IncarnosActorSheet.#onItemDelete,
+      itemToggle: IncarnosActorSheet.#onItemToggle,
+      effectCreate: IncarnosActorSheet.#onEffectControl,
+      effectEdit: IncarnosActorSheet.#onEffectControl,
+      effectDelete: IncarnosActorSheet.#onEffectControl,
+      effectToggle: IncarnosActorSheet.#onEffectControl
+    }
+  };
+
+  /** @inheritDoc */
+  static TABS = {
+    primary: {
+      initial: "features",
+      tabs: [
+        { id: "features", group: "primary", label: "Profile" },
+        { id: "description", group: "primary", label: "Notes" },
+        { id: "items", group: "primary", label: "Items" },
+        { id: "spells", group: "primary", label: "Spells" },
+        { id: "effects", group: "primary", label: "Effects" }
+      ]
+    }
+  };
+
+  /** @inheritDoc */
+  static PARTS = {
+    form: {
+      template: "systems/incarnos/templates/actor/actor-character-sheet.html"
+    }
+  };
+
+  /** @inheritDoc */
+  _configureRenderParts(options) {
+    return {
+      form: {
+        template: `systems/incarnos/templates/actor/actor-${this.actor.type}-sheet.html`
+      }
+    };
   }
 
-  /** @override */
-  get template() {
-    return `systems/incarnos/templates/actor/actor-${this.actor.type}-sheet.html`;
-  }
+  /** @inheritDoc */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = this.actor;
+    const actorData = actor.toObject(false);
 
-  /* -------------------------------------------- */
-
-  /** @override */
-  getData() {
-    // Retrieve the data structure from the base sheet. 
-    const context = super.getData();
-
-    // Use a safe clone of the actor data for further operations.
-    const actorData = this.actor.toObject(false);
-
-    // Add the actor's data to context.data for easier access, as well as flags.
+    context.actor = actor;
+    context.contestTooltip = game.i18n.format("INCARNOS.Actions.contestTooltip", { cost: CONTEST_AP_COST });
+    context.actionGroups = ["contest", "misc"].map(kind => ({
+      label: game.i18n.localize(`INCARNOS.Actions.${kind}`),
+      actions: ACTIONS.filter(action => action.kind === kind).map(action => ({ id: action.id, label: actionLabel(action), tooltip: actionTooltip(action) }))
+    }));
+    context.showActionTracker = actorParticipatesInCombat(actor);
     context.system = actorData.system;
+    // Remember the displayed total and its underlying base for safe form edits.
+    const sourceSystem = actor.toObject().system;
+    this._displayedStatValues = {};
+    for (const path of Object.keys(PASSIVE_STATS)) {
+      if (!path.startsWith("abilities.") && path !== "actionpoints.max" && actor.type !== "npc") continue;
+      let displayed = foundry.utils.getProperty(context.system, path);
+      const base = foundry.utils.getProperty(sourceSystem, path);
+      // The NPC parry input uses numberFormat with zero decimal places.
+      if (path === "attributes.parry.value") displayed = Math.round(Number(displayed));
+      if (Number.isFinite(Number(displayed)) && Number.isFinite(Number(base))) {
+        this._displayedStatValues[path] = { displayed: Number(displayed), base: Number(base) };
+      }
+    }
     context.flags = actorData.flags;
+    context.items = actorData.items ?? [];
+    context.effects = prepareActiveEffectCategories(actor.effects, actor.items);
+    context.tabs = this._prepareTabs("primary");
+    context.rollData = actor.getRollData();
+    context.owner = actor.isOwner;
+    context.editable = this.isEditable;
+    context.cssClass = this.options.classes.join(" ");
 
-    // Prepare character data and items.
-    if (actorData.type == 'character') {
+    if (actor.type === "character") {
       this._prepareItems(context);
       this._prepareCharacterData(context);
     }
 
-    // Prepare NPC data and items.
-    if (actorData.type == 'npc') {
+    if (actor.type === "npc") {
       this._prepareItems(context);
       this._prepareNpcData(context);
+      // Players apply this to attacks against the NPC (10 − Parry).
+      context.parryModifier = formatSignedNumber(getParryModifier(actor.system.attributes?.parry?.value));
     }
 
-    // Add roll data for TinyMCE editors.
-    context.rollData = context.actor.getRollData();
+    await Promise.all((context.talents ?? []).map(async talent => {
+      talent.descriptionHTML = await TextEditor.enrichHTML(talent.talentSummary, {
+        secrets: actor.isOwner,
+        relativeTo: actor.items.get?.(talent._id) ?? actor,
+        rollData: context.rollData
+      });
+    }));
 
-    // Prepare active effects
-    context.effects = prepareActiveEffectCategories(this.actor.effects);
+    context.biographyHTML = await TextEditor.enrichHTML(context.system.biography ?? "", {
+      secrets: actor.isOwner,
+      relativeTo: actor,
+      rollData: context.rollData
+    });
 
     return context;
   }
 
+  /** Preserve stored base stats when the form submits displayed effective totals. */
+  _processFormData(event, form, formData) {
+    const data = super._processFormData(event, form, formData);
+    for (const [path, { displayed, base }] of Object.entries(this._displayedStatValues ?? {})) {
+      const field = `system.${path}`;
+      const value = foundry.utils.getProperty(data, field);
+      if (value === undefined || value === null || value === "" || !Number.isFinite(Number(value))) continue;
+      // An unchanged total saves the original base. Editing a total changes only the base.
+      foundry.utils.setProperty(data, field, base + Number(value) - displayed);
+    }
+    return data;
+  }
+
+  /** @inheritDoc */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    // Re-open the item texts that were open before this render; forget items that are gone.
+    for (const id of [...this.#expandedItems]) {
+      const row = this.element.querySelector(`li.item[data-item-id="${id}"]`);
+      if (row) await this.#showItemSummary(row);
+      else if (!this.actor.items.has(id)) this.#expandedItems.delete(id);
+    }
+
+    const fields = 'input:not([type]), input[type="text"], input[type="number"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"], textarea';
+    for (const input of this.element.querySelectorAll(fields)) {
+      if (input.disabled || input.readOnly) continue;
+      input.addEventListener("focus", () => input.select());
+      input.addEventListener("pointerdown", event => {
+        if (event.button !== 0 || input.ownerDocument.activeElement === input) return;
+        // Keep the initial click from collapsing the selection after focus.
+        event.preventDefault();
+        input.focus();
+        input.select();
+      });
+    }
+  }
+
   /**
-   * Organize and classify Items for Character sheets.
-   *
-   * @param {Object} actorData The actor to prepare.
-   *
-   * @return {undefined}
+   * Prepare Character type specific sheet data.
+   * @param {object} context
    */
   _prepareCharacterData(context) {
-    // Handle ability scores.
-    for (let [k, v] of Object.entries(context.system.abilities)) {
-      v.label = game.i18n.localize(CONFIG.INCARNOS.abilities[k]) ?? k;
-    }
-  }
-
-  _prepareNpcData(context) {
-    // Handle ability scores.
-    for (let [k, v] of Object.entries(context.system.abilities)) {
-      v.label = game.i18n.localize(CONFIG.INCARNOS.abilities[k]) ?? k;
+    for (const [key, ability] of Object.entries(context.system.abilities)) {
+      ability.label = game.i18n.localize(CONFIG.INCARNOS.abilities[key]) ?? key;
     }
   }
 
   /**
-   * Organize and classify Items for Character sheets.
-   *
-   * @param {Object} actorData The actor to prepare.
-   *
-   * @return {undefined}
+   * Prepare NPC type specific sheet data.
+   * @param {object} context
+   */
+  _prepareNpcData(context) {
+    for (const [key, ability] of Object.entries(context.system.abilities)) {
+      ability.label = game.i18n.localize(CONFIG.INCARNOS.abilities[key]) ?? key;
+    }
+  }
+
+  /**
+   * Organize and classify Items for actor sheets.
+   * @param {object} context
    */
   _prepareItems(context) {
-    // Initialize containers.
     const gear = [];
-    const features = [];
-    const spells = {
-      0: [],
-      1: [],
-      2: [],
-      3: [],
-      4: [],
-      5: [],
-      6: [],
-      7: [],
-      8: [],
-      9: []
-    };
+    const talents = [];
+    const spells = [];
 
-    // Iterate through items, allocating to containers
-    for (let i of context.items) {
-      i.img = i.img || DEFAULT_TOKEN;
-      // Append to gear.
-      if (i.type === 'item') {
-        gear.push(i);
+    // Lists follow the order the owner dragged them into (Item sort), so drag-and-drop sorting shows.
+    for (const item of sortItems(context.items)) {
+      item.syncCustomized = itemSyncStatus(item)?.customized ?? false;
+      item.img = item.img || CONST.DEFAULT_TOKEN;
+
+      if (item.type === "weapon") {
+        item.attackRoll = formatSignedNumber(item.system?.modifier);
       }
-      // Append to gear.
-      if (i.type === 'weapon') {
-        gear.push(i);
+
+      if ((item.type === "item") || (item.type === "weapon")) {
+        item.isPotion = isPotion(item);
+        gear.push(item);
       }
-      // Append to features.
-      else if (i.type === 'feature') {
-        features.push(i);
+      else if (item.type === "feature" || item.type === "race") {
+        item.talentSummary = getTalentSummary(item.system);
+        item.isRace = item.type === "race";
+        talents.push(item);
       }
-      // Append to spells.
-      else if (i.type === 'spell') {
-        if (i.system.spellLevel != undefined) {
-          spells[i.system.spellLevel].push(i);
-        }
+      else if (item.type === "spell") {
+        item.spellSummary = getSpellSummary(item.system);
+        spells.push(item);
       }
     }
 
-    // Assign and return
     context.gear = gear;
-    context.features = features;
-    context.spells = spells;
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
-
-    // Render the item sheet for viewing/editing prior to the editable check.
-    html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.sheet.render(true);
-    });
-
-    // -------------------------------------------------------------
-    // Everything below here is only needed if the sheet is editable
-    if (!this.isEditable) return;
-
-    // Add Inventory Item
-    html.find('.item-create').click(this._onItemCreate.bind(this));
-
-    // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.delete();
-      li.slideUp(200, () => this.render(false));
-    });
-
-    // Active Effect management
-    html.find(".effect-control").click(ev => onManageActiveEffect(ev, this.actor));
-
-    // Rollable abilities.
-    html.find('.rollable').click(this._onRoll.bind(this));
-
-    html.find('.contestroll').click(this._onContestRoll.bind(this));
-
-    // Autoselect fields
-    html.find('.auto-select').each((i,input) => {
-      input.addEventListener('focus', function() {
-        this.select();
-      });
-    });
-
-    // Drag events for macros.
-    if (this.actor.isOwner) {
-      let handler = ev => this._onDragStart(ev);
-      html.find('li.item').each((i, li) => {
-        if (li.classList.contains("inventory-header")) return;
-        li.setAttribute("draggable", true);
-        li.addEventListener("dragstart", handler, false);
-      });
-    }
+    context.talents = talents.sort((a, b) => Number(b.isRace) - Number(a.isRace) || (a.sort ?? 0) - (b.sort ?? 0));
+    context.spells = groupSpellsByElement(spells);
   }
 
   /**
-   * Handle creating a new Owned Item for the actor using initial data defined in the HTML dataset
-   * @param {Event} event   The originating click event
-   * @private
+   * Create a new embedded Item.
+   * @this {IncarnosActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
    */
-  async _onItemCreate(event) {
+  static async #onItemCreate(event, target) {
     event.preventDefault();
-    const header = event.currentTarget;
-    // Get the type of item to create.
-    const type = header.dataset.type;
-    // Grab any data associated with this control.
-    const data = duplicate(header.dataset);
-    // Initialize a default name.
-    const name = `New ${type.capitalize()}`;
-    // Prepare the item object.
-    const itemData = {
-      name: name,
-      type: type,
-      system: data
-    };
-    // Remove the type from the dataset since it's in the itemData.type prop.
-    delete itemData.system["type"];
 
-    // Finally, create the item!
-    return await Item.create(itemData, {parent: this.actor});
+    const type = target.dataset.type;
+    const system = foundry.utils.deepClone(target.dataset);
+    delete system.type;
+
+    const name = type === "feature" ? "New Talent" : `New ${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+    const itemData = { name, type, system };
+
+    return this.actor.createEmbeddedDocuments("Item", [itemData]);
+  }
+
+  /**
+   * Open an embedded Item sheet.
+   * @this {IncarnosActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onItemEdit(event, target) {
+    event.preventDefault();
+
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    item?.sheet.render({ force: true });
+  }
+
+  /** Items whose full text is open under their row (kept across re-renders). */
+  #expandedItems = new Set();
+
+  /**
+   * Click on an item's name: show or hide its full text under the row (spell effect, weapon traits, description).
+   * @this {IncarnosActorSheet}
+   */
+  static async #onItemToggle(event, target) {
+    event.preventDefault();
+    const row = target.closest("[data-item-id]");
+    const id = row?.dataset.itemId;
+    if (!id) return;
+    if (this.#expandedItems.has(id)) {
+      this.#expandedItems.delete(id);
+      row.nextElementSibling?.classList.contains("item-summary") && row.nextElementSibling.remove();
+      row.classList.remove("expanded");
+    } else {
+      this.#expandedItems.add(id);
+      await this.#showItemSummary(row);
+    }
+  }
+
+  /** Insert the summary row after an item row. */
+  async #showItemSummary(row) {
+    const item = this.actor.items.get(row.dataset.itemId);
+    if (!item || row.nextElementSibling?.classList.contains("item-summary")) return;
+    const parts = itemSummaryParts(item, { spellContent: getSpellChatContent });
+    const description = parts.description ? await TextEditor.enrichHTML(parts.description, {
+      secrets: item.isOwner, relativeTo: item, rollData: item.getRollData?.() ?? {}
+    }) : "";
+    const summary = document.createElement("li");
+    summary.className = "item-summary";
+    summary.innerHTML = (parts.html || "") + description || `<p class="item-summary-empty">${game.i18n.localize("INCARNOS.ItemSummary.empty")}</p>`;
+    row.after(summary);
+    row.classList.add("expanded");
+  }
+
+  /**
+   * Delete an embedded Item.
+   * @this {IncarnosActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static async #onItemDelete(event, target) {
+    event.preventDefault();
+
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+
+    await item.delete();
+    this.render({ force: true });
+  }
+
+  /**
+   * Manage Active Effects from sheet controls.
+   * @this {IncarnosActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onEffectControl(event, target) {
+    event.preventDefault();
+
+    const action = target.dataset.action.replace(/^effect/, "").toLowerCase();
+    target.dataset.effectAction = action;
+    return onManageActiveEffect(event, this.actor, target);
   }
 
   /**
    * Handle clickable rolls.
-   * @param {Event} event   The originating click event
-   * @private
+   * @this {IncarnosActorSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
    */
-  _onRoll(event) {
+  static async #onRoll(event, target) {
     event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
+    const dataset = target.dataset;
 
-    // Handle item rolls.
     if (dataset.rollType) {
-      if (dataset.rollType == 'item' || dataset.rollType == 'weapon' || dataset.rollType == 'spell') {
-        const itemId = element.closest('.item').dataset.itemId;
+      if (["item", "weapon", "spell"].includes(dataset.rollType)) {
+        const itemId = target.closest("[data-item-id]")?.dataset.itemId;
         const item = this.actor.items.get(itemId);
         if (item) return item.roll();
       }
     }
 
-    // Handle rolls that supply the formula directly.
     if (dataset.roll) {
-      let label = dataset.label ? `${dataset.label}` : '';
-      let roll = new Roll(dataset.roll, this.actor.getRollData());
-      roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-        flavor: label,
-        rollMode: game.settings.get('core', 'rollMode'),
+      const speaker = ChatMessage.getSpeaker({ actor: this.actor });
+      const rollMode = game.settings.get("core", "rollMode");
+      // Talents such as Cold-Hearted give advantage on some saves: roll 2d20, keep the lower.
+      const talentRules = getTalentRules(this.actor.items);
+      const advantageSource = dataset.check === "save" ? talentRules.saveAdvantage[dataset.stat] : null;
+      // Race save bonuses (Dwarf) are already in ability.save; the card names them.
+      const saveBonus = dataset.check === "save" ? talentRules.saveBonus[dataset.stat] ?? null : null;
+      // Conditions on Parry: Hidden gives advantage. Prone (disadvantage against melee, advantage against ranged)
+      // rolls enough dice to show both cases instead of asking.
+      const statuses = this.actor.statuses ?? new Set();
+      const proneParryRoll = dataset.check === "parry" && statuses.has("prone");
+      const dodging = dataset.check === "parry" && hasDodge(this.actor);
+      const conditionAdv = dataset.check === "parry" ? conditionAdvantage(statuses, "parry", null, { dodge: dodging })
+        : dataset.check === "save" ? conditionAdvantage(statuses, "save") : { delta: 0, sources: [] };
+      const advantageDelta = (advantageSource ? 1 : 0) + conditionAdv.delta;
+      const advantageSources = [advantageSource, ...conditionAdv.sources].filter(Boolean).join(", ");
+      const formula = proneParryRoll ? `${conditionAdv.delta + 2}d20` : advantageDelta ? advantageFormula(advantageDelta) : dataset.roll;
+      const roll = await new Roll(formula, this.actor.getRollData()).evaluate();
+      if (dodging) await consumeDodge(this.actor);
+      const parryCases = proneParryRoll ? proneParry(roll.dice[0].results.map(result => result.result), conditionAdv.delta) : null;
+      const ability = this.actor.system.abilities?.[dataset.stat];
+      const value = dataset.check === "parry" ? Number(this.actor.system.attributes?.parry?.value)
+        : dataset.check === "save" ? Number(ability?.save) : Number(ability?.value);
+      // Roll-under checks get the shared card; anything else keeps Foundry's plain roll message.
+      if (!dataset.check || !Number.isFinite(value)) {
+        await roll.toMessage({ speaker, flavor: dataset.label ?? "", rollMode });
+        return roll;
+      }
+      const card = pending => renderCheckCard({
+        roller: { name: this.actor.name, img: this.actor.img }, kind: dataset.check,
+        statLabel: game.i18n.localize(CONFIG.INCARNOS.abilities[dataset.stat] ?? dataset.stat ?? ""),
+        value: Math.round(value), d20: parryCases ? parryCases.melee : roll.total, pending,
+        advantage: advantageDelta ? { source: advantageSources, dice: roll.dice[0]?.results.map(result => result.result) ?? [], low: advantageDelta > 0 } : null,
+        bonus: saveBonus,
+        cases: parryCases ? [{ label: "vs melee", d20: parryCases.melee }, { label: "vs ranged", d20: parryCases.ranged }] : null,
+        casesTag: parryCases ? `Prone${conditionAdv.sources.length ? `, ${conditionAdv.sources.join(", ")}` : ""}` : ""
       });
+      const chatData = { speaker, content: card(true), rolls: [roll.toJSON()], sound: CONFIG.sounds.dice };
+      ChatMessage.applyMode(chatData, rollMode);
+      const message = await ChatMessage.create(chatData);
+      if (message) {
+        await waitForContestAnimations([message.id]);
+        await message.update({ content: card(false) });
+      }
       return roll;
     }
   }
 
-  _onChatMessage(event) {
+  /**
+   * Handle the contest-roll prompt.
+   * @this {IncarnosActorSheet}
+   * @param {PointerEvent} event
+   */
+  static async #onContestRoll(event, target) {
     event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
+
     const speaker = ChatMessage.getSpeaker({ actor: this.actor });
-    const flavor = dataset.label ? `${dataset.label}` : '';
-    ChatMessage.create({ speaker: speaker, flavor: flavor, type: CONST.CHAT_MESSAGE_TYPES.OOC })
-  }
-
-  _onContestRoll(event) {
-    event.preventDefault();
-    const speaker = ChatMessage.getSpeaker({ actor: this.actor });
-    const actor = game.actors.get(ChatMessage.getSpeaker({ actor: this.actor }).actor);
-    const abilities = actor.system.abilities;
-    const advantage = ["Strength", "Dexterity", "Constitution", "Willpower", "Perception", "Speed", "Intelligence", "Charisma"];
-    const advSelected = "Strength";
-    const advoptions = advantage.reduce((acc, e) => acc + `<option value="${e}" ${e === advSelected ? "advSelected" : ""}>${e}</option>`, "");
-
-    new Dialog({
-      title: "Choose your Contest stat",
-      content: `
-        <form>
-        <fieldset><legend>Stats</legend>
-          <div class="form-group">
-            <label>Stat</label>
-            <select name="advtype">
-              ${advoptions}
-            </select>
-          </div>
-        </fieldset>
-      </form>`,
-      buttons: {
-        ok: {
-          label: "Contest",
-          callback: html => {
-            const form = new FormDataExtended(html[0].querySelector("form")).object;
-            let flavor;
-            switch (form.advtype) {
-              case "Strength": {
-                flavor = `${form.advtype} Contest: ${abilities.str.value}`
-                break;
-              }
-              case "Dexterity": {
-                flavor = `${form.advtype} Contest: ${abilities.dex.value}`
-                break;
-              }
-              case "Constitution": {
-                flavor = `${form.advtype} Contest: ${abilities.con.value}`
-                break;
-              }
-              case "Willpower": {
-                flavor = `${form.advtype} Contest: ${abilities.wil.value}`
-                break;
-              }
-              case "Perception": {
-                flavor = `${form.advtype} Contest: ${abilities.prc.value}`
-                break;
-              }
-              case "Speed": {
-                flavor = `${form.advtype} Contest: ${abilities.spd.value}`
-                break;
-              }
-              case "Intelligence": {
-                flavor = `${form.advtype} Contest: ${abilities.int.value}`
-                break;
-              }
-              case "Charisma": {
-                flavor = `${form.advtype} Contest: ${abilities.cha.value}`
-                break;
-              }
-            }
-            doDialogue(flavor);
-          }
-        }
-      }
-    }).render(true);
-
-    async function doDialogue(flavor) {
-      await ChatMessage.create({ speaker: speaker, flavor: flavor});
-      const proceed = await foundry.applications.api.DialogV2.confirm({
-        window: { title: "Ready to roll?" },
+    const abilities = this.actor.system.abilities;
+    const options = ["Strength", "Dexterity", "Constitution", "Willpower", "Perception", "Speed", "Intelligence", "Charisma"]
+      .map(stat => `<option value="${stat}">${stat}</option>`)
+      .join("");
+    const contestType = target?.dataset.contestType === "save" ? "Save" : "Attack";
+    const noTarget = contestType === "Attack" && !(game.user?.targets?.size);
+    if (noTarget) {
+      const rollAnyway = await showContestDialog("confirm", {
+        window: { title: "No contest target selected" },
+        content: "<p>A target is required to request a defender's contest roll. No token is currently targeted.</p><p>Do you want to roll this contest anyway, without prompting a defender?</p>",
+        yes: { label: "Roll anyway" },
+        no: { label: "Cancel" },
+        rejectClose: false,
         modal: true
       });
-      if ( proceed ) {
-        const rollHit = await new Roll(`1d20`).evaluate();
-        await ChatMessage.create({ speaker: speaker, flavor: `Let's see who wins`, rolls: [rollHit]});
-      }
-      else {
-        await ChatMessage.create({ speaker: speaker, flavor: `wussed out of the contest`});
-      };
+      if (!rollAnyway) return;
     }
+    const defender = contestType === "Attack" && !noTarget ? getContestDefender(this.actor) : null;
+
+    const result = await showContestDialog("prompt", {
+      window: { title: `Choose your ${contestType.toLowerCase()} contest stat` },
+      content: `
+        <fieldset>
+          <legend>Stats</legend>
+          <div class="form-group">
+            <label>Stat</label>
+            <select name="stat">${options}</select>
+          </div>
+        </fieldset>`,
+      ok: {
+        label: "Roll!",
+        callback: (event, button) => 
+          ({
+            type: contestType,
+            stat: button.form.elements.stat.value
+          })
+      },
+      rejectClose: false,
+      modal: true
+    });
+
+    if (!result) return;
+
+    // One board shows both sides of the contest and is updated as each side rolls.
+    const role = result.type === "Attack" ? "attack" : "save";
+    const value = Number(abilities[CONTEST_STATS[result.stat]]?.[role === "attack" ? "value" : "save"]);
+    const die = getContestDie(value);
+    const attacker = { uuid: this.actor.uuid, name: this.actor.name, img: this.actor.img, stat: result.stat, value, die, role };
+    const opponent = role === "attack" && defender?.actor ? { uuid: defender.actor.uuid, name: defender.actor.name, img: defender.actor.img } : null;
+    const invalid = Number.isInteger(die) ? "" : "Cannot roll this contest: the selected stat must be a finite integer.";
+    if (!invalid && role === "attack"
+      && await payActions(this.actor, CONTEST_AP_COST, game.i18n.localize("INCARNOS.Actions.contest")) === false) return;
+    const board = await ChatMessage.create({
+      speaker,
+      content: renderNewContestBoard({ stat: result.stat, attacker, defender: opponent }),
+      flags: { incarnos: { contestBoard: { round: 1, stat: result.stat, attacker, defender: opponent } } }
+    });
+    if (invalid) {
+      await board.update({ content: renderNewContestBoard({ stat: result.stat, attacker, note: invalid }), "flags.incarnos.contestBoard.cancelled": true });
+      return;
+    }
+    if (role === "attack" && !noTarget) await requestDefenderContest({ attacker: this.actor, defender, attackMessage: board, stat: result.stat });
+
+    const proceed = role === "attack" || await showContestDialog("prompt", {
+      window: { title: "Ready to roll?" },
+      content: "Defend yourself!",
+      ok: { label: "Roll", callback: () => true },
+      rejectClose: false,
+      modal: true
+    });
+
+    if (proceed) await rollBoardSide(board, attacker);
+    else await board.update({ content: renderNewContestBoard({ stat: result.stat, attacker, note: "Contest cancelled." }), "flags.incarnos.contestBoard.cancelled": true });
+  }
+  
+  static async #onEditImage(event, target) {
+  event.preventDefault();
+
+  const field = target.dataset.field ?? "img";
+  const current = foundry.utils.getProperty(this.document, field) ?? "";
+
+  const FilePicker = foundry.applications.apps.FilePicker.implementation ?? foundry.applications.apps.FilePicker;
+  const picker = new FilePicker({
+    type: "image",
+    current,
+    callback: path => field === "img" ? setActorPicture(this.document, path) : this.document.update({ [field]: path })
+  });
+
+  picker.render(true);
+}
+}
+
+/**
+ * Change an actor's portrait. A token that showed the same picture (compendium monsters bring their own token art)
+ * follows it: the prototype token, this sheet's token and the actor's tokens already on scenes.
+ * @param {Actor} actor
+ * @param {string} path
+ */
+export async function setActorPicture(actor, path) {
+  const old = actor.img;
+  const tokenDoc = actor.isToken ? actor.token : null;
+  const follows = src => !src || src === old || src === CONST.DEFAULT_TOKEN;
+  const base = tokenDoc?.baseActor ?? actor;
+  await actor.update({ img: path, ...(!tokenDoc && follows(actor.prototypeToken?.texture?.src) ? { "prototypeToken.texture.src": path } : {}) });
+  if (tokenDoc) {
+    if (follows(tokenDoc.texture?.src)) await tokenDoc.update({ "texture.src": path });
+    return;
+  }
+  for (const scene of game.scenes ?? []) {
+    const tokens = scene.tokens.filter(token => token.actorId === base.id && follows(token.texture?.src));
+    if (tokens.length) await scene.updateEmbeddedDocuments("Token", tokens.map(token => ({ _id: token.id, "texture.src": path })));
   }
 }

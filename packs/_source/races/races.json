@@ -1,0 +1,723 @@
+[
+  {
+    "_id": "qHpVgYMlcD3LAifD",
+    "_key": "!items!qHpVgYMlcD3LAifD",
+    "name": "Aasimar",
+    "type": "race",
+    "img": "icons/magic/holy/angel-winged-humanoid-blue.webp",
+    "system": {
+      "description": "<p>Aasimar</p>",
+      "bonus": "You gain the ability to fly when not wearing heavy armor",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "UpoQtBbbT8HaX9ih",
+    "_key": "!items!UpoQtBbbT8HaX9ih",
+    "name": "Abomination",
+    "type": "race",
+    "img": "icons/magic/death/undead-zombie-grave-green.webp",
+    "system": {
+      "description": "<p>Man made out of flesh</p>",
+      "bonus": "You have no IP. Instead gain HP and all spells use HP.",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "kDSGzhREXTi4nfHV",
+    "_key": "!items!kDSGzhREXTi4nfHV",
+    "name": "Automata",
+    "type": "race",
+    "img": "icons/creatures/magical/construct-golem-robot-blue.webp",
+    "system": {
+      "description": "",
+      "bonus": "+2m range on weapon attacks\nAdvantage on Constitution Saving Throws",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ojuJxMeVPWfzrLcS",
+    "_key": "!items!ojuJxMeVPWfzrLcS",
+    "name": "Bearfolk",
+    "type": "race",
+    "img": "icons/creatures/abilities/bear-roar-bite-brown.webp",
+    "system": {
+      "description": "<p>Bearfolk</p>",
+      "bonus": "+2 Strength",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.str.value",
+          "value": 2,
+          "description": "+2 Strength"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "EtUzd3jhgBhKWSbN",
+    "_key": "!items!EtUzd3jhgBhKWSbN",
+    "name": "Carayalos",
+    "type": "race",
+    "img": "icons/creatures/unholy/demon-hairy-winged-pink.webp",
+    "system": {
+      "description": "<p>Half Monkey, Half Demon</p>",
+      "bonus": "You have 1.5x movementspeed",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "RPk55vPDNe3P8zxD",
+    "_key": "!items!RPk55vPDNe3P8zxD",
+    "name": "Centaur",
+    "type": "race",
+    "img": "icons/creatures/magical/humanoid-horned-rider.webp",
+    "system": {
+      "description": "<p>Half Human, Half Horse</p>",
+      "bonus": "You have 2x movementspeed, but instead have 1 action less when in battle while in numbers disadvantage",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "LOrJmkfhnQqksp6R",
+    "_key": "!items!LOrJmkfhnQqksp6R",
+    "name": "Dragonhuman",
+    "type": "race",
+    "img": "icons/creatures/reptiles/dragon-horned-blue.webp",
+    "system": {
+      "description": "",
+      "bonus": "+1 Strength\n+1 Charisma",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.str.value",
+          "value": 1,
+          "description": "+1 Strength"
+        },
+        "bonus2": {
+          "stat": "abilities.cha.value",
+          "value": 1,
+          "description": "+1 Charisma"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "iDNvkBjU3djB5TDI",
+    "_key": "!items!iDNvkBjU3djB5TDI",
+    "name": "Dwarf",
+    "type": "race",
+    "img": "icons/environment/people/infantry-armored.webp",
+    "system": {
+      "description": "<p>Dwarfs generally are of smaller stature but bulkier. Most of them are born underground, but for the longest time they have been living above ground with humans and other races peacefully.</p>",
+      "bonus": "+2 on Constitution, Willpower, Charisma, Intelligence Saving Throws",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "oyvZElNgcZciRvh5",
+    "_key": "!items!oyvZElNgcZciRvh5",
+    "name": "Elf",
+    "type": "race",
+    "img": "icons/environment/people/archer.webp",
+    "system": {
+      "description": "<p>Elves live secluded on a bigger island, surrounded by the sea and its rulers: the gods of storm and balance. They are very rarely seen on the reborn lands, and most inhabitants only know elves from tales.</p>",
+      "bonus": "Born Sailor: Elves know their ways on water\n+1 Dexterity",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.dex.value",
+          "value": 1,
+          "description": "+1 Dexterity"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "2jJZNGlmRPeQ4JEO",
+    "_key": "!items!2jJZNGlmRPeQ4JEO",
+    "name": "Geckofolk",
+    "type": "race",
+    "img": "icons/creatures/reptiles/lizard-iguana-green.webp",
+    "system": {
+      "description": "<p>Geckofolk</p>",
+      "bonus": "You can walk on anything solid\n+1 Dexterity",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.dex.value",
+          "value": 1,
+          "description": "+1 Dexterity"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "hzprEIRt9qHHfbrW",
+    "_key": "!items!hzprEIRt9qHHfbrW",
+    "name": "Half-Tabaxi",
+    "type": "race",
+    "img": "icons/creatures/mammals/humanoid-fox-cat-archer.webp",
+    "system": {
+      "description": "<p>Half Human, Half Tabaxi</p>",
+      "bonus": "+4 on Persuasion Checks",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "yRj8m6WN00c3NN6D",
+    "_key": "!items!yRj8m6WN00c3NN6D",
+    "name": "Harpy",
+    "type": "race",
+    "img": "icons/creatures/birds/raptor-hawk-flying.webp",
+    "system": {
+      "description": "<p>Half Human, Half Aaracocra</p>",
+      "bonus": "You gain the ability to glide in the air\n+1 Stat Bonus",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "",
+          "value": 1,
+          "description": "+1 Stat Bonus (choose the stat)"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "pkup86bYGiN18oDz",
+    "_key": "!items!pkup86bYGiN18oDz",
+    "name": "Human",
+    "type": "race",
+    "img": "icons/environment/people/commoner.webp",
+    "system": {
+      "description": "<p>Humans are one of the most adaptable and ambitious races in the world of Incarnos. Their ambition and versatility have propelled them to become one of the most dominant species across many realms. With lifespans that are relatively short compared to some other races, humans make up for it with their boundless energy, creativity, and ambition.</p>",
+      "bonus": "+1 Intelligence\n+1 Charisma",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.int.value",
+          "value": 1,
+          "description": "+1 Intelligence"
+        },
+        "bonus2": {
+          "stat": "abilities.cha.value",
+          "value": 1,
+          "description": "+1 Charisma"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "JywU2BMFBAS8mnGw",
+    "_key": "!items!JywU2BMFBAS8mnGw",
+    "name": "Kaijurian - Godzilla",
+    "type": "race",
+    "img": "icons/creatures/reptiles/lizard-mouth-glowing-red.webp",
+    "system": {
+      "description": "<p>Half Human, Half Godzilla</p>",
+      "bonus": "+1 Parry\nYou have an additional Tail that can be used various ways",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "attributes.parry.value",
+          "value": 1,
+          "description": "+1 Parry"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "UqsebGLIJYBgxaO0",
+    "_key": "!items!UqsebGLIJYBgxaO0",
+    "name": "Koopabbit",
+    "type": "race",
+    "img": "icons/creatures/reptiles/turtle-shell-glowing-green.webp",
+    "system": {
+      "description": "<p>Rabbit+Koopa(Tortoise)</p>",
+      "bonus": "+2 Speed",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.spd.value",
+          "value": 2,
+          "description": "+2 Speed"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "GqGX8izTZzkqquzO",
+    "_key": "!items!GqGX8izTZzkqquzO",
+    "name": "Rabbitfolk",
+    "type": "race",
+    "img": "icons/creatures/mammals/rabbit-movement-glowing-green.webp",
+    "system": {
+      "description": "<p>Rabbitfolk</p>",
+      "bonus": "You can jump half as far as you can run\n+1 Speed",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.spd.value",
+          "value": 1,
+          "description": "+1 Speed"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1600000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "pnQVc1HK90jHUxVw",
+    "_key": "!items!pnQVc1HK90jHUxVw",
+    "name": "Rambystouma",
+    "type": "race",
+    "img": "icons/creatures/amphibians/treefrog-underneath-teal.webp",
+    "system": {
+      "description": "",
+      "bonus": "You have 2x movementspeed on normal terrain, but only have 0.25x movementspeed on difficult terrain",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1700000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "kRqErAlgdsFCv4CL",
+    "_key": "!items!kRqErAlgdsFCv4CL",
+    "name": "Ratfolk",
+    "type": "race",
+    "img": "icons/creatures/mammals/rodent-rat-green.webp",
+    "system": {
+      "description": "<p>Ratfolk</p>",
+      "bonus": "+4 on Dealing with Deals",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1800000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "u9nruLv9InQ6puIZ",
+    "_key": "!items!u9nruLv9InQ6puIZ",
+    "name": "Shadowhuman",
+    "type": "race",
+    "img": "icons/magic/perception/silhouette-stealth-shadow.webp",
+    "system": {
+      "description": "<p>Shadowhumans have purple tattoos on their bodies that react to the absence of light. These tattoos are manmade.</p>",
+      "bonus": "You become invisible in shadow",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 1900000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Mn1JIwRGdjJxi06x",
+    "_key": "!items!Mn1JIwRGdjJxi06x",
+    "name": "Shadowundead",
+    "type": "race",
+    "img": "icons/creatures/magical/spirit-undead-ghost-purple.webp",
+    "system": {
+      "description": "<p>Shadowundead are made of a black tar-like substance that can merge into the shadows.</p>",
+      "bonus": "You can dive into shadows and travel through them",
+      "passivesEnabled": true,
+      "passives": {}
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2000000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "3S49IoxBYhrQcAcY",
+    "_key": "!items!3S49IoxBYhrQcAcY",
+    "name": "Tabaxi",
+    "type": "race",
+    "img": "icons/creatures/mammals/humanoid-cat-skulking-teal.webp",
+    "system": {
+      "description": "<p>Tabaxi</p>",
+      "bonus": "+2 Dexterity",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "abilities.dex.value",
+          "value": 2,
+          "description": "+2 Dexterity"
+        }
+      }
+    },
+    "effects": [],
+    "folder": null,
+    "sort": 2100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

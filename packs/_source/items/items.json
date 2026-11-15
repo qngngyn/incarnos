@@ -1,0 +1,168 @@
+[
+  {
+    "_id": "kAQ3Cz7Rn6iNt6r1",
+    "_key": "!folders!kAQ3Cz7Rn6iNt6r1",
+    "name": "Potions",
+    "type": "Item",
+    "folder": null,
+    "sorting": "a",
+    "sort": 100000,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "dRaW1rN8HASewFfk",
+    "_key": "!items!dRaW1rN8HASewFfk",
+    "name": "Health Potion",
+    "type": "item",
+    "img": "icons/consumables/potions/bottle-round-corked-red.webp",
+    "system": {
+      "description": "<p>A small round bottle of thick red liquid that tastes of iron and honey. Wounds close as it goes down.</p><p><b>Effect:</b> Heals 2d8 + 2 HP<br><b>Cost:</b> 1 Action (Use Object)<br><b>Price:</b> 60 gold / 40 gold</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "formula": "",
+      "effect": "Heals 2d8 + 2 HP",
+      "heal": "2d8 + 2",
+      "incarna": "",
+      "actions": 1,
+      "price": "60 gold / 40 gold"
+    },
+    "effects": [],
+    "folder": "kAQ3Cz7Rn6iNt6r1",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "8iDJe10o5GHZmUy9",
+    "_key": "!items!8iDJe10o5GHZmUy9",
+    "name": "Incarna Potion",
+    "type": "item",
+    "img": "icons/consumables/potions/bottle-conical-corked-blue.webp",
+    "system": {
+      "description": "<p>A tall blue flask that hums faintly against the glass. Drinking it refills the elemental energy you spend on spells.</p><p><b>Effect:</b> Restores 3d6 IP<br><b>Cost:</b> 1 Action (Use Object)<br><b>Price:</b> 120 gold / 80 gold</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "quantity": 1,
+      "weight": 0,
+      "formula": "",
+      "effect": "Restores 3d6 IP",
+      "heal": "",
+      "incarna": "3d6",
+      "actions": 1,
+      "price": "120 gold / 80 gold"
+    },
+    "effects": [],
+    "folder": "kAQ3Cz7Rn6iNt6r1",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "RrIXVTvm6qGFvCoV",
+    "_key": "!folders!RrIXVTvm6qGFvCoV",
+    "name": "Equipment",
+    "type": "Item",
+    "folder": null,
+    "sorting": "a",
+    "sort": 200000,
+    "color": null,
+    "description": "",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "pHCSVXwM6gjEEpVt",
+    "_key": "!items!pHCSVXwM6gjEEpVt",
+    "name": "Incarna Weapon Modifier",
+    "type": "item",
+    "img": "icons/commodities/gems/gem-faceted-cushion-teal.webp",
+    "system": {
+      "description": "<p>A small faceted crystal charged with Incarna. Set into a weapon's grip or worn close to the hand, it steadies every strike.</p><p><b>Effect:</b> Your weapon attacks get +1.<br><b>Bonus:</b> +1 Attack</p>",
+      "passivesEnabled": true,
+      "passives": {
+        "bonus1": {
+          "stat": "attack",
+          "value": 1,
+          "description": "+1 Attack"
+        }
+      },
+      "quantity": 1,
+      "weight": 0,
+      "formula": "",
+      "effect": "Your weapon attacks get +1.",
+      "heal": "",
+      "incarna": "",
+      "actions": 1,
+      "price": ""
+    },
+    "effects": [],
+    "folder": "RrIXVTvm6qGFvCoV",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

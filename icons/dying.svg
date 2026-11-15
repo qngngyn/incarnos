@@ -1,0 +1,19 @@
+<!-- Dying condition icon (Incarnos system): a figure collapsed on one knee, propped up on one arm. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#000000">
+      <path d="M78 456H434" stroke-width="40"/>
+      <path d="M128 428H286L226 318" stroke-width="76"/>
+      <path d="M226 318L302 206" stroke-width="96"/>
+      <path d="M304 214L352 316L382 424" stroke-width="66"/>
+    </g>
+    <circle cx="356" cy="196" r="60" fill="#000000"/>
+    <g stroke="#ffffff">
+      <path d="M78 456H434" stroke-width="18"/>
+      <path d="M128 428H286L226 318" stroke-width="52"/>
+      <path d="M226 318L302 206" stroke-width="72"/>
+      <path d="M304 214L352 316L382 424" stroke-width="42"/>
+    </g>
+    <circle cx="356" cy="196" r="46" fill="#ffffff"/>
+  </g>
+</svg>

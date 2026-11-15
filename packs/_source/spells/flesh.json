@@ -1,0 +1,151 @@
+[
+  {
+    "_id": "IMVBXFwoY8CrBloP",
+    "_key": "!folders!IMVBXFwoY8CrBloP",
+    "name": "Flesh",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 1200000,
+    "color": null,
+    "description": "Earth Affinity: You have resistance to earth dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "QLkdNcpyjvYHEFkQ",
+    "_key": "!items!QLkdNcpyjvYHEFkQ",
+    "name": "Human Centipede",
+    "type": "spell",
+    "img": "icons/magic/unholy/hand-claw-glow-orange.webp",
+    "system": {
+      "description": "<p>In a violent burst, multiple claw-bearing arms grow out of your body granting you the flurry of claws ability.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Flesh",
+      "category": "Buff",
+      "cost": "1 Action, 3 IP times 4d4",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 0,
+      "range": "Self",
+      "target": "Self",
+      "check": "IP costs / Attack Weapon (no bonus)",
+      "duration": "1 turn",
+      "effect": "On cast: \nRoll the IP costs and pay it, and gain the Flurry of Claws Action.\nWhen your HP runs out, turn into a 20-armed entity that attacks any creature that steps into range.\nThis creature can be killed and has 10 HP.\nAfter the duration, lose Flurry of Claws Action and regain 10 HP (and regain old form).\n\nFlurry of Claws (1 Attack Action without weaponbonus):\nAttack your target in melee and deal 1d4 * (number of arms) dmg"
+    },
+    "effects": [],
+    "folder": "IMVBXFwoY8CrBloP",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "Svt9I6ZR6FEQ2jmZ",
+    "_key": "!items!Svt9I6ZR6FEQ2jmZ",
+    "name": "Meat Augmentation",
+    "type": "spell",
+    "img": "icons/magic/acid/dissolve-arm-flesh.webp",
+    "system": {
+      "description": "<p>The user is able to regrow body parts and attach them onto others. Limbs that are in itself self-sufficient and therefore have their own will. Little is known on how they have this intelligence. Most suspect it is more of an instinct imbued than a actual intelligence. These body parts die easily when not kept alive by the caster's will.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Flesh",
+      "category": "Everything",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "6m",
+      "target": "Single Ally",
+      "check": "Caster Save Wil (for each part)",
+      "duration": "varied",
+      "effect": "On cast: Choose one body part down below (each has a different utility)\nEnd of affected ally turn: The part rots away (stays intact, when save succeeded).\n- · 3 turns\nExtra arms:\nParry +2\nOR\nGives advantage on ally attacks\n- · 3 turns\nExtra eye:\nWeaponattack +2\nCaster Save Wil+2 · 2 turns\nPuss bubble:\nOn enemy hit: Attacker takes 3d6 + (lvl * 1) earth dmg and Puss bubble is destroyed.\nCaster Save Wil+2: \nOn Success: Puss bubble restores.\n- · 2 turns\nPulsating ulcer: \n2 less damage taken on every instance \nAfter 2 turns affected ally: \nTurns into chaotic fleshball that is controlled by the caster\nBonus Action when consuming Fleshball\n3m (1,5m radius) · Ground Circle\n- · 1 turn\nChaotic Fleshball (only from Pulsating ulcer): \nExplode and deal 3d6 + (lvl * 1) earth dmg \nOR\n Be consumed by the caster to heal 2d6 + (lvl * 1) hp"
+    },
+    "effects": [],
+    "folder": "IMVBXFwoY8CrBloP",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "ERBMNUs71OLzKP5W",
+    "_key": "!items!ERBMNUs71OLzKP5W",
+    "name": "Soft tissue",
+    "type": "spell",
+    "img": "icons/magic/control/buff-strength-muscle-damage-red.webp",
+    "system": {
+      "description": "<p>The user softens its on tissue, making sure that any kind of damage is kept at a minimum. Softened tissue has increased flexibility and bounces off physical attacks.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Flesh",
+      "category": "Buff",
+      "cost": "2 Reactions, 10 IP",
+      "actions": 2,
+      "actionType": "reaction",
+      "mp": 10,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "3 turns",
+      "effect": "On cast: \nGains resistance to all physical dmg (blunt, piercing, slashing)"
+    },
+    "effects": [],
+    "folder": "IMVBXFwoY8CrBloP",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

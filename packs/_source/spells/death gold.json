@@ -1,0 +1,109 @@
+[
+  {
+    "_id": "BCuYjZxQGBqopO0P",
+    "_key": "!folders!BCuYjZxQGBqopO0P",
+    "name": "Death Gold",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 600000,
+    "color": null,
+    "description": "Death Gold Affinity: You keep the Earth affinity (resistance to earth dmg).",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "qXlJpwpF4Ektrpmd",
+    "_key": "!items!qXlJpwpF4Ektrpmd",
+    "name": "Death Gold's Embrace",
+    "type": "spell",
+    "img": "icons/magic/defensive/shield-hex-gold.webp",
+    "system": {
+      "description": "<p>&quot;The safety brought forth by dead gold is never long-lasting.&quot;</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Death Gold",
+      "category": "Utility / Buff",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast: You gain Xd12 points of barrier (X = your level).\nAt the start of each of your turns, you take Xd4 dmg. You keep taking this damage until you lose the barrier."
+    },
+    "effects": [],
+    "folder": "BCuYjZxQGBqopO0P",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "kBhFohmhSw79jLlN",
+    "_key": "!items!kBhFohmhSw79jLlN",
+    "name": "Deathy Golden Coating",
+    "type": "spell",
+    "img": "icons/weapons/swords/sword-gold-holy.webp",
+    "system": {
+      "description": "<p>&quot;The everhateful energies of Death gold leeches the life of everything, no matter who or what.&quot;</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Death Gold",
+      "category": "Utility / Buff",
+      "cost": "1 Action, 20 IP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 20,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "5 turns",
+      "effect": "Prerequisite: You wield a melee weapon.\nWhile the spell lasts: Your attack rolls get +X and your weapon deals +Xd4 earth dmg (X = your level).\nAt the start of each of your turns, you take Xd4 dmg."
+    },
+    "effects": [],
+    "folder": "BCuYjZxQGBqopO0P",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]

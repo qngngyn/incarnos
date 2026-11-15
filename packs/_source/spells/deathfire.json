@@ -1,0 +1,235 @@
+[
+  {
+    "_id": "bNWLzBgR0znLIXxv",
+    "_key": "!folders!bNWLzBgR0znLIXxv",
+    "name": "Deathfire",
+    "type": "Item",
+    "folder": null,
+    "sorting": "m",
+    "sort": 700000,
+    "color": null,
+    "description": "Fire Affinity: You have resistance to fire dmg.",
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "NCNNjAdbn3Zo6J2m",
+    "_key": "!items!NCNNjAdbn3Zo6J2m",
+    "name": "Chains of deathfire",
+    "type": "spell",
+    "img": "icons/magic/fire/flame-burning-chain.webp",
+    "system": {
+      "description": "<p>With chains of deathfire, the enemy is pulled to their doom.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Deathfire",
+      "category": "Attack / Utility",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "6m",
+      "target": "Single Target",
+      "check": "Target Str Save",
+      "duration": "7 turns",
+      "effect": "On cast: \nPull the target toward the user. On a successful save, the target is not moved. Otherwise, the target cannot move and takes 1d6 fire damage. If the user moves, the target moves with them."
+    },
+    "effects": [],
+    "folder": "bNWLzBgR0znLIXxv",
+    "sort": 100000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "joiVbKTOcbEHYfhX",
+    "_key": "!items!joiVbKTOcbEHYfhX",
+    "name": "Death fire elemental",
+    "type": "spell",
+    "img": "icons/magic/death/hand-undead-skeleton-fire-pink.webp",
+    "system": {
+      "description": "<p>From the dead, a fire shall rise and fight.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Deathfire",
+      "category": "Summoning",
+      "cost": "2 Actions, 20 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 20,
+      "range": "12m",
+      "target": "Single Corpse",
+      "check": "No Check",
+      "duration": "10 turns",
+      "effect": "On cast:\nSpawn a deathfire elemental at target corpse location. \n\nThe elemental:\n- Cannot hold, carry items or speak.\n- Attacks deal 1d8 fire damage.\n- Has 10 stats across the board.\n\nEmpower: You may spend additional IP when summoning it to make it stronger:\n- +20 IP: +1 size, +5 to all stats, +1d8 fire damage\n- +40 IP: +2 sizes, +10 to all stats, +2d8 fire damage\n- +60 IP: +3 sizes, +15 to all stats, +3d8 fire damage"
+    },
+    "effects": [],
+    "folder": "bNWLzBgR0znLIXxv",
+    "sort": 200000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "zHQQrJBEI1TFr1vQ",
+    "_key": "!items!zHQQrJBEI1TFr1vQ",
+    "name": "Death for Fire",
+    "type": "spell",
+    "img": "icons/magic/unholy/strike-body-life-soul-purple.webp",
+    "system": {
+      "description": "<p>Give your body to death, and spread its fire.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Deathfire",
+      "category": "Utility",
+      "cost": "1 Action, X HP",
+      "actions": 1,
+      "actionType": "action",
+      "mp": 0,
+      "range": "Self",
+      "target": "Self",
+      "check": "No Check",
+      "duration": "Instant",
+      "effect": "On cast:\nThis spell costs HP instead of IP. Recover the amount of IP you spend HP."
+    },
+    "effects": [],
+    "folder": "bNWLzBgR0znLIXxv",
+    "sort": 300000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "tYYn1Yrzy5rA9UNh",
+    "_key": "!items!tYYn1Yrzy5rA9UNh",
+    "name": "Deathfire grasp",
+    "type": "spell",
+    "img": "icons/magic/fire/flame-burning-hand-purple.webp",
+    "system": {
+      "description": "<p>Grasp the enemy with deathfire, burning away the enemies soul and adding it to your own.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Deathfire",
+      "category": "Attack / Utility",
+      "cost": "2 Actions, 10 IP",
+      "actions": 2,
+      "actionType": "action",
+      "mp": 10,
+      "range": "Touch",
+      "target": "Single Target",
+      "check": "Target Wil Save",
+      "duration": "Instant",
+      "effect": "On cast:\nDeal 4d6 fire damage and heal the same amount."
+    },
+    "effects": [],
+    "folder": "bNWLzBgR0znLIXxv",
+    "sort": 400000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  },
+  {
+    "_id": "6gqdAJqyFboTeGKf",
+    "_key": "!items!6gqdAJqyFboTeGKf",
+    "name": "Greatsword of Death",
+    "type": "spell",
+    "img": "icons/magic/death/weapon-sword-skull-purple.webp",
+    "system": {
+      "description": "<p>Coat your weapon in a roaring mass of deathfire, shaping it into a colossal blade. With a single sweeping strike, reap everything caught in its path.</p>",
+      "passivesEnabled": true,
+      "passives": {},
+      "spellLevel": 1,
+      "element": "Deathfire",
+      "category": "Buff",
+      "cost": "3 Actions, 20 IP",
+      "actions": 3,
+      "actionType": "action",
+      "mp": 20,
+      "range": "6m (1,5m width) / 3m half circle",
+      "target": "Line or half circle from User",
+      "check": "No Check",
+      "duration": "5 turns",
+      "effect": "On cast:\nYour held weapon becomes engulfed in deathfire, temporarily transforming it into a Greatsword for 5 turns.\nThis weapon deals 1d12 + (lvl * 1).\n\nWhenever you attack with the Greatsword of Death, choose one of the following AoE shapes:\n\nHalfcircle: 3-meter radius\nLine: 6 meters long\n\nMake one Weapon Attack roll. That roll is treated as an attack against every unit within the chosen AoE."
+    },
+    "effects": [],
+    "folder": "bNWLzBgR0znLIXxv",
+    "sort": 500000,
+    "ownership": {
+      "default": 0
+    },
+    "flags": {},
+    "_stats": {
+      "coreVersion": "14.364",
+      "systemId": "incarnos",
+      "systemVersion": "1.4.0",
+      "createdTime": null,
+      "modifiedTime": null,
+      "lastModifiedBy": null,
+      "compendiumSource": null,
+      "duplicateSource": null,
+      "exportSource": null
+    }
+  }
+]
